@@ -12,12 +12,15 @@
 
     <name>Gleaner Real Time</name>
 
+    <properties>
+        <storm.version>0.9.3</storm.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.storm</groupId>
             <artifactId>storm-core</artifactId>
-            <version>0.9.2-incubating</version>
-            <scope>provided</scope>
+            <version>${storm.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
@@ -25,9 +28,29 @@
             <version>2.12.3</version>
         </dependency>
         <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-            <version>2.5.2</version>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_2.10</artifactId>
+            <version>0.8.1.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.zookeeper</groupId>
+                    <artifactId>zookeeper</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.storm</groupId>
+            <artifactId>storm-kafka</artifactId>
+            <version>${storm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.3.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -51,12 +74,12 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
+                    <descriptors>
+                        <descriptor>src/assembly/jar.xml</descriptor>
+                    </descriptors>
                     <archive>
                         <manifest>
-                            <mainClass/>
+                            <mainClass>es.eucm.gleaner.realtime.RealTime</mainClass>
                         </manifest>
                     </archive>
                     <finalName>realtime</finalName>
