@@ -5,11 +5,15 @@ import com.mongodb.DB;
 import com.mongodb.DBObject;
 import es.eucm.gleaner.realtime.utils.DBUtils;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import storm.trident.state.OpaqueValue;
 
 import java.util.List;
 
 public class MongoGameplayState extends GameplayState {
+	private static final Logger LOG = LoggerFactory
+			.getLogger(GameplayState.class);
 
 	private DB db;
 
@@ -21,10 +25,14 @@ public class MongoGameplayState extends GameplayState {
 	public void setProperty(String versionId, String gameplayId, String key,
 			Object value) {
 		ObjectId _id = new ObjectId(gameplayId);
-		DBUtils.getRealtimeResults(db, versionId).update(
-				new BasicDBObject("_id", _id),
-				new BasicDBObject("$set", new BasicDBObject(key, value)), true,
-				false);
+		try {
+			DBUtils.getRealtimeResults(db, versionId).update(
+					new BasicDBObject("_id", _id),
+					new BasicDBObject("$set", new BasicDBObject(key, value)),
+					true, false);
+		} catch (Exception e) {
+			LOG.error("Error setting property " + key + "=" + value, e);
+		}
 	}
 
 	@Override
@@ -33,10 +41,14 @@ public class MongoGameplayState extends GameplayState {
 
 		setProperty(versionId, gameplayId, buildKey(keys), value.getCurr());
 		String key = toKey(gameplayId, keys);
-		DBUtils.getOpaqueValues(db, versionId).update(
-				new BasicDBObject("key", key),
-				new BasicDBObject("$set", new BasicDBObject("value",
-						toDBObject(value))), true, false);
+		try {
+			DBUtils.getOpaqueValues(db, versionId).update(
+					new BasicDBObject("key", key),
+					new BasicDBObject("$set", new BasicDBObject("value",
+							toDBObject(value))), true, false);
+		} catch (Exception e) {
+			LOG.error("Error setting property " + key + "=" + value, e);
+		}
 	}
 
 	@Override
@@ -64,9 +76,9 @@ public class MongoGameplayState extends GameplayState {
 		return dbObject;
 	}
 
-	private String buildKey(List<Object> keys){
+	private String buildKey(List<Object> keys) {
 		String result = "";
-		for (Object key: keys){
+		for (Object key : keys) {
 			result += key + ".";
 		}
 		return result.substring(0, result.length() - 1);
