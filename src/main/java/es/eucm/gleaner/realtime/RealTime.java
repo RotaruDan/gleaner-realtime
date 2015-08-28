@@ -30,7 +30,7 @@ public class RealTime {
 
 		conf.put("mongoHost", "localhost");
 		conf.put("mongoPort", 27017);
-		conf.put("mongoDB", "gleaner");
+		conf.put("mongoDB", "lrs");
 
 		if (args.length == 2 && "debug".equals(args[0])) {
 			LocalCluster cluster = new LocalCluster();
