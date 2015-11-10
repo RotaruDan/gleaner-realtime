@@ -19,8 +19,8 @@ public class KafkaTopology extends RealtimeTopology {
 		this.sessionId = sessionId;
 	}
 
-	public void prepare(StateFactory stateFactory) {
-		BrokerHosts zk = new ZkHosts("localhost:2181");
+	public void prepare(StateFactory stateFactory, String zookeeperUrl) {
+		BrokerHosts zk = new ZkHosts(zookeeperUrl);
 		TridentKafkaConfig spoutConf = new TridentKafkaConfig(zk, sessionId,
 				sessionId);
 		spoutConf.forceFromStart = true;
@@ -35,3 +35,4 @@ public class KafkaTopology extends RealtimeTopology {
 				new Fields("versionId", "trace"));
 	}
 }
+

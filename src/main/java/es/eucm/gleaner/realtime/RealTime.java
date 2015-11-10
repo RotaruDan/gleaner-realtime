@@ -14,11 +14,11 @@ import java.util.Map;
 
 public class RealTime {
 
-	private static StormTopology buildTopology(Map conf, String sessionId) {
+	private static StormTopology buildTopology(Map conf, String sessionId, String zookeeperUrl) {
 		DBUtils.startRealtime(DBUtils.getMongoDB(conf), sessionId);
 
 		KafkaTopology kafkaTopology = new KafkaTopology(sessionId);
-		kafkaTopology.prepare(new MongoStateFactory());
+		kafkaTopology.prepare(new MongoStateFactory(), zookeeperUrl);
 		return kafkaTopology.build();
 	}
 
@@ -50,17 +50,18 @@ public class RealTime {
 
 		Config conf = new Config();
         String sessionId = args[0];
+		String zookeeperUrl = args[2];
         setUpConfig(conf, args[1]);
 
-		if (args.length == 3 && "debug".equals(args[2])) {
+		if (args.length == 4 && "debug".equals(args[3])) {
 			LocalCluster cluster = new LocalCluster();
 			cluster.submitTopology(sessionId, conf,
-					buildTopology(conf, sessionId));
+					buildTopology(conf, sessionId, zookeeperUrl));
 		} else {
 			try {
 				System.out.println("Starting analysis of session " + sessionId);
 				StormSubmitter.submitTopology(sessionId, conf,
-						buildTopology(conf, sessionId));
+						buildTopology(conf, sessionId, zookeeperUrl));
 			} catch (AlreadyAliveException e) {
 				e.printStackTrace();
 			} catch (InvalidTopologyException e) {
@@ -69,3 +70,4 @@ public class RealTime {
 		}
 	}
 }
+

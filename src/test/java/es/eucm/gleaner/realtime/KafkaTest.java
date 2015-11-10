@@ -15,7 +15,7 @@ public class KafkaTest {
 		DBUtils.startRealtime(DBUtils.getMongoDB(conf), version);
 
 		KafkaTopology kafkaTopology = new KafkaTopology(version);
-		kafkaTopology.prepare(new MongoStateFactory());
+		kafkaTopology.prepare(new MongoStateFactory(), "localhost:2181");
 		return kafkaTopology.build();
 	}
 
@@ -30,3 +30,4 @@ public class KafkaTest {
 	}
 
 }
+
