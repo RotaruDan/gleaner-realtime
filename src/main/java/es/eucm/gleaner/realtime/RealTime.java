@@ -29,7 +29,8 @@ import java.util.Map;
 
 public class RealTime {
 
-	private static StormTopology buildTopology(Map conf, String sessionId, String zookeeperUrl) {
+	private static StormTopology buildTopology(Map conf, String sessionId,
+			String zookeeperUrl) {
 		DBUtils.startRealtime(DBUtils.getMongoDB(conf), sessionId);
 
 		KafkaTopology kafkaTopology = new KafkaTopology(sessionId);
@@ -37,36 +38,39 @@ public class RealTime {
 		return kafkaTopology.build();
 	}
 
-    /**
-     * Configures the default values for the 'conf' parameter.
-     * @param conf
-     * @param mongodbUrl
-     */
-    private static void setUpConfig(Config conf, String mongodbUrl){
-        conf.setNumWorkers(1);
-        conf.setMaxSpoutPending(500);
+	/**
+	 * Configures the default values for the 'conf' parameter.
+	 * 
+	 * @param conf
+	 * @param mongodbUrl
+	 */
+	private static void setUpConfig(Config conf, String mongodbUrl) {
+		conf.setNumWorkers(1);
+		conf.setMaxSpoutPending(500);
 
-        String partsStr = mongodbUrl.split("://")[1];
-        String[] parts = partsStr.split("/");
-        String[] hostPort = parts[0].split(":");
+		String partsStr = mongodbUrl.split("://")[1];
+		String[] parts = partsStr.split("/");
+		String[] hostPort = parts[0].split(":");
 
-        conf.put("mongoHost", hostPort[0]);
-        conf.put("mongoPort", Integer.valueOf(hostPort[1]));
-        conf.put("mongoDB", parts[1]);
-    }
+		conf.put("mongoHost", hostPort[0]);
+		conf.put("mongoPort", Integer.valueOf(hostPort[1]));
+		conf.put("mongoDB", parts[1]);
+	}
 
-    /**
-     *
-     * @param args either [<sessionId>, <mongodbUrl>, 'debug'] (local cluster)
-     *             or [<sessionId>, <mongodbUrl>] for production mode.
-     *             'mongodbUrl' has the following format: 'mongodb://<mongoHost>:<mongoPort>/<mongoDB>'
-     */
+	/**
+	 * 
+	 * @param args
+	 *            either [<sessionId>, <mongodbUrl>, 'debug'] (local cluster) or
+	 *            [<sessionId>, <mongodbUrl>] for production mode. 'mongodbUrl'
+	 *            has the following format:
+	 *            'mongodb://<mongoHost>:<mongoPort>/<mongoDB>'
+	 */
 	public static void main(String[] args) {
 
 		Config conf = new Config();
-        String sessionId = args[0];
+		String sessionId = args[0];
 		String zookeeperUrl = args[2];
-        setUpConfig(conf, args[1]);
+		setUpConfig(conf, args[1]);
 
 		if (args.length == 4 && "debug".equals(args[3])) {
 			LocalCluster cluster = new LocalCluster();
@@ -85,4 +89,3 @@ public class RealTime {
 		}
 	}
 }
-

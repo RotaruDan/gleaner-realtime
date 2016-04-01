@@ -36,7 +36,8 @@ public class PropertyCreator implements Function {
 
 	@Override
 	public void execute(TridentTuple tuple, TridentCollector collector) {
-		collector.emit(Arrays.asList(toPropertyKey(tuple),tuple.getValueByField(valueField)));
+		collector.emit(Arrays.asList(toPropertyKey(tuple),
+				tuple.getValueByField(valueField)));
 	}
 
 	public String toPropertyKey(TridentTuple tuple) {

@@ -50,4 +50,3 @@ public class KafkaTopology extends RealtimeTopology {
 				new Fields("versionId", "trace"));
 	}
 }
-
