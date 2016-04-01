@@ -95,6 +95,33 @@
                 </executions>
             </plugin>
 
+            <!-- Set up the LICENSE Header plugin -->
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>2.11</version>
+                <configuration>
+                    <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
+                    <properties>
+                        <project.inceptionYear>2016</project.inceptionYear>
+                        <owner>e-UCM</owner>
+                        <email>http://www.e-ucm.es/</email>
+                    </properties>
+                    <excludes>
+                        <exclude>**/README</exclude>
+                        <exclude>src/test/resources/**</exclude>
+                        <exclude>src/main/resources/**</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
             <!-- Set up the Cobertura Maven plugin in the build section of the project pom.xml -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
