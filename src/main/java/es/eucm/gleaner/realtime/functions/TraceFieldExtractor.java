@@ -44,7 +44,6 @@ public class TraceFieldExtractor implements Function {
 	@Override
 	public void prepare(Map conf, TridentOperationContext context) {
 
-        System.out.println();
 	}
 
 	@Override

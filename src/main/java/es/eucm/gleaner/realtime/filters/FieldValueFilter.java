@@ -23,18 +23,18 @@ import java.util.Map;
 
 public class FieldValueFilter implements Filter {
 
-    private String field;
+	private String field;
 
 	private Object value;
 
 	public FieldValueFilter(String field, Object value) {
-        this.field = field;
-        this.value = value;
+		this.field = field;
+		this.value = value;
 	}
 
 	@Override
 	public boolean isKeep(TridentTuple objects) {
-        return value.equals(objects.getValueByField("event"));
+		return value.equals(objects.getValueByField("event"));
 	}
 
 	@Override

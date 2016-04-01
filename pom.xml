@@ -139,6 +139,27 @@
                 </executions>
             </plugin>
 
+            <!-- Java formatter -->
+            <plugin>
+                <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
+                <artifactId>maven-java-formatter-plugin</artifactId>
+                <version>0.4</version>
+                <configuration>
+                    <compilerCompliance>${java.version}</compilerCompliance>
+                    <compilerSource>${java.version}</compilerSource>
+                    <configFile>eclipse-formatter.xml</configFile>
+                    <lineEnding>KEEP</lineEnding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Set up the Cobertura Maven plugin in the build section of the project pom.xml -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
