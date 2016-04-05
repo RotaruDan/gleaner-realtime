@@ -88,4 +88,12 @@ public class RealTime {
 			}
 		}
 	}
+
+	//Storm flux function
+	public StormTopology getTopology(Map<String, Object> conf) {
+		DBUtils.startRealtime(DBUtils.getMongoDB(conf), conf.get("sessionId").toString());
+		KafkaTopology kafkaTopology = new KafkaTopology(conf.get("sessionId").toString());
+		kafkaTopology.prepare(new MongoStateFactory(), conf.get("zookeeperUrl").toString());
+		return kafkaTopology.build();
+	}
 }

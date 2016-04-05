@@ -25,7 +25,7 @@ import java.util.Map;
 
 public class DBUtils {
 
-	public static DB getMongoDB(Map conf) {
+	public static DB getMongoDB(Map<String, Object> conf) {
 		try {
 			return new MongoClient((String) conf.get("mongoHost"),
 					((Number) conf.get("mongoPort")).intValue())
