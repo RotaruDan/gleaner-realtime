@@ -25,10 +25,10 @@ FROM maven
 ENV USER_NAME="user" \
     WORK_DIR="/app" \
     OUTPUT_VOL="/app/output" \
-    OUTPUT_JAR="target/realtime-jar-with-dependencies.jar"
+    OUTPUT_JAR="realtime/target/realtime-jar-with-dependencies.jar"
 
 # setup sources, user, group and workdir
-COPY ./ ${WORK_DIR}/
+COPY ./ ${WORK_DIR}/realtime
 RUN groupadd -r ${USER_NAME} \
     && mkdir ${OUTPUT_VOL}\
     && useradd -r -d ${WORK_DIR} -g ${USER_NAME} ${USER_NAME} \
@@ -38,8 +38,8 @@ USER ${USER_NAME}
 WORKDIR ${WORK_DIR}
 
 # build, remove downloaded/unneeded jars, and expose results
-RUN mvn install \
-    && rm -rf .m2
+RUN cd realtime && mvn license:format && mvn install  \
+    && rm -rf ../.m2
 
 VOLUME ${OUTPUT_VOL}
 

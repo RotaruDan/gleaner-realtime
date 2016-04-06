@@ -155,6 +155,9 @@
                     <compilerSource>${java.version}</compilerSource>
                     <configFile>eclipse-formatter.xml</configFile>
                     <lineEnding>KEEP</lineEnding>
+		    <excludes>
+		        <exclude>**/.m2/</exclude>
+		    </excludes>
                 </configuration>
                 <executions>
                     <execution>
