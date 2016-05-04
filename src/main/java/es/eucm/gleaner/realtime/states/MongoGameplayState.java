@@ -39,14 +39,16 @@ public class MongoGameplayState extends GameplayState {
 	@Override
 	public void setProperty(String versionId, String gameplayId, String key,
 			Object value) {
-		ObjectId _id = new ObjectId(gameplayId);
+
 		try {
+			ObjectId _id = new ObjectId(gameplayId);
+
 			DBUtils.getRealtimeResults(db, versionId).update(
 					new BasicDBObject("_id", _id),
 					new BasicDBObject("$set", new BasicDBObject(key, value)),
 					true, false);
 		} catch (Exception e) {
-			LOG.error("Error setting property " + key + "=" + value, e);
+			LOG.error("Error setting property " + key + "=" + value + e.getStackTrace());
 		}
 	}
 
