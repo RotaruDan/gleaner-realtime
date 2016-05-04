@@ -21,6 +21,7 @@ import backtype.storm.StormSubmitter;
 import backtype.storm.generated.AlreadyAliveException;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.StormTopology;
+import es.eucm.gleaner.realtime.utils.EsConfig;
 import es.eucm.gleaner.realtime.states.MongoStateFactory;
 import es.eucm.gleaner.realtime.topologies.KafkaTopology;
 import es.eucm.gleaner.realtime.utils.DBUtils;
@@ -34,7 +35,10 @@ public class RealTime {
 		DBUtils.startRealtime(DBUtils.getMongoDB(conf), sessionId);
 
 		KafkaTopology kafkaTopology = new KafkaTopology(sessionId);
-		kafkaTopology.prepare(new MongoStateFactory(), zookeeperUrl);
+
+		String elasticsearchUrl = conf.get("elasticsearchUrl").toString();
+		EsConfig esConfig = new EsConfig(elasticsearchUrl, sessionId);
+		kafkaTopology.prepare(new MongoStateFactory(), zookeeperUrl, esConfig);
 		return kafkaTopology.build();
 	}
 
@@ -89,11 +93,16 @@ public class RealTime {
 		}
 	}
 
-	//Storm flux function
+	// Storm flux function
 	public StormTopology getTopology(Map<String, Object> conf) {
-		DBUtils.startRealtime(DBUtils.getMongoDB(conf), conf.get("sessionId").toString());
-		KafkaTopology kafkaTopology = new KafkaTopology(conf.get("sessionId").toString());
-		kafkaTopology.prepare(new MongoStateFactory(), conf.get("zookeeperUrl").toString());
+		String sessionId = conf.get("sessionId").toString();
+		DBUtils.startRealtime(DBUtils.getMongoDB(conf), sessionId);
+		KafkaTopology kafkaTopology = new KafkaTopology(sessionId);
+		String elasticsearchUrl = conf.get("elasticsearchUrl").toString();
+		EsConfig esConfig = new EsConfig(elasticsearchUrl, sessionId);
+		kafkaTopology.prepare(new MongoStateFactory(), conf.get("zookeeperUrl")
+				.toString(), esConfig);
+
 		return kafkaTopology.build();
 	}
 }

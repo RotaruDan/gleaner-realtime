@@ -17,6 +17,7 @@ package es.eucm.gleaner.realtime.topologies;
 
 import backtype.storm.spout.SchemeAsMultiScheme;
 import backtype.storm.tuple.Fields;
+import es.eucm.gleaner.realtime.utils.EsConfig;
 import es.eucm.gleaner.realtime.functions.JsonToTrace;
 import storm.kafka.BrokerHosts;
 import storm.kafka.StringScheme;
@@ -34,14 +35,16 @@ public class KafkaTopology extends RealtimeTopology {
 		this.sessionId = sessionId;
 	}
 
-	public void prepare(StateFactory stateFactory, String zookeeperUrl) {
+	public void prepare(StateFactory stateFactory, String zookeeperUrl,
+			EsConfig config) {
 		BrokerHosts zk = new ZkHosts(zookeeperUrl);
 		TridentKafkaConfig spoutConf = new TridentKafkaConfig(zk, sessionId,
 				sessionId);
 		spoutConf.forceFromStart = true;
 		spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
 		OpaqueTridentKafkaSpout spout = new OpaqueTridentKafkaSpout(spoutConf);
-		super.prepare(newStream("kafka-spout", spout), stateFactory);
+
+		super.prepare(newStream("kafka-spout", spout), stateFactory, config);
 	}
 
 	@Override

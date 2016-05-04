@@ -16,52 +16,53 @@
 package es.eucm.gleaner.realtime.topologies;
 
 import backtype.storm.tuple.Fields;
+import es.eucm.gleaner.realtime.utils.EsConfig;
+import es.eucm.gleaner.realtime.states.DocumentBuilder;
 import es.eucm.gleaner.realtime.filters.FieldValueFilter;
 import es.eucm.gleaner.realtime.functions.PropertyCreator;
 import es.eucm.gleaner.realtime.functions.TraceFieldExtractor;
+import es.eucm.gleaner.realtime.states.ESStateFactory;
 import es.eucm.gleaner.realtime.states.GameplayStateUpdater;
+import es.eucm.gleaner.realtime.states.TraceStateUpdater;
 import storm.trident.Stream;
 import storm.trident.TridentTopology;
+import storm.trident.fluent.GroupedStream;
 import storm.trident.operation.builtin.Count;
 import storm.trident.spout.ITridentSpout;
 import storm.trident.state.StateFactory;
-import storm.trident.state.StateUpdater;
 
 public class RealtimeTopology extends TridentTopology {
 
-	public <T> void prepare(ITridentSpout<T> spout, StateFactory stateFactory) {
-		prepare(newStream("traces", spout), stateFactory);
+	public <T> void prepareTest(ITridentSpout<T> spout,
+			StateFactory stateFactory, EsConfig esConfig) {
+		prepare(newStream("traces", spout), stateFactory, esConfig);
 	}
 
-	/**
-	 * @param traces
-	 *            a stream with two fields: a versionId {@link String} and a
-	 *            trace {@link java.util.Map}
-	 */
-	public void prepare(Stream traces, StateFactory stateFactory) {
+	public void prepare(Stream traces, StateFactory stateFactory,
+			EsConfig esConfig) {
 
-		StateUpdater stateUpdater = new GameplayStateUpdater();
+		GameplayStateUpdater gameplayStateUpdater = new GameplayStateUpdater();
 
-		Stream eventStream = createTracesStream(traces).each(
-				new Fields("trace"),
-				new TraceFieldExtractor("gameplayId", "event"),
-				new Fields("gameplayId", "event"));
+		Stream tracesStream = createTracesStream(traces);
+
+		/** ---> Analysis definition <--- **/
+
+		Stream eventStream = tracesStream.each(new Fields("trace"),
+				new TraceFieldExtractor("gameplayId", "event"), new Fields(
+						"gameplayId", "event"));
 
 		// Zones
-		eventStream
+		Stream zonesTridentStream = eventStream
 				.each(new Fields("event", "trace"),
 						new FieldValueFilter("event", "zone"))
 				.each(new Fields("trace"), new TraceFieldExtractor("value"),
 						new Fields("value"))
 				.each(new Fields("event", "value"),
 						new PropertyCreator("value", "event"),
-						new Fields("p", "v"))
-				.partitionPersist(stateFactory,
-						new Fields("versionId", "gameplayId", "p", "v"),
-						stateUpdater);
+						new Fields("p", "v"));
 
 		// Variables
-		eventStream
+		Stream variablesTridentStream = eventStream
 				.each(new Fields("event", "trace"),
 						new FieldValueFilter("event", "var"))
 				.each(new Fields("trace"),
@@ -69,13 +70,10 @@ public class RealtimeTopology extends TridentTopology {
 						new Fields("var", "value"))
 				.each(new Fields("event", "var", "value"),
 						new PropertyCreator("value", "event", "var"),
-						new Fields("p", "v"))
-				.partitionPersist(stateFactory,
-						new Fields("versionId", "gameplayId", "p", "v"),
-						stateUpdater);
+						new Fields("p", "v"));
 
 		// Choices
-		eventStream
+		GroupedStream choicesTridentStream = eventStream
 				.each(new Fields("event", "trace"),
 						new FieldValueFilter("event", "choice"))
 				.each(new Fields("trace"),
@@ -83,20 +81,63 @@ public class RealtimeTopology extends TridentTopology {
 						new Fields("choice", "option"))
 				.groupBy(
 						new Fields("versionId", "gameplayId", "event",
-								"choice", "option"))
-				.persistentAggregate(stateFactory, new Count(),
-						new Fields("count"));
+								"choice", "option"));
 
 		// Interactions
-		eventStream
+		GroupedStream interactionsTridentStream = eventStream
 				.each(new Fields("event", "trace"),
 						new FieldValueFilter("event", "interact"))
 				.each(new Fields("trace"), new TraceFieldExtractor("target"),
 						new Fields("target"))
 				.groupBy(
-						new Fields("versionId", "gameplayId", "event", "target"))
-				.persistentAggregate(stateFactory, new Count(),
-						new Fields("count"));
+						new Fields("versionId", "gameplayId", "event", "target"));
+
+		/** ---> Results Persistance: Mongo DB & ElasticSearch <--- **/
+
+		// Output the GameplayState to Mongo DB
+
+		// Mongo DB Zone Persist
+		zonesTridentStream.partitionPersist(stateFactory, new Fields(
+				"versionId", "gameplayId", "p", "v"), gameplayStateUpdater);
+
+		// MongoDB Variables Persist
+		variablesTridentStream.partitionPersist(stateFactory, new Fields(
+				"versionId", "gameplayId", "p", "v"), gameplayStateUpdater);
+
+		choicesTridentStream.persistentAggregate(stateFactory, new Count(),
+				new Fields("count"));
+
+		interactionsTridentStream.persistentAggregate(stateFactory,
+				new Count(), new Fields("count"));
+
+		// Elastic Search Output
+		if (esConfig != null) {
+
+			// Send the received traces directly to
+			ESStateFactory factory = new ESStateFactory(esConfig);
+			tracesStream.each(new Fields("trace"),
+					new DocumentBuilder(esConfig.getSessionId()),
+					new Fields("document")).partitionPersist(factory,
+					new Fields("document"), new TraceStateUpdater());
+
+			// Output the GameplayState to Elasticsearch
+
+			// Zones ES Persist
+			zonesTridentStream.partitionPersist(factory, new Fields(
+					"versionId", "gameplayId", "p", "v"), gameplayStateUpdater);
+
+			// Variables ES Persist
+			variablesTridentStream.partitionPersist(factory, new Fields(
+					"versionId", "gameplayId", "p", "v"), gameplayStateUpdater);
+
+			// Choices ES Persist
+			choicesTridentStream.persistentAggregate(factory, new Count(),
+					new Fields("count"));
+
+			// Interactions ES Persist
+			interactionsTridentStream.persistentAggregate(factory, new Count(),
+					new Fields("count"));
+		}
 	}
 
 	protected Stream createTracesStream(Stream stream) {

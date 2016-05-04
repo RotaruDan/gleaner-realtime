@@ -27,6 +27,7 @@ import storm.trident.state.OpaqueValue;
 import java.util.List;
 
 public class MongoGameplayState extends GameplayState {
+
 	private static final Logger LOG = LoggerFactory
 			.getLogger(GameplayState.class);
 
@@ -39,14 +40,17 @@ public class MongoGameplayState extends GameplayState {
 	@Override
 	public void setProperty(String versionId, String gameplayId, String key,
 			Object value) {
-		ObjectId _id = new ObjectId(gameplayId);
+
 		try {
+			ObjectId _id = new ObjectId(gameplayId);
+
 			DBUtils.getRealtimeResults(db, versionId).update(
 					new BasicDBObject("_id", _id),
 					new BasicDBObject("$set", new BasicDBObject(key, value)),
 					true, false);
 		} catch (Exception e) {
-			LOG.error("Error setting property " + key + "=" + value, e);
+			LOG.error("Error setting property " + key + "=" + value
+					+ e.getStackTrace());
 		}
 	}
 
@@ -58,8 +62,8 @@ public class MongoGameplayState extends GameplayState {
 		String key = toKey(gameplayId, keys);
 		try {
 			DBUtils.getOpaqueValues(db, versionId).update(
-					new BasicDBObject("key", key),
-					new BasicDBObject("$set", new BasicDBObject("value",
+					new BasicDBObject(KEY_KEY, key),
+					new BasicDBObject("$set", new BasicDBObject(VALUE_KEY,
 							toDBObject(value))), true, false);
 		} catch (Exception e) {
 			LOG.error("Error setting property " + key + "=" + value, e);
@@ -71,7 +75,7 @@ public class MongoGameplayState extends GameplayState {
 			List<Object> keys) {
 		String key = toKey(gameplayId, keys);
 		DBObject object = DBUtils.getOpaqueValues(db, versionId).findOne(
-				new BasicDBObject("key", key));
+				new BasicDBObject(KEY_KEY, key));
 		return object == null ? null : toOpaqueValue(object);
 	}
 
@@ -85,9 +89,9 @@ public class MongoGameplayState extends GameplayState {
 
 	private DBObject toDBObject(OpaqueValue value) {
 		BasicDBObject dbObject = new BasicDBObject();
-		dbObject.put("txid", value.getCurrTxid());
-		dbObject.put("prev", value.getPrev());
-		dbObject.put("curr", value.getCurr());
+		dbObject.put(TRANSACTION_ID, value.getCurrTxid());
+		dbObject.put(PREVIOUS_VALUE_ID, value.getPrev());
+		dbObject.put(CURRENT_VALUE_ID, value.getCurr());
 		return dbObject;
 	}
 
@@ -109,9 +113,10 @@ public class MongoGameplayState extends GameplayState {
 	}
 
 	private OpaqueValue toOpaqueValue(DBObject dbObject) {
-		DBObject opaqueValue = (DBObject) dbObject.get("value");
-		return new OpaqueValue((Long) opaqueValue.get("txid"),
-				opaqueValue.get("curr"), opaqueValue.get("prev"));
+		DBObject opaqueValue = (DBObject) dbObject.get(VALUE_KEY);
+		return new OpaqueValue((Long) opaqueValue.get(TRANSACTION_ID),
+				opaqueValue.get(CURRENT_VALUE_ID),
+				opaqueValue.get(PREVIOUS_VALUE_ID));
 	}
 
 }

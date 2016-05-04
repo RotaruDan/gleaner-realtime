@@ -25,6 +25,13 @@ import java.util.List;
 
 public abstract class GameplayState implements MapState {
 
+	// Opaque values keys
+	protected static final String TRANSACTION_ID = "txid";
+	protected static final String CURRENT_VALUE_ID = "curr";
+	protected static final String PREVIOUS_VALUE_ID = "prev";
+	protected static final String VALUE_KEY = "value";
+	protected static final String KEY_KEY = "key";
+
 	private MapState mapState;
 
 	public GameplayState() {
