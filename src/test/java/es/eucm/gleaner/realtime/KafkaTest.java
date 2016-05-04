@@ -26,11 +26,11 @@ import java.util.Map;
 
 public class KafkaTest {
 
-	private static StormTopology buildTopology(Map conf, String version) {
-		DBUtils.startRealtime(DBUtils.getMongoDB(conf), version);
+	private static StormTopology buildTopology(Map conf, String session) {
+		DBUtils.startRealtime(DBUtils.getMongoDB(conf), session);
 
-		KafkaTopology kafkaTopology = new KafkaTopology(version);
-		kafkaTopology.prepare(new MongoStateFactory(), "localhost:2181");
+		KafkaTopology kafkaTopology = new KafkaTopology(session);
+		kafkaTopology.prepare(new MongoStateFactory(), "localhost:2181", null);
 		return kafkaTopology.build();
 	}
 

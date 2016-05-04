@@ -46,7 +46,7 @@ public class RealtimeTopologyTest {
 
 		RealtimeTopology topology = new RealtimeTopology();
 		Factory factory = new Factory();
-		topology.prepare(tracesSpout, factory);
+		topology.prepareTest(tracesSpout, factory, null);
 
 		Config conf = new Config();
 		LocalCluster cluster = new LocalCluster();
