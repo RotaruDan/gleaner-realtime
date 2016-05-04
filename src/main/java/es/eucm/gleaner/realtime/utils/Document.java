@@ -20,8 +20,9 @@ import java.io.Serializable;
 
 /**
  * This class should be used to wrap data required to index a document.
- *
- * @param <T> type of the underlying document
+ * 
+ * @param <T>
+ *            type of the underlying document
  */
 public class Document<T> implements Serializable {
 

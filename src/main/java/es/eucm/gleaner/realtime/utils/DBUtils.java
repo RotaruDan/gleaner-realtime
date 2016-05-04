@@ -19,11 +19,20 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.admin.indices.flush.FlushRequest;
+import org.elasticsearch.client.transport.TransportClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.UnknownHostException;
 import java.util.Map;
 
 public class DBUtils {
+
+	private static final Logger LOG = LoggerFactory.getLogger(DBUtils.class);
+	private static TransportClient client;
 
 	public static DB getMongoDB(Map<String, Object> conf) {
 		try {
@@ -49,9 +58,44 @@ public class DBUtils {
 		return db.getCollection("session_opaque_values_" + version);
 	}
 
-	public static void startRealtime(DB db, String version) {
-		getRealtimeResults(db, version).drop();
-		getOpaqueValues(db, version).drop();
-		getOpaqueValues(db, version).createIndex(new BasicDBObject("key", 1));
+	public static void startRealtime(DB db, String sessionId) {
+
+		// Mongo DB Collection Drop
+		getOpaqueValues(db, sessionId).drop();
+		getOpaqueValues(db, sessionId).createIndex(new BasicDBObject("key", 1));
+
+		// ElasticSearch Index Deletion
+		if (client != null) {
+			String opaqueValuesIndex = getOpaqueValuesIndex(sessionId);
+			DeleteIndexResponse delete = client.admin().indices()
+					.delete(new DeleteIndexRequest(opaqueValuesIndex))
+					.actionGet();
+			if (!delete.isAcknowledged()) {
+				LOG.error("Index wasn't deleted for session " + sessionId);
+			}
+
+			client.admin().indices()
+					.flush(new FlushRequest(opaqueValuesIndex).force(true))
+					.actionGet();
+		}
+	}
+
+	public static TransportClient getClient(EsConfig config) {
+		if (client == null) {
+			client = new StormElasticSearchClient(config).construct();
+		}
+		return client;
+	}
+
+	public static String getResultsIndex(String sessionId) {
+		return "results-" + sessionId.toLowerCase();
+	}
+
+	public static String getTracesIndex(String sessionId) {
+		return "traces-" + sessionId.toLowerCase();
+	}
+
+	public static String getOpaqueValuesIndex(String sessionId) {
+		return "opaque-values-" + sessionId.toLowerCase();
 	}
 }
