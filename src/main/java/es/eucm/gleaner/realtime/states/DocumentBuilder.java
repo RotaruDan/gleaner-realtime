@@ -38,9 +38,10 @@ public class DocumentBuilder implements Function {
 	public void execute(TridentTuple tuple, TridentCollector collector) {
 
 		Map trace = (Map) tuple.getValueByField("trace");
-		trace.put("stored", new Date());
+		trace.put(ESGameplayState.STORED_KEY, new Date());
 
-		Document<Map> doc = new Document(tracesIndex, "rage", trace, null);
+		Document<Map> doc = new Document(tracesIndex,
+				ESGameplayState.RAGE_DOCUMENT_TYPE, trace, null);
 
 		ArrayList<Object> object = new ArrayList<Object>(1);
 		object.add(doc);

@@ -39,6 +39,9 @@ import static org.elasticsearch.common.xcontent.XContentFactory.*;
 
 public class ESGameplayState extends GameplayState {
 
+	public static final String STORED_KEY = "stored";
+	public static final String RAGE_DOCUMENT_TYPE = "rage";
+
 	private static final Logger LOG = LoggerFactory
 			.getLogger(ESGameplayState.class);
 
@@ -58,9 +61,9 @@ public class ESGameplayState extends GameplayState {
 		try {
 			key = key.replace(".", "-");
 			UpdateRequest updateRequest = new UpdateRequest(resultsIndex,
-					"rage", gameplayId).doc(
+					RAGE_DOCUMENT_TYPE, gameplayId).doc(
 					jsonBuilder().startObject().field(key, value)
-							.field("stored", new Date())).docAsUpsert(true);
+							.field(STORED_KEY, new Date())).docAsUpsert(true);
 			client.update(updateRequest).get();
 
 		} catch (Exception e) {
@@ -78,9 +81,9 @@ public class ESGameplayState extends GameplayState {
 
 		try {
 			UpdateRequest updateRequest = new UpdateRequest(opaqueValuesIndex,
-					"rage", key).doc(
-					jsonBuilder().startObject().field("key", key)
-							.field("value", toDBObject(value))).docAsUpsert(
+					RAGE_DOCUMENT_TYPE, key).doc(
+					jsonBuilder().startObject().field(KEY_KEY, key)
+							.field(VALUE_KEY, toDBObject(value))).docAsUpsert(
 					true);
 			client.update(updateRequest).get();
 		} catch (Exception e) {
@@ -96,8 +99,8 @@ public class ESGameplayState extends GameplayState {
 
 		try {
 			SearchResponse response = client.prepareSearch(opaqueValuesIndex)
-					.setTypes("rage")
-					.setQuery(QueryBuilders.termQuery("key", key))
+					.setTypes(RAGE_DOCUMENT_TYPE)
+					.setQuery(QueryBuilders.termQuery(KEY_KEY, key))
 					// Query
 					.setFrom(0).setSize(1).setExplain(true).execute()
 					.actionGet();
@@ -124,9 +127,9 @@ public class ESGameplayState extends GameplayState {
 
 	private Map toDBObject(OpaqueValue value) {
 		Map dbObject = new HashMap();
-		dbObject.put("txid", value.getCurrTxid());
-		dbObject.put("prev", value.getPrev());
-		dbObject.put("curr", value.getCurr());
+		dbObject.put(TRANSACTION_ID, value.getCurrTxid());
+		dbObject.put(PREVIOUS_VALUE_ID, value.getPrev());
+		dbObject.put(CURRENT_VALUE_ID, value.getCurr());
 		return dbObject;
 	}
 
@@ -139,9 +142,10 @@ public class ESGameplayState extends GameplayState {
 	}
 
 	private OpaqueValue toOpaqueValue(Map<String, SearchHitField> dbObject) {
-		Map opaqueValue = dbObject.get("value").value();
-		return new OpaqueValue((Long) opaqueValue.get("txid"),
-				opaqueValue.get("curr"), opaqueValue.get("prev"));
+		Map opaqueValue = dbObject.get(VALUE_KEY).value();
+		return new OpaqueValue((Long) opaqueValue.get(TRANSACTION_ID),
+				opaqueValue.get(CURRENT_VALUE_ID),
+				opaqueValue.get(PREVIOUS_VALUE_ID));
 	}
 
 	public void bulkUpdateIndices(List<TridentTuple> inputs) {
