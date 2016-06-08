@@ -43,7 +43,7 @@ public class DocumentBuilder implements Function {
 		Map resultTraces = buildTrace(trace);
 
 		Document<Map> doc = new Document(tracesIndex,
-				ESGameplayState.RAGE_DOCUMENT_TYPE, resultTraces, null);
+				ESGameplayState.RAGE_TRACES_DOCUMENT_TYPE, resultTraces, null);
 
 		ArrayList<Object> object = new ArrayList<Object>(1);
 		object.add(doc);
@@ -57,10 +57,8 @@ public class DocumentBuilder implements Function {
 		if (eventObj != null) {
 			String event = eventObj.toString();
 
-			if (event.equals("var") ||
-					event.equals("set") ||
-					event.equals("increased")||
-					event.equals("decreased")) {
+			if (event.equals("var") || event.equals("set")
+					|| event.equals("increased") || event.equals("decreased")) {
 				Object targetObj = trace.get("target");
 				if (targetObj != null) {
 					String target = targetObj.toString();
