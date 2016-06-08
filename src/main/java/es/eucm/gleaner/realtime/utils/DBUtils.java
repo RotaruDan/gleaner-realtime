@@ -88,11 +88,11 @@ public class DBUtils {
 	}
 
 	public static String getResultsIndex(String sessionId) {
-		return "results-" + sessionId.toLowerCase();
+		return getTracesIndex(sessionId);
 	}
 
 	public static String getTracesIndex(String sessionId) {
-		return "traces-" + sessionId.toLowerCase();
+		return sessionId.toLowerCase();
 	}
 
 	public static String getOpaqueValuesIndex(String sessionId) {

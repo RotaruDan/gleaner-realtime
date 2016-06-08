@@ -40,7 +40,9 @@ import static org.elasticsearch.common.xcontent.XContentFactory.*;
 public class ESGameplayState extends GameplayState {
 
 	public static final String STORED_KEY = "stored";
-	public static final String RAGE_DOCUMENT_TYPE = "rage";
+	public static final String RAGE_OPAQUE_VALUES_DOCUMENT_TYPE = "opaquevalues";
+	public static final String RAGE_TRACES_DOCUMENT_TYPE = "traces";
+	public static final String RAGE_RESULTS_DOCUMENT_TYPE = "results";
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(ESGameplayState.class);
@@ -61,7 +63,7 @@ public class ESGameplayState extends GameplayState {
 		try {
 			key = key.replace(".", "-");
 			UpdateRequest updateRequest = new UpdateRequest(resultsIndex,
-					RAGE_DOCUMENT_TYPE, gameplayId).doc(
+					RAGE_RESULTS_DOCUMENT_TYPE, gameplayId).doc(
 					jsonBuilder().startObject().field(key, value)
 							.field(STORED_KEY, new Date())).docAsUpsert(true);
 			client.update(updateRequest).get();
@@ -81,7 +83,7 @@ public class ESGameplayState extends GameplayState {
 
 		try {
 			UpdateRequest updateRequest = new UpdateRequest(opaqueValuesIndex,
-					RAGE_DOCUMENT_TYPE, key).doc(
+					RAGE_OPAQUE_VALUES_DOCUMENT_TYPE, key).doc(
 					jsonBuilder().startObject().field(KEY_KEY, key)
 							.field(VALUE_KEY, toDBObject(value))).docAsUpsert(
 					true);
@@ -99,7 +101,7 @@ public class ESGameplayState extends GameplayState {
 
 		try {
 			SearchResponse response = client.prepareSearch(opaqueValuesIndex)
-					.setTypes(RAGE_DOCUMENT_TYPE)
+					.setTypes(RAGE_OPAQUE_VALUES_DOCUMENT_TYPE)
 					.setQuery(QueryBuilders.termQuery(KEY_KEY, key))
 					// Query
 					.setFrom(0).setSize(1).setExplain(true).execute()

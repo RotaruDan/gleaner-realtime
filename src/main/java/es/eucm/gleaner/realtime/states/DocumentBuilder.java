@@ -40,13 +40,70 @@ public class DocumentBuilder implements Function {
 		Map trace = (Map) tuple.getValueByField("trace");
 		trace.put(ESGameplayState.STORED_KEY, new Date());
 
+		Map resultTraces = buildTrace(trace);
+
 		Document<Map> doc = new Document(tracesIndex,
-				ESGameplayState.RAGE_DOCUMENT_TYPE, trace, null);
+				ESGameplayState.RAGE_TRACES_DOCUMENT_TYPE, resultTraces, null);
 
 		ArrayList<Object> object = new ArrayList<Object>(1);
 		object.add(doc);
 
 		collector.emit(object);
+	}
+
+	private Map buildTrace(Map trace) {
+		Object eventObj = trace.get("event");
+
+		if (eventObj != null) {
+			String event = eventObj.toString();
+
+			if (event.equals("var") || event.equals("set")
+					|| event.equals("increased") || event.equals("decreased")) {
+				Object targetObj = trace.get("target");
+				if (targetObj != null) {
+					String target = targetObj.toString();
+
+					Object valueObj = trace.get("value");
+					if (valueObj != null) {
+						String value = valueObj.toString();
+
+						Object finalValue;
+						try {
+							finalValue = Float.valueOf(value);
+						} catch (Exception ex) {
+							finalValue = value;
+						}
+						trace.put(target + "_value", finalValue);
+					}
+				}
+			} else if (event.equals("zone")) {
+				Object valueObj = trace.get("value");
+				if (valueObj != null) {
+					String value = valueObj.toString();
+					trace.put("zone_num", value.hashCode());
+				}
+			} else if (event.equals("screen")) {
+				Object valueObj = trace.get("value");
+				if (valueObj != null) {
+					String value = valueObj.toString();
+					trace.put("screen_num", value.hashCode());
+				}
+			} else if (event.equals("choice")) {
+				Object targetObj = trace.get("target");
+				if (targetObj != null) {
+					String target = targetObj.toString();
+					trace.put("choice_name_num", target.hashCode());
+
+					Object valueObj = trace.get("value");
+					if (valueObj != null) {
+						String value = valueObj.toString();
+						trace.put("choice_value_num", value.hashCode());
+					}
+				}
+			}
+		}
+
+		return trace;
 	}
 
 	@Override
