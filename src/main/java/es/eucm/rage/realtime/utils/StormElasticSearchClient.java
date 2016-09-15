@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.eucm.gleaner.realtime.utils;
+package es.eucm.rage.realtime.utils;
+
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
-import es.eucm.gleaner.realtime.utils.EsConfig;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
 
 public final class StormElasticSearchClient implements Serializable {
 
@@ -34,12 +35,9 @@ public final class StormElasticSearchClient implements Serializable {
 	public TransportClient construct() {
 		TransportClient client = null;
 		try {
-			client = TransportClient
-					.builder()
-					.build()
-					.addTransportAddress(
-							new InetSocketTransportAddress(InetAddress
-									.getByName(esConfig.getHost()), 9300));
+			client = new PreBuiltTransportClient(Settings.EMPTY)
+					.addTransportAddress(new InetSocketTransportAddress(
+							InetAddress.getByName(esConfig.getHost()), 9300));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}

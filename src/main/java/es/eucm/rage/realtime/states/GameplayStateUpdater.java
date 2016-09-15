@@ -13,28 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.eucm.gleaner.realtime.functions;
+package es.eucm.rage.realtime.states;
 
-import storm.trident.operation.Function;
 import storm.trident.operation.TridentCollector;
 import storm.trident.operation.TridentOperationContext;
+import storm.trident.state.StateUpdater;
 import storm.trident.tuple.TridentTuple;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
-public class EventExtractor implements Function {
+public class GameplayStateUpdater implements StateUpdater<GameplayState> {
+
 	@Override
-	public void execute(TridentTuple objects, TridentCollector tridentCollector) {
-		Map trace = (Map) objects.getValueByField("trace");
-		Object event = trace.get("event");
-		if (event != null) {
-			tridentCollector.emit(Arrays.asList(event));
+	public void updateState(GameplayState state, List<TridentTuple> tuples,
+			TridentCollector collector) {
+		for (TridentTuple tuple : tuples) {
+			String versionId = tuple.getStringByField("versionId");
+			String gameplayId = tuple.getStringByField("gameplayId");
+			String property = tuple.getStringByField("p");
+			Object value = tuple.getValueByField("v");
+			state.setProperty(versionId, gameplayId, property, value);
 		}
 	}
 
 	@Override
-	public void prepare(Map map, TridentOperationContext tridentOperationContext) {
+	public void prepare(Map conf, TridentOperationContext context) {
 
 	}
 

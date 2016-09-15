@@ -13,29 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.eucm.gleaner.realtime.functions;
+package es.eucm.rage.realtime.functions;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import storm.trident.operation.Function;
 import storm.trident.operation.TridentCollector;
 import storm.trident.operation.TridentOperationContext;
 import storm.trident.tuple.TridentTuple;
 
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Map;
 
-public class ValueExtractor implements Function {
-	@Override
-	public void execute(TridentTuple objects, TridentCollector tridentCollector) {
-		Map trace = (Map) objects.getValueByField("trace");
-		Object value = trace.get("value");
-		if (value != null) {
-			tridentCollector.emit(Arrays.asList(value));
-		}
+public class JsonToTrace implements Function {
+
+	private String versionId;
+
+	private Gson gson;
+
+	private Type type;
+
+	/**
+	 * Given a JSON Trace string returns a "trace" -> Map<String, Object>
+	 * 
+	 * @param versionId
+	 */
+	public JsonToTrace(String versionId) {
+		this.versionId = versionId;
 	}
 
 	@Override
-	public void prepare(Map map, TridentOperationContext tridentOperationContext) {
+	public void execute(TridentTuple tuple, TridentCollector collector) {
+		Object trace = gson.fromJson(tuple.getStringByField("str"), type);
+		collector.emit(Arrays.asList(versionId, trace));
+	}
 
+	@Override
+	public void prepare(Map conf, TridentOperationContext context) {
+		gson = new Gson();
+		type = new TypeToken<Map<String, Object>>() {
+		}.getType();
 	}
 
 	@Override

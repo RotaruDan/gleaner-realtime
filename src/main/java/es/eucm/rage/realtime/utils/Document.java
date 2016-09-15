@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package es.eucm.gleaner.realtime.utils;
+package es.eucm.rage.realtime.utils;
 
 import java.io.Serializable;
 
@@ -44,22 +44,19 @@ public class Document<T> implements Serializable {
 	 * The document id
 	 */
 	private String id;
-	/**
-	 * The parent document id
-	 */
-	private String parentId;
+
+	private String script;
 
 	public Document(String name, String type, T source, String id) {
 		this(name, type, source, id, null);
 	}
 
-	public Document(String name, String type, T source, String id,
-			String parentId) {
+	public Document(String name, String type, T source, String id, String script) {
 		this.name = name;
 		this.type = type;
 		this.source = source;
 		this.id = id;
-		this.parentId = parentId;
+		this.script = script;
 	}
 
 	public String getName() {
@@ -78,7 +75,16 @@ public class Document<T> implements Serializable {
 		return this.id;
 	}
 
-	public String getParentId() {
-		return this.parentId;
+	public String getScript() {
+		return script;
+	}
+
+	@Override
+	public String toString() {
+		String res = "----------\n";
+		res += "\tName: " + name + "\n\tType: " + type + "\n\tSource: "
+				+ source.toString() + "\n\tId: " + id + "\n\tScript: " + script;
+		res += "\n----------";
+		return res;
 	}
 }

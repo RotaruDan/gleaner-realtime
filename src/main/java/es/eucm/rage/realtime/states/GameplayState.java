@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.eucm.gleaner.realtime.states;
+package es.eucm.rage.realtime.states;
 
 import storm.trident.state.OpaqueValue;
 import storm.trident.state.map.IBackingMap;
@@ -23,6 +23,10 @@ import storm.trident.state.map.OpaqueMap;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Storm {@link MapState} designed to keep the gameplay state of each player
+ * individually
+ */
 public abstract class GameplayState implements MapState {
 
 	// Opaque values keys

@@ -13,41 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.eucm.gleaner.realtime.functions;
+package es.eucm.rage.realtime.functions;
 
 import storm.trident.operation.Function;
 import storm.trident.operation.TridentCollector;
 import storm.trident.operation.TridentOperationContext;
 import storm.trident.tuple.TridentTuple;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
-public class TraceFieldExtractor implements Function {
+public class PropertyCreator implements Function {
 
-	private String[] fields;
+	private String valueField;
 
-	public TraceFieldExtractor(String... fields) {
-		this.fields = fields;
+	private String[] keysField;
+
+	/**
+	 * Creates a new TridentTouple depending on the value of the field and the
+	 * keys provided
+	 * 
+	 * @param valueField
+	 * @param keysField
+	 */
+	public PropertyCreator(String valueField, String... keysField) {
+		this.valueField = valueField;
+		this.keysField = keysField;
 	}
 
 	@Override
 	public void execute(TridentTuple tuple, TridentCollector collector) {
-		Map trace = (Map) tuple.getValueByField("trace");
-		ArrayList<Object> object = new ArrayList<Object>();
-		for (String field : fields) {
-			object.add(trace.get(field));
+		collector.emit(Arrays.asList(toPropertyKey(tuple),
+				tuple.getValueByField(valueField)));
+	}
+
+	public String toPropertyKey(TridentTuple tuple) {
+		String result = "";
+		for (String key : keysField) {
+			result += tuple.getStringByField(key) + ".";
 		}
-		collector.emit(object);
+		return result.substring(0, result.length() - 1);
 	}
 
 	@Override
 	public void prepare(Map conf, TridentOperationContext context) {
-
 	}
 
 	@Override
 	public void cleanup() {
-
 	}
 }

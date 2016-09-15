@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.eucm.gleaner.realtime.states;
+package es.eucm.rage.realtime.states;
 
 import backtype.storm.task.IMetricsContext;
-import es.eucm.gleaner.realtime.utils.DBUtils;
-import es.eucm.gleaner.realtime.utils.EsConfig;
-import es.eucm.gleaner.realtime.utils.StormElasticSearchClient;
-import org.elasticsearch.client.transport.TransportClient;
+import es.eucm.rage.realtime.utils.DBUtils;
+import es.eucm.rage.realtime.utils.EsConfig;
 import storm.trident.state.State;
 import storm.trident.state.StateFactory;
 
@@ -29,6 +27,11 @@ public class ESStateFactory implements StateFactory {
 
 	private EsConfig config;
 
+	/**
+	 * Implementation of {2link StateFactory} for ElasticSearch 5
+	 * 
+	 * @param config
+	 */
 	public ESStateFactory(EsConfig config) {
 		this.config = config;
 	}
@@ -41,4 +44,7 @@ public class ESStateFactory implements StateFactory {
 		return esGameplayState;
 	}
 
+	public EsConfig getConfig() {
+		return config;
+	}
 }

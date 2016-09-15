@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.eucm.gleaner.realtime.utils;
+package es.eucm.rage.realtime.utils;
 
 import java.io.Serializable;
 
+/**
+ * ElasticSearch configuration
+ */
 public class EsConfig implements Serializable {
 
 	private final String host, sessionId;
