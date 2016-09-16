@@ -20,7 +20,7 @@
 #   mkdir output && chmod 0777 output \
 #   && docker run -v $(pwd)/output:/app/output eucm/rage-analytics-realtime
 #
-FROM maven
+FROM eucm/maven
 
 ENV USER_NAME="user" \
     WORK_DIR="/app" \
