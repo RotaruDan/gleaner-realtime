@@ -31,6 +31,6 @@ xAPI traces sent by games should comply with the [xAPI for serious games specifi
 
 ## Analysis output
 
-The analysis will be provided with details on how to connect to MongoDB and ElasticSearch back-ends. Currently, the same information is stored on both, although we are considering *deprecating the MongoDB* back-end, as only ElasticSearch is currently used in visualizations (via Kibana).
+The analysis will include details on how to connect to the ElasticSearch back-end. The information obtained from the analysis is stored in ElasticSearch for its use in visualizations (via Kibana).
 
 
