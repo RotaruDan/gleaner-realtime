@@ -15,11 +15,11 @@
  */
 package es.eucm.rage.realtime;
 
-import backtype.storm.generated.StormTopology;
 import es.eucm.rage.realtime.states.ESStateFactory;
 import es.eucm.rage.realtime.topologies.KafkaTopology;
 import es.eucm.rage.realtime.utils.DBUtils;
 import es.eucm.rage.realtime.utils.EsConfig;
+import org.apache.storm.generated.StormTopology;
 
 import java.util.Map;
 

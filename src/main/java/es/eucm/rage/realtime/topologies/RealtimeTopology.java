@@ -15,7 +15,6 @@
  */
 package es.eucm.rage.realtime.topologies;
 
-import backtype.storm.tuple.Fields;
 import es.eucm.rage.realtime.filters.FieldValueFilter;
 import es.eucm.rage.realtime.filters.FieldValuesOrFilter;
 import es.eucm.rage.realtime.functions.PropertyCreator;
@@ -26,10 +25,11 @@ import es.eucm.rage.realtime.states.DocumentBuilder;
 import es.eucm.rage.realtime.states.ESStateFactory;
 import es.eucm.rage.realtime.states.GameplayStateUpdater;
 import es.eucm.rage.realtime.states.TraceStateUpdater;
-import storm.trident.Stream;
-import storm.trident.TridentTopology;
-import storm.trident.operation.builtin.Count;
-import storm.trident.spout.ITridentSpout;
+import org.apache.storm.trident.Stream;
+import org.apache.storm.trident.TridentTopology;
+import org.apache.storm.trident.operation.builtin.Count;
+import org.apache.storm.trident.spout.ITridentSpout;
+import org.apache.storm.tuple.Fields;
 
 public class RealtimeTopology extends TridentTopology {
 
