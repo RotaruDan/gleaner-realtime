@@ -15,20 +15,20 @@
  */
 package es.eucm.rage.realtime;
 
-import backtype.storm.Config;
-import backtype.storm.LocalCluster;
-import backtype.storm.task.IMetricsContext;
 import es.eucm.rage.realtime.states.ESGameplayState;
 import es.eucm.rage.realtime.states.ESStateFactory;
 import es.eucm.rage.realtime.topologies.RealtimeTopology;
 import es.eucm.rage.realtime.utils.Document;
 import es.eucm.rage.realtime.utils.EsConfig;
+import org.apache.storm.Config;
+import org.apache.storm.LocalCluster;
+import org.apache.storm.task.IMetricsContext;
+import org.apache.storm.trident.state.OpaqueValue;
+import org.apache.storm.trident.state.State;
+import org.apache.storm.trident.testing.FeederBatchSpout;
+import org.apache.storm.trident.tuple.TridentTuple;
 import org.elasticsearch.client.transport.TransportClient;
 import org.junit.Test;
-import storm.trident.state.OpaqueValue;
-import storm.trident.state.State;
-import storm.trident.testing.FeederBatchSpout;
-import storm.trident.tuple.TridentTuple;
 
 import java.io.BufferedReader;
 import java.io.IOException;

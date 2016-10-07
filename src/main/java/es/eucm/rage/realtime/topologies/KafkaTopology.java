@@ -15,16 +15,16 @@
  */
 package es.eucm.rage.realtime.topologies;
 
-import backtype.storm.spout.SchemeAsMultiScheme;
-import backtype.storm.tuple.Fields;
 import es.eucm.rage.realtime.functions.JsonToTrace;
 import es.eucm.rage.realtime.states.ESStateFactory;
-import storm.kafka.BrokerHosts;
-import storm.kafka.StringScheme;
-import storm.kafka.ZkHosts;
-import storm.kafka.trident.OpaqueTridentKafkaSpout;
-import storm.kafka.trident.TridentKafkaConfig;
-import storm.trident.Stream;
+import org.apache.storm.kafka.BrokerHosts;
+import org.apache.storm.kafka.StringScheme;
+import org.apache.storm.kafka.ZkHosts;
+import org.apache.storm.kafka.trident.OpaqueTridentKafkaSpout;
+import org.apache.storm.kafka.trident.TridentKafkaConfig;
+import org.apache.storm.spout.SchemeAsMultiScheme;
+import org.apache.storm.trident.Stream;
+import org.apache.storm.tuple.Fields;
 
 public class KafkaTopology extends RealtimeTopology {
 
@@ -38,7 +38,6 @@ public class KafkaTopology extends RealtimeTopology {
 		BrokerHosts zk = new ZkHosts(zookeeperUrl);
 		TridentKafkaConfig spoutConf = new TridentKafkaConfig(zk, sessionId,
 				sessionId);
-		spoutConf.forceFromStart = true;
 		spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
 		OpaqueTridentKafkaSpout spout = new OpaqueTridentKafkaSpout(spoutConf);
 

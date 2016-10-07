@@ -15,9 +15,9 @@
  */
 package es.eucm.rage.realtime.filters;
 
-import storm.trident.operation.Filter;
-import storm.trident.operation.TridentOperationContext;
-import storm.trident.tuple.TridentTuple;
+import org.apache.storm.trident.operation.Filter;
+import org.apache.storm.trident.operation.TridentOperationContext;
+import org.apache.storm.trident.tuple.TridentTuple;
 
 import java.util.Map;
 

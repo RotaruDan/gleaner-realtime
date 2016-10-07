@@ -15,10 +15,10 @@
  */
 package es.eucm.rage.realtime.states;
 
-import storm.trident.state.OpaqueValue;
-import storm.trident.state.map.IBackingMap;
-import storm.trident.state.map.MapState;
-import storm.trident.state.map.OpaqueMap;
+import org.apache.storm.trident.state.OpaqueValue;
+import org.apache.storm.trident.state.map.IBackingMap;
+import org.apache.storm.trident.state.map.MapState;
+import org.apache.storm.trident.state.map.OpaqueMap;
 
 import java.util.ArrayList;
 import java.util.List;

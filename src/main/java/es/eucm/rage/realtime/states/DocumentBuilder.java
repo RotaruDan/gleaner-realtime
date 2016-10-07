@@ -17,10 +17,10 @@ package es.eucm.rage.realtime.states;
 
 import es.eucm.rage.realtime.utils.DBUtils;
 import es.eucm.rage.realtime.utils.Document;
-import storm.trident.operation.Function;
-import storm.trident.operation.TridentCollector;
-import storm.trident.operation.TridentOperationContext;
-import storm.trident.tuple.TridentTuple;
+import org.apache.storm.trident.operation.Function;
+import org.apache.storm.trident.operation.TridentCollector;
+import org.apache.storm.trident.operation.TridentOperationContext;
+import org.apache.storm.trident.tuple.TridentTuple;
 
 import java.util.ArrayList;
 import java.util.Date;

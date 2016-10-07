@@ -17,6 +17,8 @@ package es.eucm.rage.realtime.states;
 
 import es.eucm.rage.realtime.utils.DBUtils;
 import es.eucm.rage.realtime.utils.Document;
+import org.apache.storm.trident.state.OpaqueValue;
+import org.apache.storm.trident.tuple.TridentTuple;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -30,9 +32,6 @@ import org.elasticsearch.script.ScriptService;
 import org.elasticsearch.search.SearchHitField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import storm.trident.state.OpaqueValue;
-import storm.trident.state.map.MapState;
-import storm.trident.tuple.TridentTuple;
 
 import java.util.HashMap;
 import java.util.List;

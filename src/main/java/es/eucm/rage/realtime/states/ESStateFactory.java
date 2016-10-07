@@ -15,11 +15,11 @@
  */
 package es.eucm.rage.realtime.states;
 
-import backtype.storm.task.IMetricsContext;
 import es.eucm.rage.realtime.utils.DBUtils;
 import es.eucm.rage.realtime.utils.EsConfig;
-import storm.trident.state.State;
-import storm.trident.state.StateFactory;
+import org.apache.storm.task.IMetricsContext;
+import org.apache.storm.trident.state.State;
+import org.apache.storm.trident.state.StateFactory;
 
 import java.util.Map;
 
