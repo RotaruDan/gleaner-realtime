@@ -28,7 +28,8 @@ public class EsConfig implements Serializable {
 	 * EsConfig Constructor
 	 * 
 	 * @param host
-	 *            Elasticsearch addresse (host pattern string array)
+	 *            ElasticSearch address (host pattern string array) without the
+	 *            port
 	 */
 	public EsConfig(String host, String sessionId) {
 		this.host = host;

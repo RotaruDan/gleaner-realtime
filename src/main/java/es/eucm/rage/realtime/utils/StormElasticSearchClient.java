@@ -24,6 +24,9 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+/**
+ * Simple helper class for creating an ElasticSearch client on port 9300.
+ */
 public final class StormElasticSearchClient implements Serializable {
 
 	private final EsConfig esConfig;
@@ -32,6 +35,11 @@ public final class StormElasticSearchClient implements Serializable {
 		this.esConfig = esConfig;
 	}
 
+	/**
+	 * Builds an ElasticSearch client on port 9300
+	 * 
+	 * @return
+	 */
 	public TransportClient construct() {
 		TransportClient client = null;
 		try {

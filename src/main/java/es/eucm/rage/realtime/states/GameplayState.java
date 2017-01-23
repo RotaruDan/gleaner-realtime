@@ -42,8 +42,18 @@ public abstract class GameplayState implements MapState {
 		mapState = (OpaqueMap) OpaqueMap.build(new BackingMap());
 	}
 
+	/**
+	 * Updates a GameplayState property for a given player (gameplayId) document
+	 * 
+	 * @param versionId
+	 * @param gameplayId
+	 * @param key
+	 * @param value
+	 */
 	public abstract void setProperty(String versionId, String gameplayId,
 			String key, Object value);
+
+	/* Auxiliar methods for the Map State implementation */
 
 	public abstract void setOpaqueValue(String versionId, String gameplayId,
 			List<Object> key, OpaqueValue value);
