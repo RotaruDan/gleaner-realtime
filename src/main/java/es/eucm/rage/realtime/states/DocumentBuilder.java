@@ -27,6 +27,10 @@ import java.util.Date;
 import java.util.Map;
 import java.util.logging.Logger;
 
+/**
+ * Storm Trident function for building a {@link Document} object with the
+ * information required to display Kibana bisualization.
+ */
 public class DocumentBuilder implements Function {
 
 	private static final Logger LOG = Logger.getLogger(DocumentBuilder.class

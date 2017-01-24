@@ -24,7 +24,8 @@ import org.apache.storm.generated.StormTopology;
 import java.util.Map;
 
 /**
- * Startup class for the analysis
+ * Startup class for the analysis, see:
+ * https://github.com/apache/storm/tree/master/external/flux#existing-topologies
  */
 public class Analysis {
 
@@ -32,9 +33,17 @@ public class Analysis {
 	 * Builds a KafkaTopology
 	 * 
 	 * @param conf
+	 *            Map object with the 'flux.yml' contents (contains sessionId,
+	 *            zookeeperUrl, elasticsearchUrl)
 	 * @param sessionId
+	 *            Used for the creation of ElasticSearch indices:
+	 *            {@link DBUtils#getTracesIndex(String)} and
+	 *            {@link DBUtils#getResultsIndex(String)}
 	 * @param zookeeperUrl
+	 *            Used to connect to Kafka and pull data from the topic
+	 *            'sessionId'
 	 * @return a topology that connects to kafka and performs the realtime
+	 *         analysis
 	 */
 	private static StormTopology buildTopology(Map conf, String sessionId,
 			String zookeeperUrl) {
@@ -46,8 +55,25 @@ public class Analysis {
 		return kafkaTopology.build();
 	}
 
-	// Storm flux Start-up function
+	// Storm Flux Start-up function
+	// (https://github.com/apache/storm/tree/master/external/flux#existing-topologies)
 	public StormTopology getTopology(Map<String, Object> conf) {
+		/*
+		 * Note that 'conf' object contains the Storm Flux configuration
+		 * parameters (defined in the 'flux.yml' file). As a Java Map, the
+		 * values can easily be accessed. For instance:
+		 * 
+		 * String sessionId = conf.get("sessionId").toString(); String
+		 * zookeeperUrl = conf.get("zookeeperUrl").toString(); String
+		 * elasticsearchUrl= conf.get("elasticsearchUrl").toString();
+		 * 
+		 * For more information check out: Storm Flux, 'Existing Topologies'
+		 * documentation:
+		 * https://github.com/apache/storm/tree/master/external/flux
+		 * #existing-topologies RAGE Analytics Backend 'flux.yml' format:
+		 * https:/
+		 * /github.com/e-ucm/rage-analytics-backend/blob/master/default-flux.yml
+		 */
 		String sessionId = conf.get("sessionId").toString();
 		String zookeeperUrl = conf.get("zookeeperUrl").toString();
 		return buildTopology(conf, sessionId, zookeeperUrl);

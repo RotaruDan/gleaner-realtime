@@ -42,6 +42,10 @@ import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Tests the {@link RealtimeTopology} executed on a local cluster and receiving
+ * data from a local file ("traces.txt")
+ */
 public class RealtimeTopologyTest {
 
 	private static final Logger LOG = Logger

@@ -35,7 +35,8 @@ public class JsonToTrace implements Function {
 	private Type type;
 
 	/**
-	 * Given a JSON Trace string returns a "trace" -> Map<String, Object>
+	 * Given a JSON Trace ("str" key, from Kafka) string returns a "trace" ->
+	 * Map<String, Object>
 	 * 
 	 * @param versionId
 	 */
