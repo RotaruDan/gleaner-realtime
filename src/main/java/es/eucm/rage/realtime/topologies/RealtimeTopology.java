@@ -21,10 +21,7 @@ import es.eucm.rage.realtime.functions.PropertyCreator;
 import es.eucm.rage.realtime.functions.SimplePropertyCreator;
 import es.eucm.rage.realtime.functions.SuffixPropertyCreator;
 import es.eucm.rage.realtime.functions.TraceFieldExtractor;
-import es.eucm.rage.realtime.states.DocumentBuilder;
-import es.eucm.rage.realtime.states.ESStateFactory;
-import es.eucm.rage.realtime.states.GameplayStateUpdater;
-import es.eucm.rage.realtime.states.TraceStateUpdater;
+import es.eucm.rage.realtime.states.*;
 import org.apache.storm.trident.Stream;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.operation.builtin.Count;
@@ -190,6 +187,20 @@ public class RealtimeTopology extends TridentTopology {
 						new Fields("versionId", "gameplayId", "p", "v"),
 						gameplayStateUpdater);
 
+
+/*
+
+		gameplayIdStream
+				.each(new Fields("trace"), new MeanCreation(elasticStateFactory.getConfig().getSessionId(), "trace"),
+						new Fields("testScore"))
+				.each(
+						new Fields("testScore"),
+						new DocumentBuilder(elasticStateFactory.getConfig()
+								.getSessionId(), "testScore"), new Fields("document"))
+				.partitionPersist(elasticStateFactory, new Fields("document"),
+						new TraceStateUpdater());
+
+*/
 		/*
 		 * --> Additional/custom analysis needed can be added here or changing
 		 * the code above <--

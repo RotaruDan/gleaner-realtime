@@ -198,45 +198,4 @@ public class ESGameplayState extends GameplayState {
 		}
 
 	}
-
-	public void bulkUpdateVariables(List<TridentTuple> inputs) {
-
-		BulkRequestBuilder bulkRequest = client.prepareBulk();
-		for (TridentTuple input : inputs) {
-			Document<Map> doc = (Document<Map>) input
-					.getValueByField("document");
-
-			Map source = doc.getSource();
-
-			if (source != null) {
-				IndexRequestBuilder request = client.prepareIndex(
-						doc.getName(), doc.getType(), doc.getId()).setSource(
-						source);
-
-				bulkRequest.add(request);
-			} else {
-				UpdateRequest updateRequest = new UpdateRequest(doc.getName(),
-						doc.getType(), doc.getId()).script(
-						new Script(doc.getScript(),
-								ScriptService.ScriptType.INLINE, null, null))
-						.docAsUpsert(true);
-
-				bulkRequest.add(updateRequest);
-			}
-		}
-
-		if (bulkRequest.numberOfActions() > 0) {
-			try {
-				BulkResponse response = bulkRequest.execute().actionGet();
-				if (response.hasFailures()) {
-					LOG.error("BulkResponse has failures : {}",
-							response.buildFailureMessage());
-				}
-			} catch (Exception e) {
-				LOG.error(
-						"error while executing bulk request to elasticsearch, "
-								+ "failed to store data into elasticsearch", e);
-			}
-		}
-	}
 }

@@ -1,0 +1,166 @@
+{
+  "timestamp": "2017-02-07T09:44:15.390Z",
+  "name": "EZTP",
+  "progressed": {
+    "level": {
+      "DolorToracico": {
+        "progress": 1
+      },
+      "Inconsciente": {
+        "progress": 1
+      },
+      "Atragantamiento": {
+        "progress": 1
+      }
+    },
+    "serious-game": {
+      "JuegoCompleto": {
+        "progress": 1
+      }
+    }
+  },
+  "initialized": {
+    "serious-game": {
+      "JuegoCompleto": 1
+    },
+    "level": {
+      "DolorToracico": 1,
+      "Inconsciente": 1,
+      "Atragantamiento": 1
+    }
+  },
+  "selected": {
+    "menu": {
+      "Inicio": {
+        "DolorToracico": 1,
+        "Inconsciente": 1,
+        "Atragantamiento": 1,
+        "Inicio": 1
+      },
+      "ResumenDT": {
+        "Inicio": 1
+      },
+      "ResumenINC": {
+        "Inicio": 1
+      },
+      "ResumenAT": {
+        "Inicio": 1
+      }
+    },
+    "question": {
+      "NumeroEmergencias": {
+        "112": 1,
+        "911": 1,
+        "092": 1
+      },
+      "DTQueSucede": {
+        "��Un hombre se est�� cogiendo el pecho y no puede respirar!": 1
+      },
+      "DTAyuda": {
+        "��Si  por favor! ��Ay��deme!": 1
+      },
+      "INCQueHacerSilla": {
+        "Recostar en el suelo": 1
+      },
+      "INCQueSucede": {
+        "Un hombre est�� inconsciente en el suelo": 1
+      },
+      "INCAyuda": {
+        "��Si  por favor!": 1
+      },
+      "ATQueSucede": {
+        "��Vengan r��pido! Necesito ayuda": 1,
+        "Un hombre se est�� atragantando": 1
+      },
+      "ATAyuda": {
+        "��Si  por favor ayudeme!": 1
+      },
+      "ATNombreManiobra": {
+        "Heimlich": 1
+      }
+    },
+    "alternative": {
+      "ComoAsistir": {
+        "Incorrect": 1,
+        "DolorToracico": 1
+      },
+      "DondeCabeza": {
+        "DondeCabeza": 3,
+        "DondeMirar": 1
+      },
+      "DondeMirar": {
+        "VideoMirarOirSentir": 1,
+        "DondeMirar": 1
+      },
+      "Posiciones": {
+        "Incorrect": 2,
+        "VideoCambiarPosicion": 2
+      },
+      "FormasEstimular": {
+        "VideoEstimular": 1
+      },
+      "IniciarTos": {
+        "VideoInciarTos": 1,
+        "Incorrect": 2
+      },
+      "ColocacionHeimlich": {
+        "ManosHeimlich": 1
+      },
+      "ManosHeimlich": {
+        "ManosPechoHeimlich": 1
+      },
+      "ManosPechoHeimlich": {
+        "VideoHeimlich": 1
+      }
+    }
+  },
+  "interacted": {
+    "non-player-character": {
+      "Telefono": 2,
+      "PersonaParada": 1,
+      "PersonaSentada": 5,
+      "Victima": 1,
+      "Persona": 1
+    },
+    "item": {
+      "DesfibriladorCerrado": 1
+    }
+  },
+  "accessed": {
+    "cutscene": {
+      "VideoMirarOirSentir": 1,
+      "VideoCambiarPosicion": 2,
+      "VideoEstimular": 1,
+      "VideoElectrodos": 1,
+      "VideoInciarTos": 1,
+      "VideoHeimlich": 1
+    },
+    "area": {
+      "Final": 1,
+      "MensajeBuenTrabajo": 1,
+      "FinAtragantamiento": 1
+    }
+  },
+  "completed": {
+    "level": {
+      "DolorToracico": {
+        "success": true,
+        "score": 0.8
+      },
+      "Inconsciente": {
+        "success": true,
+        "score": 0.3
+      },
+      "Atragantamiento": {
+        "success": true,
+        "score": 0.9
+      }
+    },
+    "serious-game": {
+      "JuegoCompleto": {
+        "success": true,
+        "score": 0.5333334
+      }
+    }
+  }
+}

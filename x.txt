@@ -1,0 +1,1022 @@
+====
+    Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+====
+
+Apache Maven 3.3.3 (7994120775791599e205a5524ec3e0dfe41d4a06; 2015-04-22T13:57:37+02:00)
+Maven home: C:\apache-maven-3.3.3\bin\..
+Java version: 1.8.0_60, vendor: Oracle Corporation
+Java home: C:\Program Files\Java\jdk1.8.0_60\jre
+Default locale: en_GB, platform encoding: Cp1252
+OS name: "windows 10", version: "10.0", arch: "amd64", family: "dos"
+[DEBUG] Created new class realm maven.api
+[DEBUG] Importing foreign packages into class realm maven.api
+[DEBUG]   Imported: javax.enterprise.inject.* < plexus.core
+[DEBUG]   Imported: javax.enterprise.util.* < plexus.core
+[DEBUG]   Imported: javax.inject.* < plexus.core
+[DEBUG]   Imported: org.apache.maven.* < plexus.core
+[DEBUG]   Imported: org.apache.maven.artifact < plexus.core
+[DEBUG]   Imported: org.apache.maven.classrealm < plexus.core
+[DEBUG]   Imported: org.apache.maven.cli < plexus.core
+[DEBUG]   Imported: org.apache.maven.configuration < plexus.core
+[DEBUG]   Imported: org.apache.maven.exception < plexus.core
+[DEBUG]   Imported: org.apache.maven.execution < plexus.core
+[DEBUG]   Imported: org.apache.maven.execution.scope < plexus.core
+[DEBUG]   Imported: org.apache.maven.lifecycle < plexus.core
+[DEBUG]   Imported: org.apache.maven.model < plexus.core
+[DEBUG]   Imported: org.apache.maven.monitor < plexus.core
+[DEBUG]   Imported: org.apache.maven.plugin < plexus.core
+[DEBUG]   Imported: org.apache.maven.profiles < plexus.core
+[DEBUG]   Imported: org.apache.maven.project < plexus.core
+[DEBUG]   Imported: org.apache.maven.reporting < plexus.core
+[DEBUG]   Imported: org.apache.maven.repository < plexus.core
+[DEBUG]   Imported: org.apache.maven.rtinfo < plexus.core
+[DEBUG]   Imported: org.apache.maven.settings < plexus.core
+[DEBUG]   Imported: org.apache.maven.toolchain < plexus.core
+[DEBUG]   Imported: org.apache.maven.usability < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.* < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.authentication < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.authorization < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.events < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.observers < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.proxy < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.repository < plexus.core
+[DEBUG]   Imported: org.apache.maven.wagon.resource < plexus.core
+[DEBUG]   Imported: org.codehaus.classworlds < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.* < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.classworlds < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.component < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.configuration < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.container < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.context < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.lifecycle < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.logging < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.personality < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.util.xml.Xpp3Dom < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.util.xml.pull.XmlPullParser < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.util.xml.pull.XmlPullParserException < plexus.core
+[DEBUG]   Imported: org.codehaus.plexus.util.xml.pull.XmlSerializer < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.* < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.artifact < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.collection < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.deployment < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.graph < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.impl < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.installation < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.internal.impl < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.metadata < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.repository < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.resolution < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.spi < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.transfer < plexus.core
+[DEBUG]   Imported: org.eclipse.aether.version < plexus.core
+[DEBUG]   Imported: org.slf4j.* < plexus.core
+[DEBUG]   Imported: org.slf4j.spi.* < plexus.core
+[DEBUG] Populating class realm maven.api
+[INFO] Error stacktraces are turned on.
+[DEBUG] Reading global settings from C:\apache-maven-3.3.3\bin\..\conf\settings.xml
+[DEBUG] Reading user settings from C:\Users\dan\.m2\settings.xml
+[DEBUG] Reading global toolchains from C:\apache-maven-3.3.3\bin\..\conf\toolchains.xml
+[DEBUG] Reading user toolchains from C:\Users\dan\.m2\toolchains.xml
+[DEBUG] Using local repository at C:\Users\dan\.m2\repository
+[DEBUG] Using manager EnhancedLocalRepositoryManager with priority 10.0 for C:\Users\dan\.m2\repository
+[INFO] Scanning for projects...
+[DEBUG] Extension realms for project es.eucm.rage:real-time:jar:0.0.1-SNAPSHOT: (none)
+[DEBUG] Looking up lifecyle mappings for packaging jar from ClassRealm[plexus.core, parent: null]
+[DEBUG] === REACTOR BUILD PLAN ================================================
+[DEBUG] Project: es.eucm.rage:real-time:jar:0.0.1-SNAPSHOT
+[DEBUG] Tasks:   [clean, install]
+[DEBUG] Style:   Regular
+[DEBUG] =======================================================================
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building FirstAidGame Real Time 0.0.1-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[DEBUG] Lifecycle default -> [validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy]
+[DEBUG] Lifecycle clean -> [pre-clean, clean, post-clean]
+[DEBUG] Lifecycle site -> [pre-site, site, post-site, site-deploy]
+[DEBUG] Lifecycle default -> [validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy]
+[DEBUG] Lifecycle clean -> [pre-clean, clean, post-clean]
+[DEBUG] Lifecycle site -> [pre-site, site, post-site, site-deploy]
+[DEBUG] Lifecycle default -> [validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy]
+[DEBUG] Lifecycle clean -> [pre-clean, clean, post-clean]
+[DEBUG] Lifecycle site -> [pre-site, site, post-site, site-deploy]
+[DEBUG] Lifecycle default -> [validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy]
+[DEBUG] Lifecycle clean -> [pre-clean, clean, post-clean]
+[DEBUG] Lifecycle site -> [pre-site, site, post-site, site-deploy]
+[DEBUG] Lifecycle default -> [validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy]
+[DEBUG] Lifecycle clean -> [pre-clean, clean, post-clean]
+[DEBUG] Lifecycle site -> [pre-site, site, post-site, site-deploy]
+[DEBUG] Lifecycle default -> [validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy]
+[DEBUG] Lifecycle clean -> [pre-clean, clean, post-clean]
+[DEBUG] Lifecycle site -> [pre-site, site, post-site, site-deploy]
+[DEBUG] Lifecycle default -> [validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy]
+[DEBUG] Lifecycle clean -> [pre-clean, clean, post-clean]
+[DEBUG] Lifecycle site -> [pre-site, site, post-site, site-deploy]
+[DEBUG] Lifecycle default -> [validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy]
+[DEBUG] Lifecycle clean -> [pre-clean, clean, post-clean]
+[DEBUG] Lifecycle site -> [pre-site, site, post-site, site-deploy]
+[DEBUG] Lifecycle default -> [validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy]
+[DEBUG] Lifecycle clean -> [pre-clean, clean, post-clean]
+[DEBUG] Lifecycle site -> [pre-site, site, post-site, site-deploy]
+[DEBUG] Lifecycle default -> [validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy]
+[DEBUG] Lifecycle clean -> [pre-clean, clean, post-clean]
+[DEBUG] Lifecycle site -> [pre-site, site, post-site, site-deploy]
+[DEBUG] Lifecycle default -> [validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy]
+[DEBUG] Lifecycle clean -> [pre-clean, clean, post-clean]
+[DEBUG] Lifecycle site -> [pre-site, site, post-site, site-deploy]
+[DEBUG] === PROJECT BUILD PLAN ================================================
+[DEBUG] Project:       es.eucm.rage:real-time:0.0.1-SNAPSHOT
+[DEBUG] Dependencies (collect): []
+[DEBUG] Dependencies (resolve): [compile, runtime, test]
+[DEBUG] Repositories (dependencies): [central (https://repo.maven.apache.org/maven2, default, releases)]
+[DEBUG] Repositories (plugins)     : [central (https://repo.maven.apache.org/maven2, default, releases)]
+[DEBUG] -----------------------------------------------------------------------
+[DEBUG] Goal:          org.apache.maven.plugins:maven-clean-plugin:2.5:clean (default-clean)
+[DEBUG] Style:         Regular
+[DEBUG] Configuration: <?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <directory default-value="${project.build.directory}"/>
+  <excludeDefaultDirectories default-value="false">${clean.excludeDefaultDirectories}</excludeDefaultDirectories>
+  <failOnError default-value="true">${maven.clean.failOnError}</failOnError>
+  <followSymLinks default-value="false">${clean.followSymLinks}</followSymLinks>
+  <outputDirectory default-value="${project.build.outputDirectory}"/>
+  <reportDirectory default-value="${project.reporting.outputDirectory}"/>
+  <retryOnError default-value="true">${maven.clean.retryOnError}</retryOnError>
+  <skip default-value="false">${clean.skip}</skip>
+  <testOutputDirectory default-value="${project.build.testOutputDirectory}"/>
+  <verbose>${clean.verbose}</verbose>
+</configuration>
+[DEBUG] -----------------------------------------------------------------------
+[DEBUG] Goal:          org.apache.maven.plugins:maven-resources-plugin:2.6:resources (default-resources)
+[DEBUG] Style:         Regular
+[DEBUG] Configuration: <?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <buildFilters default-value="${project.build.filters}"/>
+  <encoding default-value="${project.build.sourceEncoding}">${encoding}</encoding>
+  <escapeString>${maven.resources.escapeString}</escapeString>
+  <escapeWindowsPaths default-value="true">${maven.resources.escapeWindowsPaths}</escapeWindowsPaths>
+  <includeEmptyDirs default-value="false">${maven.resources.includeEmptyDirs}</includeEmptyDirs>
+  <outputDirectory default-value="${project.build.outputDirectory}"/>
+  <overwrite default-value="false">${maven.resources.overwrite}</overwrite>
+  <project default-value="${project}"/>
+  <resources default-value="${project.resources}"/>
+  <session default-value="${session}"/>
+  <supportMultiLineFiltering default-value="false">${maven.resources.supportMultiLineFiltering}</supportMultiLineFiltering>
+  <useBuildFilters default-value="true"/>
+  <useDefaultDelimiters default-value="true"/>
+</configuration>
+[DEBUG] -----------------------------------------------------------------------
+[DEBUG] Goal:          org.apache.maven.plugins:maven-compiler-plugin:3.1:compile (default-compile)
+[DEBUG] Style:         Regular
+[DEBUG] Configuration: <?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <basedir default-value="${basedir}"/>
+  <buildDirectory default-value="${project.build.directory}"/>
+  <classpathElements default-value="${project.compileClasspathElements}"/>
+  <compileSourceRoots default-value="${project.compileSourceRoots}"/>
+  <compilerId default-value="javac">${maven.compiler.compilerId}</compilerId>
+  <compilerReuseStrategy default-value="${reuseCreated}">${maven.compiler.compilerReuseStrategy}</compilerReuseStrategy>
+  <compilerVersion>${maven.compiler.compilerVersion}</compilerVersion>
+  <debug default-value="true">${maven.compiler.debug}</debug>
+  <debuglevel>${maven.compiler.debuglevel}</debuglevel>
+  <encoding default-value="${project.build.sourceEncoding}">${encoding}</encoding>
+  <executable>${maven.compiler.executable}</executable>
+  <failOnError default-value="true">${maven.compiler.failOnError}</failOnError>
+  <forceJavacCompilerUse default-value="false">${maven.compiler.forceJavacCompilerUse}</forceJavacCompilerUse>
+  <fork default-value="false">${maven.compiler.fork}</fork>
+  <generatedSourcesDirectory default-value="${project.build.directory}/generated-sources/annotations"/>
+  <maxmem>${maven.compiler.maxmem}</maxmem>
+  <meminitial>${maven.compiler.meminitial}</meminitial>
+  <mojoExecution>${mojoExecution}</mojoExecution>
+  <optimize default-value="false">${maven.compiler.optimize}</optimize>
+  <outputDirectory default-value="${project.build.outputDirectory}"/>
+  <projectArtifact default-value="${project.artifact}"/>
+  <showDeprecation default-value="false">${maven.compiler.showDeprecation}</showDeprecation>
+  <showWarnings default-value="false">${maven.compiler.showWarnings}</showWarnings>
+  <skipMain>${maven.main.skip}</skipMain>
+  <skipMultiThreadWarning default-value="false">${maven.compiler.skipMultiThreadWarning}</skipMultiThreadWarning>
+  <source default-value="1.5">1.8</source>
+  <staleMillis default-value="0">${lastModGranularityMs}</staleMillis>
+  <target default-value="1.5">1.8</target>
+  <useIncrementalCompilation default-value="true">${maven.compiler.useIncrementalCompilation}</useIncrementalCompilation>
+  <verbose default-value="false">${maven.compiler.verbose}</verbose>
+  <mavenSession default-value="${session}"/>
+  <session default-value="${session}"/>
+</configuration>
+[DEBUG] -----------------------------------------------------------------------
+[DEBUG] Goal:          org.apache.maven.plugins:maven-resources-plugin:2.6:testResources (default-testResources)
+[DEBUG] Style:         Regular
+[DEBUG] Configuration: <?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <buildFilters default-value="${project.build.filters}"/>
+  <encoding default-value="${project.build.sourceEncoding}">${encoding}</encoding>
+  <escapeString>${maven.resources.escapeString}</escapeString>
+  <escapeWindowsPaths default-value="true">${maven.resources.escapeWindowsPaths}</escapeWindowsPaths>
+  <includeEmptyDirs default-value="false">${maven.resources.includeEmptyDirs}</includeEmptyDirs>
+  <outputDirectory default-value="${project.build.testOutputDirectory}"/>
+  <overwrite default-value="false">${maven.resources.overwrite}</overwrite>
+  <project default-value="${project}"/>
+  <resources default-value="${project.testResources}"/>
+  <session default-value="${session}"/>
+  <skip>${maven.test.skip}</skip>
+  <supportMultiLineFiltering default-value="false">${maven.resources.supportMultiLineFiltering}</supportMultiLineFiltering>
+  <useBuildFilters default-value="true"/>
+  <useDefaultDelimiters default-value="true"/>
+</configuration>
+[DEBUG] -----------------------------------------------------------------------
+[DEBUG] Goal:          org.apache.maven.plugins:maven-compiler-plugin:3.1:testCompile (default-testCompile)
+[DEBUG] Style:         Regular
+[DEBUG] Configuration: <?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <basedir default-value="${basedir}"/>
+  <buildDirectory default-value="${project.build.directory}"/>
+  <classpathElements default-value="${project.testClasspathElements}"/>
+  <compileSourceRoots default-value="${project.testCompileSourceRoots}"/>
+  <compilerId default-value="javac">${maven.compiler.compilerId}</compilerId>
+  <compilerReuseStrategy default-value="${reuseCreated}">${maven.compiler.compilerReuseStrategy}</compilerReuseStrategy>
+  <compilerVersion>${maven.compiler.compilerVersion}</compilerVersion>
+  <debug default-value="true">${maven.compiler.debug}</debug>
+  <debuglevel>${maven.compiler.debuglevel}</debuglevel>
+  <encoding default-value="${project.build.sourceEncoding}">${encoding}</encoding>
+  <executable>${maven.compiler.executable}</executable>
+  <failOnError default-value="true">${maven.compiler.failOnError}</failOnError>
+  <forceJavacCompilerUse default-value="false">${maven.compiler.forceJavacCompilerUse}</forceJavacCompilerUse>
+  <fork default-value="false">${maven.compiler.fork}</fork>
+  <generatedTestSourcesDirectory default-value="${project.build.directory}/generated-test-sources/test-annotations"/>
+  <maxmem>${maven.compiler.maxmem}</maxmem>
+  <meminitial>${maven.compiler.meminitial}</meminitial>
+  <mojoExecution>${mojoExecution}</mojoExecution>
+  <optimize default-value="false">${maven.compiler.optimize}</optimize>
+  <outputDirectory default-value="${project.build.testOutputDirectory}"/>
+  <showDeprecation default-value="false">${maven.compiler.showDeprecation}</showDeprecation>
+  <showWarnings default-value="false">${maven.compiler.showWarnings}</showWarnings>
+  <skip>${maven.test.skip}</skip>
+  <skipMultiThreadWarning default-value="false">${maven.compiler.skipMultiThreadWarning}</skipMultiThreadWarning>
+  <source default-value="1.5">1.8</source>
+  <staleMillis default-value="0">${lastModGranularityMs}</staleMillis>
+  <target default-value="1.5">1.8</target>
+  <testSource>${maven.compiler.testSource}</testSource>
+  <testTarget>${maven.compiler.testTarget}</testTarget>
+  <useIncrementalCompilation default-value="true">${maven.compiler.useIncrementalCompilation}</useIncrementalCompilation>
+  <verbose default-value="false">${maven.compiler.verbose}</verbose>
+  <mavenSession default-value="${session}"/>
+  <session default-value="${session}"/>
+</configuration>
+[DEBUG] -----------------------------------------------------------------------
+[DEBUG] Goal:          org.apache.maven.plugins:maven-surefire-plugin:2.12.4:test (default-test)
+[DEBUG] Style:         Regular
+[DEBUG] Configuration: <?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <argLine>${argLine}</argLine>
+  <basedir default-value="${basedir}"/>
+  <childDelegation default-value="false">${childDelegation}</childDelegation>
+  <classesDirectory default-value="${project.build.outputDirectory}"/>
+  <debugForkedProcess>${maven.surefire.debug}</debugForkedProcess>
+  <disableXmlReport default-value="false">${disableXmlReport}</disableXmlReport>
+  <enableAssertions default-value="true">${enableAssertions}</enableAssertions>
+  <excludedGroups>${excludedGroups}</excludedGroups>
+  <failIfNoSpecifiedTests>${surefire.failIfNoSpecifiedTests}</failIfNoSpecifiedTests>
+  <failIfNoTests>${failIfNoTests}</failIfNoTests>
+  <forkMode default-value="once">${forkMode}</forkMode>
+  <forkedProcessTimeoutInSeconds>${surefire.timeout}</forkedProcessTimeoutInSeconds>
+  <groups>${groups}</groups>
+  <junitArtifactName default-value="junit:junit">${junitArtifactName}</junitArtifactName>
+  <jvm>${jvm}</jvm>
+  <localRepository default-value="${localRepository}"/>
+  <objectFactory>${objectFactory}</objectFactory>
+  <parallel>${parallel}</parallel>
+  <parallelMavenExecution default-value="${session.parallel}"/>
+  <perCoreThreadCount default-value="true">${perCoreThreadCount}</perCoreThreadCount>
+  <pluginArtifactMap>${plugin.artifactMap}</pluginArtifactMap>
+  <pluginDescriptor default-value="${plugin}"/>
+  <printSummary default-value="true">${surefire.printSummary}</printSummary>
+  <projectArtifactMap>${project.artifactMap}</projectArtifactMap>
+  <redirectTestOutputToFile default-value="false">${maven.test.redirectTestOutputToFile}</redirectTestOutputToFile>
+  <remoteRepositories default-value="${project.pluginArtifactRepositories}"/>
+  <reportFormat default-value="brief">${surefire.reportFormat}</reportFormat>
+  <reportNameSuffix default-value="">${surefire.reportNameSuffix}</reportNameSuffix>
+  <reportsDirectory default-value="${project.build.directory}/surefire-reports"/>
+  <runOrder default-value="filesystem"/>
+  <skip default-value="false">${maven.test.skip}</skip>
+  <skipExec>${maven.test.skip.exec}</skipExec>
+  <skipTests default-value="false">${skipTests}</skipTests>
+  <test>${test}</test>
+  <testClassesDirectory default-value="${project.build.testOutputDirectory}"/>
+  <testFailureIgnore default-value="false">${maven.test.failure.ignore}</testFailureIgnore>
+  <testNGArtifactName default-value="org.testng:testng">${testNGArtifactName}</testNGArtifactName>
+  <testSourceDirectory default-value="${project.build.testSourceDirectory}"/>
+  <threadCount>${threadCount}</threadCount>
+  <trimStackTrace default-value="true">${trimStackTrace}</trimStackTrace>
+  <useFile default-value="true">${surefire.useFile}</useFile>
+  <useManifestOnlyJar default-value="true">${surefire.useManifestOnlyJar}</useManifestOnlyJar>
+  <useSystemClassLoader default-value="true">${surefire.useSystemClassLoader}</useSystemClassLoader>
+  <useUnlimitedThreads default-value="false">${useUnlimitedThreads}</useUnlimitedThreads>
+  <workingDirectory>${basedir}</workingDirectory>
+  <project default-value="${project}"/>
+  <session default-value="${session}"/>
+</configuration>
+[DEBUG] -----------------------------------------------------------------------
+[DEBUG] Goal:          org.apache.maven.plugins:maven-jar-plugin:2.4:jar (default-jar)
+[DEBUG] Style:         Regular
+[DEBUG] Configuration: <?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <classesDirectory default-value="${project.build.outputDirectory}"/>
+  <defaultManifestFile default-value="${project.build.outputDirectory}/META-INF/MANIFEST.MF"/>
+  <finalName default-value="${project.build.finalName}">${jar.finalName}</finalName>
+  <forceCreation default-value="false">${jar.forceCreation}</forceCreation>
+  <outputDirectory default-value="${project.build.directory}"/>
+  <project default-value="${project}"/>
+  <session default-value="${session}"/>
+  <skipIfEmpty default-value="false">${jar.skipIfEmpty}</skipIfEmpty>
+  <useDefaultManifestFile default-value="false">${jar.useDefaultManifestFile}</useDefaultManifestFile>
+</configuration>
+[DEBUG] -----------------------------------------------------------------------
+[DEBUG] Goal:          org.apache.maven.plugins:maven-assembly-plugin:2.2-beta-5:single (make-assembly)
+[DEBUG] Style:         Regular
+[DEBUG] Configuration: <?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <appendAssemblyId default-value="true">${appendAssemblyId}</appendAssemblyId>
+  <archive>
+    <manifest>
+      <mainClass>es.eucm.firstaidgame.realtime.RealTime</mainClass>
+    </manifest>
+  </archive>
+  <attach default-value="true">${attach}</attach>
+  <basedir default-value="${basedir}"/>
+  <classifier>${classifier}</classifier>
+  <descriptor>${descriptor}</descriptor>
+  <descriptorId>${descriptorId}</descriptorId>
+  <descriptors>
+    <descriptor>src/assembly/jar.xml</descriptor>
+  </descriptors>
+  <dryRun default-value="false">${assembly.dryRun}</dryRun>
+  <finalName default-value="${project.build.finalName}">realtime</finalName>
+  <ignoreDirFormatExtensions default-value="true"/>
+  <ignoreMissingDescriptor default-value="false">${ignoreMissingDescriptor}</ignoreMissingDescriptor>
+  <includeSite default-value="false">${includeSite}</includeSite>
+  <localRepository default-value="${localRepository}"/>
+  <mavenSession>${session}</mavenSession>
+  <outputDirectory default-value="${project.build.directory}"/>
+  <project default-value="${project}"/>
+  <reactorProjects default-value="${reactorProjects}"/>
+  <remoteRepositories default-value="${project.remoteArtifactRepositories}"/>
+  <runOnlyAtExecutionRoot default-value="false">${runOnlyAtExecutionRoot}</runOnlyAtExecutionRoot>
+  <siteDirectory default-value="${project.reporting.outputDirectory}"/>
+  <skipAssembly default-value="false">${skipAssembly}</skipAssembly>
+  <tarLongFileMode default-value="warn">${tarLongFileMode}</tarLongFileMode>
+  <tempRoot default-value="${project.build.directory}/archive-tmp"/>
+  <workDirectory default-value="${project.build.directory}/assembly/work"/>
+</configuration>
+[DEBUG] -----------------------------------------------------------------------
+[DEBUG] Goal:          com.mycila:license-maven-plugin:2.11:check (default)
+[DEBUG] Style:         Regular
+[DEBUG] Configuration: <?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <aggregate default-value="false">${license.aggregate}</aggregate>
+  <basedir default-value="${basedir}">${license.basedir}</basedir>
+  <concurrencyFactor default-value="1.5">${license.concurrencyFactor}</concurrencyFactor>
+  <dryRun default-value="false">${license.dryRun}</dryRun>
+  <encoding default-value="${project.build.sourceEncoding}">${license.encoding}</encoding>
+  <excludes>
+    <exclude>**/README</exclude>
+    <exclude>src/test/resources/**</exclude>
+    <exclude>src/main/resources/**</exclude>
+  </excludes>
+  <failIfMissing default-value="true">${license.failIfMissing}</failIfMissing>
+  <failIfUnknown default-value="false">${license.failIfUnknown}</failIfUnknown>
+  <header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
+  <properties>
+    <project.inceptionYear>2016</project.inceptionYear>
+    <owner>e-UCM</owner>
+    <email>http://www.e-ucm.es/</email>
+  </properties>
+  <quiet default-value="false">${license.quiet}</quiet>
+  <skip default-value="false">${license.skip}</skip>
+  <skipExistingHeaders default-value="false">${license.skipExistingHeaders}</skipExistingHeaders>
+  <strictCheck default-value="true">${license.strictCheck}</strictCheck>
+  <useDefaultExcludes default-value="true">${license.useDefaultExcludes}</useDefaultExcludes>
+  <useDefaultMapping default-value="true">${license.useDefaultMapping}</useDefaultMapping>
+  <project default-value="${project}"/>
+  <settings default-value="${settings}"/>
+</configuration>
+[DEBUG] -----------------------------------------------------------------------
+[DEBUG] Goal:          org.apache.maven.plugins:maven-install-plugin:2.4:install (default-install)
+[DEBUG] Style:         Regular
+[DEBUG] Configuration: <?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <artifact default-value="${project.artifact}"/>
+  <attachedArtifacts default-value="${project.attachedArtifacts}"/>
+  <createChecksum default-value="false">${createChecksum}</createChecksum>
+  <localRepository>${localRepository}</localRepository>
+  <packaging default-value="${project.packaging}"/>
+  <pomFile default-value="${project.file}"/>
+  <skip default-value="false">${maven.install.skip}</skip>
+  <updateReleaseInfo default-value="false">${updateReleaseInfo}</updateReleaseInfo>
+</configuration>
+[DEBUG] -----------------------------------------------------------------------
+[DEBUG] Goal:          com.googlecode.maven-java-formatter-plugin:maven-java-formatter-plugin:0.4:format (default)
+[DEBUG] Style:         Regular
+[DEBUG] Configuration: <?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <basedir>${basedir}</basedir>
+  <compilerCompliance default-value="1.5">1.8.0_60</compilerCompliance>
+  <compilerSource default-value="1.5">1.8.0_60</compilerSource>
+  <compilerTargetPlatform default-value="1.5">${maven.compiler.target}</compilerTargetPlatform>
+  <configFile>eclipse-formatter.xml</configFile>
+  <encoding default-value="${project.build.sourceEncoding}"/>
+  <excludes>
+    <exclude>**/.m2/</exclude>
+  </excludes>
+  <lineEnding default-value="AUTO">KEEP</lineEnding>
+  <overrideConfigCompilerVersion default-value="false"/>
+  <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
+  <targetDirectory>${project.build.directory}</targetDirectory>
+  <testSourceDirectory>${project.build.testSourceDirectory}</testSourceDirectory>
+</configuration>
+[DEBUG] =======================================================================
+[DEBUG] Dependency collection stats: {ConflictMarker.analyzeTime=1, ConflictMarker.markTime=1, ConflictMarker.nodeCount=194, ConflictIdSorter.graphTime=0, ConflictIdSorter.topsortTime=1, ConflictIdSorter.conflictIdCount=87, ConflictIdSorter.conflictIdCycleCount=0, ConflictResolver.totalTime=11, ConflictResolver.conflictItemCount=178, DefaultDependencyCollector.collectTime=361, DefaultDependencyCollector.transformTime=17}
+[DEBUG] es.eucm.rage:real-time:jar:0.0.1-SNAPSHOT
+[DEBUG]    org.elasticsearch:elasticsearch:jar:5.0.0-alpha5:compile
+[DEBUG]       com.tdunning:t-digest:jar:3.0:compile
+[DEBUG]       com.fasterxml.jackson.core:jackson-core:jar:2.7.1:compile
+[DEBUG]       org.elasticsearch:securesm:jar:1.1:compile
+[DEBUG]       net.sf.jopt-simple:jopt-simple:jar:5.0.2:compile
+[DEBUG]       com.fasterxml.jackson.dataformat:jackson-dataformat-smile:jar:2.7.1:compile
+[DEBUG]       org.joda:joda-convert:jar:1.2:compile
+[DEBUG]       net.java.dev.jna:jna:jar:4.2.2:compile
+[DEBUG]       com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:jar:2.7.1:compile
+[DEBUG]       com.carrotsearch:hppc:jar:0.7.1:compile
+[DEBUG]       org.hdrhistogram:HdrHistogram:jar:2.1.6:compile
+[DEBUG]       joda-time:joda-time:jar:2.9.4:compile
+[DEBUG]       com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:jar:2.7.1:compile
+[DEBUG]    org.apache.lucene:lucene-core:jar:6.1.0:compile
+[DEBUG]    org.apache.lucene:lucene-join:jar:6.1.0:compile
+[DEBUG]    org.apache.lucene:lucene-queryparser:jar:6.1.0:compile
+[DEBUG]    org.apache.lucene:lucene-misc:jar:6.1.0:compile
+[DEBUG]    org.apache.lucene:lucene-highlighter:jar:6.1.0:compile
+[DEBUG]    org.apache.lucene:lucene-sandbox:jar:6.1.0:compile
+[DEBUG]    org.apache.lucene:lucene-spatial3d:jar:6.1.0:compile
+[DEBUG]    org.apache.lucene:lucene-backward-codecs:jar:6.1.0:compile
+[DEBUG]    org.apache.lucene:lucene-spatial-extras:jar:6.1.0:compile
+[DEBUG]       org.locationtech.spatial4j:spatial4j:jar:0.6:compile
+[DEBUG]    org.apache.lucene:lucene-grouping:jar:6.1.0:compile
+[DEBUG]    org.apache.lucene:lucene-analyzers-common:jar:6.1.0:compile
+[DEBUG]    org.apache.lucene:lucene-memory:jar:6.1.0:compile
+[DEBUG]    org.apache.lucene:lucene-queries:jar:6.1.0:compile
+[DEBUG]    org.apache.lucene:lucene-spatial:jar:6.1.0:compile
+[DEBUG]    org.apache.lucene:lucene-suggest:jar:6.1.0:compile
+[DEBUG]    org.apache.storm:storm-core:jar:0.9.3:compile
+[DEBUG]       org.clojure:clojure:jar:1.5.1:compile
+[DEBUG]       clj-time:clj-time:jar:0.4.1:compile
+[DEBUG]       compojure:compojure:jar:1.1.3:compile
+[DEBUG]       org.clojure:core.incubator:jar:0.1.0:compile
+[DEBUG]       org.clojure:tools.macro:jar:0.1.0:compile
+[DEBUG]       clout:clout:jar:1.0.1:compile
+[DEBUG]       ring:ring-core:jar:1.1.5:compile
+[DEBUG]       commons-fileupload:commons-fileupload:jar:1.2.1:compile
+[DEBUG]       javax.servlet:servlet-api:jar:2.5:compile
+[DEBUG]       hiccup:hiccup:jar:0.3.6:compile
+[DEBUG]       ring:ring-devel:jar:0.3.11:compile
+[DEBUG]       clj-stacktrace:clj-stacktrace:jar:0.2.2:compile
+[DEBUG]       ring:ring-jetty-adapter:jar:0.3.11:compile
+[DEBUG]       ring:ring-servlet:jar:0.3.11:compile
+[DEBUG]       org.mortbay.jetty:jetty:jar:6.1.26:compile
+[DEBUG]       org.mortbay.jetty:jetty-util:jar:6.1.26:compile
+[DEBUG]       org.clojure:tools.logging:jar:0.2.3:compile
+[DEBUG]       org.clojure:math.numeric-tower:jar:0.0.1:compile
+[DEBUG]       org.clojure:tools.cli:jar:0.2.4:compile
+[DEBUG]       commons-io:commons-io:jar:2.4:compile
+[DEBUG]       org.apache.commons:commons-exec:jar:1.1:compile
+[DEBUG]       commons-lang:commons-lang:jar:2.5:compile
+[DEBUG]       com.googlecode.json-simple:json-simple:jar:1.1:compile
+[DEBUG]       com.twitter:carbonite:jar:1.4.0:compile
+[DEBUG]       com.esotericsoftware.kryo:kryo:jar:2.21:compile
+[DEBUG]       com.esotericsoftware.reflectasm:reflectasm:jar:shaded:1.07:compile
+[DEBUG]       org.ow2.asm:asm:jar:4.0:compile
+[DEBUG]       com.esotericsoftware.minlog:minlog:jar:1.2:compile
+[DEBUG]       org.objenesis:objenesis:jar:1.2:compile
+[DEBUG]       com.twitter:chill-java:jar:0.3.5:compile
+[DEBUG]       org.yaml:snakeyaml:jar:1.11:compile
+[DEBUG]       commons-logging:commons-logging:jar:1.1.3:compile
+[DEBUG]       commons-codec:commons-codec:jar:1.6:compile
+[DEBUG]       com.googlecode.disruptor:disruptor:jar:2.10.1:compile
+[DEBUG]       org.jgrapht:jgrapht-core:jar:0.9.0:compile
+[DEBUG]       ch.qos.logback:logback-classic:jar:1.0.13:compile
+[DEBUG]       ch.qos.logback:logback-core:jar:1.0.13:compile
+[DEBUG]       org.slf4j:slf4j-api:jar:1.7.5:compile
+[DEBUG]       org.slf4j:log4j-over-slf4j:jar:1.6.6:compile
+[DEBUG]       jline:jline:jar:2.11:compile
+[DEBUG]    org.apache.storm:flux-core:jar:0.10.0:compile
+[DEBUG]       commons-cli:commons-cli:jar:1.2:compile
+[DEBUG]    org.apache.kafka:kafka_2.10:jar:0.8.1.1:compile
+[DEBUG]       com.yammer.metrics:metrics-core:jar:2.2.0:compile
+[DEBUG]       org.xerial.snappy:snappy-java:jar:1.0.5:compile
+[DEBUG]       org.scala-lang:scala-library:jar:2.10.1:compile
+[DEBUG]       com.101tec:zkclient:jar:0.3:compile
+[DEBUG]    org.apache.storm:storm-kafka:jar:0.9.3:compile
+[DEBUG]       org.apache.curator:curator-framework:jar:2.5.0:compile
+[DEBUG]          org.apache.curator:curator-client:jar:2.5.0:compile
+[DEBUG]          org.apache.zookeeper:zookeeper:jar:3.4.6:compile
+[DEBUG]             io.netty:netty:jar:3.7.0.Final:compile
+[DEBUG]          com.google.guava:guava:jar:16.0.1:compile
+[DEBUG]    com.google.code.gson:gson:jar:2.3.1:compile
+[DEBUG]    junit:junit:jar:4.11:test
+[DEBUG]       org.hamcrest:hamcrest-core:jar:1.3:test
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ real-time ---
+[DEBUG] Dependency collection stats: {ConflictMarker.analyzeTime=0, ConflictMarker.markTime=0, ConflictMarker.nodeCount=3, ConflictIdSorter.graphTime=0, ConflictIdSorter.topsortTime=0, ConflictIdSorter.conflictIdCount=3, ConflictIdSorter.conflictIdCycleCount=0, ConflictResolver.totalTime=0, ConflictResolver.conflictItemCount=3, DefaultDependencyCollector.collectTime=11, DefaultDependencyCollector.transformTime=0}
+[DEBUG] org.apache.maven.plugins:maven-clean-plugin:jar:2.5:
+[DEBUG]    org.apache.maven:maven-plugin-api:jar:2.0.6:compile
+[DEBUG]    org.codehaus.plexus:plexus-utils:jar:3.0:compile
+[DEBUG] Created new class realm plugin>org.apache.maven.plugins:maven-clean-plugin:2.5
+[DEBUG] Importing foreign packages into class realm plugin>org.apache.maven.plugins:maven-clean-plugin:2.5
+[DEBUG]   Imported:  < maven.api
+[DEBUG] Populating class realm plugin>org.apache.maven.plugins:maven-clean-plugin:2.5
+[DEBUG]   Included: org.apache.maven.plugins:maven-clean-plugin:jar:2.5
+[DEBUG]   Included: org.codehaus.plexus:plexus-utils:jar:3.0
+[DEBUG] Configuring mojo org.apache.maven.plugins:maven-clean-plugin:2.5:clean from plugin realm ClassRealm[plugin>org.apache.maven.plugins:maven-clean-plugin:2.5, parent: sun.misc.Launcher$AppClassLoader@70dea4e]
+[DEBUG] Configuring mojo 'org.apache.maven.plugins:maven-clean-plugin:2.5:clean' with basic configurator -->
+[DEBUG]   (f) directory = D:\rage\realtime_rage_old_project\rage-analytics-realtime\target
+[DEBUG]   (f) excludeDefaultDirectories = false
+[DEBUG]   (f) failOnError = true
+[DEBUG]   (f) followSymLinks = false
+[DEBUG]   (f) outputDirectory = D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes
+[DEBUG]   (f) reportDirectory = D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\site
+[DEBUG]   (f) retryOnError = true
+[DEBUG]   (f) skip = false
+[DEBUG]   (f) testOutputDirectory = D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\test-classes
+[DEBUG] -- end configuration --
+[INFO] Deleting D:\rage\realtime_rage_old_project\rage-analytics-realtime\target
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\maven-status\maven-compiler-plugin\compile\default-compile\inputFiles.lst
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\maven-status\maven-compiler-plugin\compile\default-compile\createdFiles.lst
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\maven-status\maven-compiler-plugin\compile\default-compile
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\maven-status\maven-compiler-plugin\compile
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\maven-status\maven-compiler-plugin
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\maven-status
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\generated-sources\annotations
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\generated-sources
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\utils\EsConfig.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\utils\Document.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\utils\DBUtils.class
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\utils
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\topologies\RealtimeTopology.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\topologies\KafkaTopology.class
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\topologies
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\states\TraceStateUpdater.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\states\GameplayStateUpdater.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\states\GameplayState.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\states\GameplayState$BackingMap.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\states\ESStateFactory.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\states\ESGameplayState.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\states\DocumentBuilder.class
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\states
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\functions\TraceFieldExtractor.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\functions\SuffixPropertyCreator.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\functions\SimplePropertyCreator.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\functions\PropertyCreator.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\functions\JsonToTrace.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\functions\JsonToTrace$1.class
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\functions
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\filters\FieldValuesOrFilter.class
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\filters\FieldValueFilter.class
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\filters
+[INFO] Deleting file D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime\Analysis.class
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage\realtime
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm\rage
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es\eucm
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes\es
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes
+[INFO] Deleting directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target
+[DEBUG] Skipping non-existing directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes
+[DEBUG] Skipping non-existing directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\test-classes
+[DEBUG] Skipping non-existing directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\site
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ real-time ---
+[DEBUG] Dependency collection stats: {ConflictMarker.analyzeTime=0, ConflictMarker.markTime=0, ConflictMarker.nodeCount=77, ConflictIdSorter.graphTime=0, ConflictIdSorter.topsortTime=0, ConflictIdSorter.conflictIdCount=26, ConflictIdSorter.conflictIdCycleCount=0, ConflictResolver.totalTime=1, ConflictResolver.conflictItemCount=74, DefaultDependencyCollector.collectTime=81, DefaultDependencyCollector.transformTime=1}
+[DEBUG] org.apache.maven.plugins:maven-resources-plugin:jar:2.6:
+[DEBUG]    org.apache.maven:maven-plugin-api:jar:2.0.6:compile
+[DEBUG]    org.apache.maven:maven-project:jar:2.0.6:compile
+[DEBUG]       org.apache.maven:maven-profile:jar:2.0.6:compile
+[DEBUG]       org.apache.maven:maven-artifact-manager:jar:2.0.6:compile
+[DEBUG]       org.apache.maven:maven-plugin-registry:jar:2.0.6:compile
+[DEBUG]    org.apache.maven:maven-core:jar:2.0.6:compile
+[DEBUG]       org.apache.maven:maven-plugin-parameter-documenter:jar:2.0.6:compile
+[DEBUG]       org.apache.maven.reporting:maven-reporting-api:jar:2.0.6:compile
+[DEBUG]          org.apache.maven.doxia:doxia-sink-api:jar:1.0-alpha-7:compile
+[DEBUG]       org.apache.maven:maven-repository-metadata:jar:2.0.6:compile
+[DEBUG]       org.apache.maven:maven-error-diagnostics:jar:2.0.6:compile
+[DEBUG]       commons-cli:commons-cli:jar:1.0:compile
+[DEBUG]       org.apache.maven:maven-plugin-descriptor:jar:2.0.6:compile
+[DEBUG]       org.codehaus.plexus:plexus-interactivity-api:jar:1.0-alpha-4:compile
+[DEBUG]       classworlds:classworlds:jar:1.1:compile
+[DEBUG]    org.apache.maven:maven-artifact:jar:2.0.6:compile
+[DEBUG]    org.apache.maven:maven-settings:jar:2.0.6:compile
+[DEBUG]    org.apache.maven:maven-model:jar:2.0.6:compile
+[DEBUG]    org.apache.maven:maven-monitor:jar:2.0.6:compile
+[DEBUG]    org.codehaus.plexus:plexus-container-default:jar:1.0-alpha-9-stable-1:compile
+[DEBUG]       junit:junit:jar:3.8.1:compile
+[DEBUG]    org.codehaus.plexus:plexus-utils:jar:2.0.5:compile
+[DEBUG]    org.apache.maven.shared:maven-filtering:jar:1.1:compile
+[DEBUG]       org.sonatype.plexus:plexus-build-api:jar:0.0.4:compile
+[DEBUG]    org.codehaus.plexus:plexus-interpolation:jar:1.13:compile
+[DEBUG] Created new class realm plugin>org.apache.maven.plugins:maven-resources-plugin:2.6
+[DEBUG] Importing foreign packages into class realm plugin>org.apache.maven.plugins:maven-resources-plugin:2.6
+[DEBUG]   Imported:  < maven.api
+[DEBUG] Populating class realm plugin>org.apache.maven.plugins:maven-resources-plugin:2.6
+[DEBUG]   Included: org.apache.maven.plugins:maven-resources-plugin:jar:2.6
+[DEBUG]   Included: org.apache.maven.reporting:maven-reporting-api:jar:2.0.6
+[DEBUG]   Included: org.apache.maven.doxia:doxia-sink-api:jar:1.0-alpha-7
+[DEBUG]   Included: commons-cli:commons-cli:jar:1.0
+[DEBUG]   Included: org.codehaus.plexus:plexus-interactivity-api:jar:1.0-alpha-4
+[DEBUG]   Included: junit:junit:jar:3.8.1
+[DEBUG]   Included: org.codehaus.plexus:plexus-utils:jar:2.0.5
+[DEBUG]   Included: org.apache.maven.shared:maven-filtering:jar:1.1
+[DEBUG]   Included: org.sonatype.plexus:plexus-build-api:jar:0.0.4
+[DEBUG]   Included: org.codehaus.plexus:plexus-interpolation:jar:1.13
+[DEBUG] Configuring mojo org.apache.maven.plugins:maven-resources-plugin:2.6:resources from plugin realm ClassRealm[plugin>org.apache.maven.plugins:maven-resources-plugin:2.6, parent: sun.misc.Launcher$AppClassLoader@70dea4e]
+[DEBUG] Configuring mojo 'org.apache.maven.plugins:maven-resources-plugin:2.6:resources' with basic configurator -->
+[DEBUG]   (f) buildFilters = []
+[DEBUG]   (f) encoding = UTF-8
+[DEBUG]   (f) escapeWindowsPaths = true
+[DEBUG]   (s) includeEmptyDirs = false
+[DEBUG]   (s) outputDirectory = D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes
+[DEBUG]   (s) overwrite = false
+[DEBUG]   (f) project = MavenProject: es.eucm.rage:real-time:0.0.1-SNAPSHOT @ D:\rage\realtime_rage_old_project\rage-analytics-realtime\pom.xml
+[DEBUG]   (s) resources = [Resource {targetPath: null, filtering: false, FileSet {directory: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\resources, PatternSet [includes: {}, excludes: {}]}}]
+[DEBUG]   (f) session = org.apache.maven.execution.MavenSession@4b629f13
+[DEBUG]   (f) supportMultiLineFiltering = false
+[DEBUG]   (f) useBuildFilters = true
+[DEBUG]   (s) useDefaultDelimiters = true
+[DEBUG] -- end configuration --
+[DEBUG] properties used {java.vendor=Oracle Corporation, env.SYSTEMROOT=C:\WINDOWS, env.USERDOMAIN_ROAMINGPROFILE=DESKTOP-4UVBQDE, sun.java.launcher=SUN_STANDARD, sun.management.compiler=HotSpot 64-Bit Tiered Compilers, env.PROMPT=$P$G, env.WDIR=D:\, os.name=Windows 10, sun.boot.class.path=C:\Program Files\Java\jdk1.8.0_60\jre\lib\resources.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\rt.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\jce.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.8.0_60\jre\lib\jfr.jar;C:\Program Files\Java\jdk1.8.0_60\jre\classes, env.COMPUTERNAME=DESKTOP-4UVBQDE, user.country.format=ES, env.ALLUSERSPROFILE=C:\ProgramData, env.GTK_BASEPATH=C:\Program Files (x86)\GtkSharp\2.12\, sun.desktop=windows, java.vm.specification.vendor=Oracle Corporation, java.runtime.version=1.8.0_60-b27, env.HOMEPATH=\Users\dan, project.build.sourceEncoding=UTF-8, user.name=dan, maven.build.version=Apache Maven 3.3.3 (7994120775791599e205a5524ec3e0dfe41d4a06; 2015-04-22T13:57:37+02:00), user.language.format=es, env.QTJAVA=C:\Program Files (x86)\QuickTime\QTSystem\QTJava.zip, env.PATH=C:\Python27\;C:\Python27\Scripts;C:\ProgramData\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\nodejs\;C:\Program Files (x86)\Bitvise SSH Client;C:\Program Files (x86)\Windows Kits\10\Windows Performance Toolkit\;C:\Program Files (x86)\Skype\Phone\;C:\Program Files (x86)\QuickTime\QTSystem\;C:\Program Files (x86)\GtkSharp\2.12\bin;C:\Program Files (x86)\Heroku\bin;C:\Program Files (x86)\git\cmd;C:\Program Files (x86)\Git\cmd;C:\Program Files\Redis\;C:\Ruby23-x64\bin;C:\Users\dan\AppData\Roaming\npm;C:\Program Files\Docker Toolbox;C:\Users\dan\.babun;C:\apache-maven-3.3.3\bin;C:\Program Files\Java\jdk1.8.0_60;C:\Program Files\MongoDB\Server\3.0\bin;C:\Program Files\Redis;C:\Users\dan\AppData\Local\Gource\cmd;C:\Users\dan\AppData\Local\Microsoft\WindowsApps;, user.language=en, env.WINDIR=C:\WINDOWS, sun.boot.library.path=C:\Program Files\Java\jdk1.8.0_60\jre\bin, classworlds.conf=C:\apache-maven-3.3.3\bin\..\bin\m2.conf, java.version=1.8.0_60, env.PROCESSOR_IDENTIFIER=Intel64 Family 6 Model 71 Stepping 1, GenuineIntel, user.timezone=Europe/Paris, env.TEMP=C:\Users\dan\AppData\Local\Temp, env.HEROKUPATH=C:\Program Files (x86)\Heroku, sun.arch.data.model=64, env.EXEC_DIR=D:\rage\realtime_rage_old_project\rage-analytics-realtime, java.endorsed.dirs=C:\Program Files\Java\jdk1.8.0_60\jre\lib\endorsed, sun.cpu.isalist=amd64, env.HOMEDRIVE=C:, sun.jnu.encoding=Cp1252, storm.version=0.9.3, file.encoding.pkg=sun.io, env.SYSTEMDRIVE=C:, file.separator=\, java.specification.name=Java Platform API Specification, java.class.version=52.0, org.slf4j.simpleLogger.defaultLogLevel=debug, user.country=GB, java.home=C:\Program Files\Java\jdk1.8.0_60\jre, env.APPDATA=C:\Users\dan\AppData\Roaming, env.PUBLIC=C:\Users\Public, java.vm.info=mixed mode, env.OS=Windows_NT, os.version=10.0, path.separator=;, java.vm.version=25.60-b23, user.variant=, env.USERPROFILE=C:\Users\dan, env.JAVA_HOME=C:\Program Files\Java\jdk1.8.0_60, java.awt.printerjob=sun.awt.windows.WPrinterJob, env.TERM=xterm-256color, env.TMP=C:\Users\dan\AppData\Local\Temp, env.FPS_BROWSER_USER_PROFILE_STRING=Default, env.PROGRAMFILES=C:\Program Files, sun.io.unicode.encoding=UnicodeLittle, awt.toolkit=sun.awt.windows.WToolkit, user.script=, user.home=C:\Users\dan, env.COMMONPROGRAMFILES=C:\Program Files\Common Files, env.=EXITCODE=00000000, env.VS140COMNTOOLS=C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\, env.SESSIONNAME=Console, java.specification.vendor=Oracle Corporation, env.CLASSPATH=.;C:\Program Files (x86)\QuickTime\QTSystem\QTJava.zip, env.M2_HOME=C:\apache-maven-3.3.3\bin\.., java.library.path=C:\Program Files\Java\jdk1.8.0_60\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\Python27\;C:\Python27\Scripts;C:\ProgramData\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\nodejs\;C:\Program Files (x86)\Bitvise SSH Client;C:\Program Files (x86)\Windows Kits\10\Windows Performance Toolkit\;C:\Program Files (x86)\Skype\Phone\;C:\Program Files (x86)\QuickTime\QTSystem\;C:\Program Files (x86)\GtkSharp\2.12\bin;C:\Program Files (x86)\Heroku\bin;C:\Program Files (x86)\git\cmd;C:\Program Files (x86)\Git\cmd;C:\Program Files\Redis\;C:\Ruby23-x64\bin;C:\Users\dan\AppData\Roaming\npm;C:\Program Files\Docker Toolbox;C:\Users\dan\.babun;C:\apache-maven-3.3.3\bin;C:\Program Files\Java\jdk1.8.0_60;C:\Program Files\MongoDB\Server\3.0\bin;C:\Program Files\Redis;C:\Users\dan\AppData\Local\Gource\cmd;C:\Users\dan\AppData\Local\Microsoft\WindowsApps;;., env.NUMBER_OF_PROCESSORS=8, java.vendor.url=http://java.oracle.com/, env.COMMONPROGRAMFILES(X86)=C:\Program Files (x86)\Common Files, env.PSMODULEPATH=C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules\, env.CLASSWORLDS_LAUNCHER=org.codehaus.plexus.classworlds.launcher.Launcher, env.MAVEN_CMD_LINE_ARGS=clean install -X, java.vm.vendor=Oracle Corporation, maven.home=C:\apache-maven-3.3.3\bin\.., java.runtime.name=Java(TM) SE Runtime Environment, sun.java.command=org.codehaus.plexus.classworlds.launcher.Launcher clean install -X, java.class.path=C:\apache-maven-3.3.3\bin\..\boot\plexus-classworlds-2.5.2.jar, env.PROGRAMW6432=C:\Program Files, maven.version=3.3.3, env.PROGRAMFILES(X86)=C:\Program Files (x86), env.MAVEN_JAVA_EXE="C:\Program Files\Java\jdk1.8.0_60\bin\java.exe", java.vm.specification.name=Java Virtual Machine Specification, env.LOGONSERVER=\\DESKTOP-4UVBQDE, java.vm.specification.version=1.8, env.PROCESSOR_ARCHITECTURE=AMD64, env.COMMONPROGRAMW6432=C:\Program Files\Common Files, sun.cpu.endian=little, sun.os.patch.level=, env.HOME=C:\Users\dan, java.io.tmpdir=C:\Users\dan\AppData\Local\Temp\, env.PROCESSOR_REVISION=4701, java.vendor.url.bug=http://bugreport.sun.com/bugreport/, maven.multiModuleProjectDirectory=D:\rage\realtime_rage_old_project\rage-analytics-realtime, env.PROGRAMDATA=C:\ProgramData, env.COMSPEC=C:\WINDOWS\system32\cmd.exe, env.FPS_BROWSER_APP_PROFILE_STRING=Internet Explorer, os.arch=amd64, java.awt.graphicsenv=sun.awt.Win32GraphicsEnvironment, java.ext.dirs=C:\Program Files\Java\jdk1.8.0_60\jre\lib\ext;C:\WINDOWS\Sun\Java\lib\ext, env.=D:=D:\rage\realtime_rage_old_project\rage-analytics-realtime, user.dir=D:\rage\realtime_rage_old_project\rage-analytics-realtime, env.LOCALAPPDATA=C:\Users\dan\AppData\Local, line.separator=
+, env.CLASSWORLDS_JAR="C:\apache-maven-3.3.3\bin\..\boot\plexus-classworlds-2.5.2.jar", java.vm.name=Java HotSpot(TM) 64-Bit Server VM, env.PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.RB;.RBW, env.ERROR_CODE=0, env.USERNAME=dan, sun.stderr.encoding=cp850, file.encoding=Cp1252, env.USERDOMAIN=DESKTOP-4UVBQDE, flux.version=0.10.0, env.VAGRANT_DETECTED_OS=cygwin, java.specification.version=1.8, env.PROCESSOR_LEVEL=6, env.MAVEN_PROJECTBASEDIR=D:\rage\realtime_rage_old_project\rage-analytics-realtime, env.VBOX_MSI_INSTALL_PATH=C:\Program Files\Oracle\VirtualBox\}
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[DEBUG] resource with targetPath null
+directory D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\resources
+excludes []
+includes []
+[INFO] skip non existing resourceDirectory D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\resources
+[DEBUG] no use filter components
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ real-time ---
+[DEBUG] Dependency collection stats: {ConflictMarker.analyzeTime=1, ConflictMarker.markTime=0, ConflictMarker.nodeCount=160, ConflictIdSorter.graphTime=0, ConflictIdSorter.topsortTime=0, ConflictIdSorter.conflictIdCount=43, ConflictIdSorter.conflictIdCycleCount=0, ConflictResolver.totalTime=1, ConflictResolver.conflictItemCount=63, DefaultDependencyCollector.collectTime=143, DefaultDependencyCollector.transformTime=2}
+[DEBUG] org.apache.maven.plugins:maven-compiler-plugin:jar:3.1:
+[DEBUG]    org.apache.maven:maven-plugin-api:jar:2.0.9:compile
+[DEBUG]    org.apache.maven:maven-artifact:jar:2.0.9:compile
+[DEBUG]       org.codehaus.plexus:plexus-utils:jar:1.5.1:compile
+[DEBUG]    org.apache.maven:maven-core:jar:2.0.9:compile
+[DEBUG]       org.apache.maven:maven-settings:jar:2.0.9:compile
+[DEBUG]       org.apache.maven:maven-plugin-parameter-documenter:jar:2.0.9:compile
+[DEBUG]       org.apache.maven:maven-profile:jar:2.0.9:compile
+[DEBUG]       org.apache.maven:maven-model:jar:2.0.9:compile
+[DEBUG]       org.apache.maven:maven-repository-metadata:jar:2.0.9:compile
+[DEBUG]       org.apache.maven:maven-error-diagnostics:jar:2.0.9:compile
+[DEBUG]       org.apache.maven:maven-project:jar:2.0.9:compile
+[DEBUG]          org.apache.maven:maven-plugin-registry:jar:2.0.9:compile
+[DEBUG]       org.apache.maven:maven-plugin-descriptor:jar:2.0.9:compile
+[DEBUG]       org.apache.maven:maven-artifact-manager:jar:2.0.9:compile
+[DEBUG]       org.apache.maven:maven-monitor:jar:2.0.9:compile
+[DEBUG]    org.apache.maven:maven-toolchain:jar:1.0:compile
+[DEBUG]    org.apache.maven.shared:maven-shared-utils:jar:0.1:compile
+[DEBUG]       com.google.code.findbugs:jsr305:jar:2.0.1:compile
+[DEBUG]    org.apache.maven.shared:maven-shared-incremental:jar:1.1:compile
+[DEBUG]       org.codehaus.plexus:plexus-component-annotations:jar:1.5.5:compile
+[DEBUG]    org.codehaus.plexus:plexus-compiler-api:jar:2.2:compile
+[DEBUG]    org.codehaus.plexus:plexus-compiler-manager:jar:2.2:compile
+[DEBUG]    org.codehaus.plexus:plexus-compiler-javac:jar:2.2:runtime
+[DEBUG]    org.codehaus.plexus:plexus-container-default:jar:1.5.5:compile
+[DEBUG]       org.codehaus.plexus:plexus-classworlds:jar:2.2.2:compile
+[DEBUG]       org.apache.xbean:xbean-reflect:jar:3.4:compile
+[DEBUG]          log4j:log4j:jar:1.2.12:compile
+[DEBUG]          commons-logging:commons-logging-api:jar:1.1:compile
+[DEBUG]       com.google.collections:google-collections:jar:1.0:compile
+[DEBUG]       junit:junit:jar:3.8.2:compile
+[DEBUG] Created new class realm plugin>org.apache.maven.plugins:maven-compiler-plugin:3.1
+[DEBUG] Importing foreign packages into class realm plugin>org.apache.maven.plugins:maven-compiler-plugin:3.1
+[DEBUG]   Imported:  < maven.api
+[DEBUG] Populating class realm plugin>org.apache.maven.plugins:maven-compiler-plugin:3.1
+[DEBUG]   Included: org.apache.maven.plugins:maven-compiler-plugin:jar:3.1
+[DEBUG]   Included: org.codehaus.plexus:plexus-utils:jar:1.5.1
+[DEBUG]   Included: org.apache.maven.shared:maven-shared-utils:jar:0.1
+[DEBUG]   Included: com.google.code.findbugs:jsr305:jar:2.0.1
+[DEBUG]   Included: org.apache.maven.shared:maven-shared-incremental:jar:1.1
+[DEBUG]   Included: org.codehaus.plexus:plexus-component-annotations:jar:1.5.5
+[DEBUG]   Included: org.codehaus.plexus:plexus-compiler-api:jar:2.2
+[DEBUG]   Included: org.codehaus.plexus:plexus-compiler-manager:jar:2.2
+[DEBUG]   Included: org.codehaus.plexus:plexus-compiler-javac:jar:2.2
+[DEBUG]   Included: org.apache.xbean:xbean-reflect:jar:3.4
+[DEBUG]   Included: log4j:log4j:jar:1.2.12
+[DEBUG]   Included: commons-logging:commons-logging-api:jar:1.1
+[DEBUG]   Included: com.google.collections:google-collections:jar:1.0
+[DEBUG]   Included: junit:junit:jar:3.8.2
+[DEBUG] Configuring mojo org.apache.maven.plugins:maven-compiler-plugin:3.1:compile from plugin realm ClassRealm[plugin>org.apache.maven.plugins:maven-compiler-plugin:3.1, parent: sun.misc.Launcher$AppClassLoader@70dea4e]
+[DEBUG] Configuring mojo 'org.apache.maven.plugins:maven-compiler-plugin:3.1:compile' with basic configurator -->
+[DEBUG]   (f) basedir = D:\rage\realtime_rage_old_project\rage-analytics-realtime
+[DEBUG]   (f) buildDirectory = D:\rage\realtime_rage_old_project\rage-analytics-realtime\target
+[DEBUG]   (f) classpathElements = [D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes, C:\Users\dan\.m2\repository\org\elasticsearch\elasticsearch\5.0.0-alpha5\elasticsearch-5.0.0-alpha5.jar, C:\Users\dan\.m2\repository\com\tdunning\t-digest\3.0\t-digest-3.0.jar, C:\Users\dan\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.7.1\jackson-core-2.7.1.jar, C:\Users\dan\.m2\repository\org\elasticsearch\securesm\1.1\securesm-1.1.jar, C:\Users\dan\.m2\repository\net\sf\jopt-simple\jopt-simple\5.0.2\jopt-simple-5.0.2.jar, C:\Users\dan\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-smile\2.7.1\jackson-dataformat-smile-2.7.1.jar, C:\Users\dan\.m2\repository\org\joda\joda-convert\1.2\joda-convert-1.2.jar, C:\Users\dan\.m2\repository\net\java\dev\jna\jna\4.2.2\jna-4.2.2.jar, C:\Users\dan\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-yaml\2.7.1\jackson-dataformat-yaml-2.7.1.jar, C:\Users\dan\.m2\repository\com\carrotsearch\hppc\0.7.1\hppc-0.7.1.jar, C:\Users\dan\.m2\repository\org\hdrhistogram\HdrHistogram\2.1.6\HdrHistogram-2.1.6.jar, C:\Users\dan\.m2\repository\joda-time\joda-time\2.9.4\joda-time-2.9.4.jar, C:\Users\dan\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-cbor\2.7.1\jackson-dataformat-cbor-2.7.1.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-core\6.1.0\lucene-core-6.1.0.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-join\6.1.0\lucene-join-6.1.0.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-queryparser\6.1.0\lucene-queryparser-6.1.0.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-misc\6.1.0\lucene-misc-6.1.0.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-highlighter\6.1.0\lucene-highlighter-6.1.0.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-sandbox\6.1.0\lucene-sandbox-6.1.0.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-spatial3d\6.1.0\lucene-spatial3d-6.1.0.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-backward-codecs\6.1.0\lucene-backward-codecs-6.1.0.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-spatial-extras\6.1.0\lucene-spatial-extras-6.1.0.jar, C:\Users\dan\.m2\repository\org\locationtech\spatial4j\spatial4j\0.6\spatial4j-0.6.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-grouping\6.1.0\lucene-grouping-6.1.0.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-analyzers-common\6.1.0\lucene-analyzers-common-6.1.0.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-memory\6.1.0\lucene-memory-6.1.0.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-queries\6.1.0\lucene-queries-6.1.0.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-spatial\6.1.0\lucene-spatial-6.1.0.jar, C:\Users\dan\.m2\repository\org\apache\lucene\lucene-suggest\6.1.0\lucene-suggest-6.1.0.jar, C:\Users\dan\.m2\repository\org\apache\storm\storm-core\0.9.3\storm-core-0.9.3.jar, C:\Users\dan\.m2\repository\org\clojure\clojure\1.5.1\clojure-1.5.1.jar, C:\Users\dan\.m2\repository\clj-time\clj-time\0.4.1\clj-time-0.4.1.jar, C:\Users\dan\.m2\repository\compojure\compojure\1.1.3\compojure-1.1.3.jar, C:\Users\dan\.m2\repository\org\clojure\core.incubator\0.1.0\core.incubator-0.1.0.jar, C:\Users\dan\.m2\repository\org\clojure\tools.macro\0.1.0\tools.macro-0.1.0.jar, C:\Users\dan\.m2\repository\clout\clout\1.0.1\clout-1.0.1.jar, C:\Users\dan\.m2\repository\ring\ring-core\1.1.5\ring-core-1.1.5.jar, C:\Users\dan\.m2\repository\commons-fileupload\commons-fileupload\1.2.1\commons-fileupload-1.2.1.jar, C:\Users\dan\.m2\repository\javax\servlet\servlet-api\2.5\servlet-api-2.5.jar, C:\Users\dan\.m2\repository\hiccup\hiccup\0.3.6\hiccup-0.3.6.jar, C:\Users\dan\.m2\repository\ring\ring-devel\0.3.11\ring-devel-0.3.11.jar, C:\Users\dan\.m2\repository\clj-stacktrace\clj-stacktrace\0.2.2\clj-stacktrace-0.2.2.jar, C:\Users\dan\.m2\repository\ring\ring-jetty-adapter\0.3.11\ring-jetty-adapter-0.3.11.jar, C:\Users\dan\.m2\repository\ring\ring-servlet\0.3.11\ring-servlet-0.3.11.jar, C:\Users\dan\.m2\repository\org\mortbay\jetty\jetty\6.1.26\jetty-6.1.26.jar, C:\Users\dan\.m2\repository\org\mortbay\jetty\jetty-util\6.1.26\jetty-util-6.1.26.jar, C:\Users\dan\.m2\repository\org\clojure\tools.logging\0.2.3\tools.logging-0.2.3.jar, C:\Users\dan\.m2\repository\org\clojure\math.numeric-tower\0.0.1\math.numeric-tower-0.0.1.jar, C:\Users\dan\.m2\repository\org\clojure\tools.cli\0.2.4\tools.cli-0.2.4.jar, C:\Users\dan\.m2\repository\commons-io\commons-io\2.4\commons-io-2.4.jar, C:\Users\dan\.m2\repository\org\apache\commons\commons-exec\1.1\commons-exec-1.1.jar, C:\Users\dan\.m2\repository\commons-lang\commons-lang\2.5\commons-lang-2.5.jar, C:\Users\dan\.m2\repository\com\googlecode\json-simple\json-simple\1.1\json-simple-1.1.jar, C:\Users\dan\.m2\repository\com\twitter\carbonite\1.4.0\carbonite-1.4.0.jar, C:\Users\dan\.m2\repository\com\esotericsoftware\kryo\kryo\2.21\kryo-2.21.jar, C:\Users\dan\.m2\repository\com\esotericsoftware\reflectasm\reflectasm\1.07\reflectasm-1.07-shaded.jar, C:\Users\dan\.m2\repository\org\ow2\asm\asm\4.0\asm-4.0.jar, C:\Users\dan\.m2\repository\com\esotericsoftware\minlog\minlog\1.2\minlog-1.2.jar, C:\Users\dan\.m2\repository\org\objenesis\objenesis\1.2\objenesis-1.2.jar, C:\Users\dan\.m2\repository\com\twitter\chill-java\0.3.5\chill-java-0.3.5.jar, C:\Users\dan\.m2\repository\org\yaml\snakeyaml\1.11\snakeyaml-1.11.jar, C:\Users\dan\.m2\repository\commons-logging\commons-logging\1.1.3\commons-logging-1.1.3.jar, C:\Users\dan\.m2\repository\commons-codec\commons-codec\1.6\commons-codec-1.6.jar, C:\Users\dan\.m2\repository\com\googlecode\disruptor\disruptor\2.10.1\disruptor-2.10.1.jar, C:\Users\dan\.m2\repository\org\jgrapht\jgrapht-core\0.9.0\jgrapht-core-0.9.0.jar, C:\Users\dan\.m2\repository\ch\qos\logback\logback-classic\1.0.13\logback-classic-1.0.13.jar, C:\Users\dan\.m2\repository\ch\qos\logback\logback-core\1.0.13\logback-core-1.0.13.jar, C:\Users\dan\.m2\repository\org\slf4j\slf4j-api\1.7.5\slf4j-api-1.7.5.jar, C:\Users\dan\.m2\repository\org\slf4j\log4j-over-slf4j\1.6.6\log4j-over-slf4j-1.6.6.jar, C:\Users\dan\.m2\repository\jline\jline\2.11\jline-2.11.jar, C:\Users\dan\.m2\repository\org\apache\storm\flux-core\0.10.0\flux-core-0.10.0.jar, C:\Users\dan\.m2\repository\commons-cli\commons-cli\1.2\commons-cli-1.2.jar, C:\Users\dan\.m2\repository\org\apache\kafka\kafka_2.10\0.8.1.1\kafka_2.10-0.8.1.1.jar, C:\Users\dan\.m2\repository\com\yammer\metrics\metrics-core\2.2.0\metrics-core-2.2.0.jar, C:\Users\dan\.m2\repository\org\xerial\snappy\snappy-java\1.0.5\snappy-java-1.0.5.jar, C:\Users\dan\.m2\repository\org\scala-lang\scala-library\2.10.1\scala-library-2.10.1.jar, C:\Users\dan\.m2\repository\com\101tec\zkclient\0.3\zkclient-0.3.jar, C:\Users\dan\.m2\repository\org\apache\storm\storm-kafka\0.9.3\storm-kafka-0.9.3.jar, C:\Users\dan\.m2\repository\org\apache\curator\curator-framework\2.5.0\curator-framework-2.5.0.jar, C:\Users\dan\.m2\repository\org\apache\curator\curator-client\2.5.0\curator-client-2.5.0.jar, C:\Users\dan\.m2\repository\org\apache\zookeeper\zookeeper\3.4.6\zookeeper-3.4.6.jar, C:\Users\dan\.m2\repository\io\netty\netty\3.7.0.Final\netty-3.7.0.Final.jar, C:\Users\dan\.m2\repository\com\google\guava\guava\16.0.1\guava-16.0.1.jar, C:\Users\dan\.m2\repository\com\google\code\gson\gson\2.3.1\gson-2.3.1.jar]
+[DEBUG]   (f) compileSourceRoots = [D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java]
+[DEBUG]   (f) compilerId = javac
+[DEBUG]   (f) debug = true
+[DEBUG]   (f) encoding = UTF-8
+[DEBUG]   (f) failOnError = true
+[DEBUG]   (f) forceJavacCompilerUse = false
+[DEBUG]   (f) fork = false
+[DEBUG]   (f) generatedSourcesDirectory = D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\generated-sources\annotations
+[DEBUG]   (f) mojoExecution = org.apache.maven.plugins:maven-compiler-plugin:3.1:compile {execution: default-compile}
+[DEBUG]   (f) optimize = false
+[DEBUG]   (f) outputDirectory = D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes
+[DEBUG]   (f) projectArtifact = es.eucm.rage:real-time:jar:0.0.1-SNAPSHOT
+[DEBUG]   (f) showDeprecation = false
+[DEBUG]   (f) showWarnings = false
+[DEBUG]   (f) skipMultiThreadWarning = false
+[DEBUG]   (f) source = 1.8
+[DEBUG]   (f) staleMillis = 0
+[DEBUG]   (f) target = 1.8
+[DEBUG]   (f) useIncrementalCompilation = true
+[DEBUG]   (f) verbose = false
+[DEBUG]   (f) mavenSession = org.apache.maven.execution.MavenSession@4b629f13
+[DEBUG]   (f) session = org.apache.maven.execution.MavenSession@4b629f13
+[DEBUG] -- end configuration --
+[DEBUG] Using compiler 'javac'.
+[DEBUG] Source directories: [D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java]
+[DEBUG] Classpath: [D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes
+ C:\Users\dan\.m2\repository\org\elasticsearch\elasticsearch\5.0.0-alpha5\elasticsearch-5.0.0-alpha5.jar
+ C:\Users\dan\.m2\repository\com\tdunning\t-digest\3.0\t-digest-3.0.jar
+ C:\Users\dan\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.7.1\jackson-core-2.7.1.jar
+ C:\Users\dan\.m2\repository\org\elasticsearch\securesm\1.1\securesm-1.1.jar
+ C:\Users\dan\.m2\repository\net\sf\jopt-simple\jopt-simple\5.0.2\jopt-simple-5.0.2.jar
+ C:\Users\dan\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-smile\2.7.1\jackson-dataformat-smile-2.7.1.jar
+ C:\Users\dan\.m2\repository\org\joda\joda-convert\1.2\joda-convert-1.2.jar
+ C:\Users\dan\.m2\repository\net\java\dev\jna\jna\4.2.2\jna-4.2.2.jar
+ C:\Users\dan\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-yaml\2.7.1\jackson-dataformat-yaml-2.7.1.jar
+ C:\Users\dan\.m2\repository\com\carrotsearch\hppc\0.7.1\hppc-0.7.1.jar
+ C:\Users\dan\.m2\repository\org\hdrhistogram\HdrHistogram\2.1.6\HdrHistogram-2.1.6.jar
+ C:\Users\dan\.m2\repository\joda-time\joda-time\2.9.4\joda-time-2.9.4.jar
+ C:\Users\dan\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-cbor\2.7.1\jackson-dataformat-cbor-2.7.1.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-core\6.1.0\lucene-core-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-join\6.1.0\lucene-join-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-queryparser\6.1.0\lucene-queryparser-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-misc\6.1.0\lucene-misc-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-highlighter\6.1.0\lucene-highlighter-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-sandbox\6.1.0\lucene-sandbox-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-spatial3d\6.1.0\lucene-spatial3d-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-backward-codecs\6.1.0\lucene-backward-codecs-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-spatial-extras\6.1.0\lucene-spatial-extras-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\locationtech\spatial4j\spatial4j\0.6\spatial4j-0.6.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-grouping\6.1.0\lucene-grouping-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-analyzers-common\6.1.0\lucene-analyzers-common-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-memory\6.1.0\lucene-memory-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-queries\6.1.0\lucene-queries-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-spatial\6.1.0\lucene-spatial-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\apache\lucene\lucene-suggest\6.1.0\lucene-suggest-6.1.0.jar
+ C:\Users\dan\.m2\repository\org\apache\storm\storm-core\0.9.3\storm-core-0.9.3.jar
+ C:\Users\dan\.m2\repository\org\clojure\clojure\1.5.1\clojure-1.5.1.jar
+ C:\Users\dan\.m2\repository\clj-time\clj-time\0.4.1\clj-time-0.4.1.jar
+ C:\Users\dan\.m2\repository\compojure\compojure\1.1.3\compojure-1.1.3.jar
+ C:\Users\dan\.m2\repository\org\clojure\core.incubator\0.1.0\core.incubator-0.1.0.jar
+ C:\Users\dan\.m2\repository\org\clojure\tools.macro\0.1.0\tools.macro-0.1.0.jar
+ C:\Users\dan\.m2\repository\clout\clout\1.0.1\clout-1.0.1.jar
+ C:\Users\dan\.m2\repository\ring\ring-core\1.1.5\ring-core-1.1.5.jar
+ C:\Users\dan\.m2\repository\commons-fileupload\commons-fileupload\1.2.1\commons-fileupload-1.2.1.jar
+ C:\Users\dan\.m2\repository\javax\servlet\servlet-api\2.5\servlet-api-2.5.jar
+ C:\Users\dan\.m2\repository\hiccup\hiccup\0.3.6\hiccup-0.3.6.jar
+ C:\Users\dan\.m2\repository\ring\ring-devel\0.3.11\ring-devel-0.3.11.jar
+ C:\Users\dan\.m2\repository\clj-stacktrace\clj-stacktrace\0.2.2\clj-stacktrace-0.2.2.jar
+ C:\Users\dan\.m2\repository\ring\ring-jetty-adapter\0.3.11\ring-jetty-adapter-0.3.11.jar
+ C:\Users\dan\.m2\repository\ring\ring-servlet\0.3.11\ring-servlet-0.3.11.jar
+ C:\Users\dan\.m2\repository\org\mortbay\jetty\jetty\6.1.26\jetty-6.1.26.jar
+ C:\Users\dan\.m2\repository\org\mortbay\jetty\jetty-util\6.1.26\jetty-util-6.1.26.jar
+ C:\Users\dan\.m2\repository\org\clojure\tools.logging\0.2.3\tools.logging-0.2.3.jar
+ C:\Users\dan\.m2\repository\org\clojure\math.numeric-tower\0.0.1\math.numeric-tower-0.0.1.jar
+ C:\Users\dan\.m2\repository\org\clojure\tools.cli\0.2.4\tools.cli-0.2.4.jar
+ C:\Users\dan\.m2\repository\commons-io\commons-io\2.4\commons-io-2.4.jar
+ C:\Users\dan\.m2\repository\org\apache\commons\commons-exec\1.1\commons-exec-1.1.jar
+ C:\Users\dan\.m2\repository\commons-lang\commons-lang\2.5\commons-lang-2.5.jar
+ C:\Users\dan\.m2\repository\com\googlecode\json-simple\json-simple\1.1\json-simple-1.1.jar
+ C:\Users\dan\.m2\repository\com\twitter\carbonite\1.4.0\carbonite-1.4.0.jar
+ C:\Users\dan\.m2\repository\com\esotericsoftware\kryo\kryo\2.21\kryo-2.21.jar
+ C:\Users\dan\.m2\repository\com\esotericsoftware\reflectasm\reflectasm\1.07\reflectasm-1.07-shaded.jar
+ C:\Users\dan\.m2\repository\org\ow2\asm\asm\4.0\asm-4.0.jar
+ C:\Users\dan\.m2\repository\com\esotericsoftware\minlog\minlog\1.2\minlog-1.2.jar
+ C:\Users\dan\.m2\repository\org\objenesis\objenesis\1.2\objenesis-1.2.jar
+ C:\Users\dan\.m2\repository\com\twitter\chill-java\0.3.5\chill-java-0.3.5.jar
+ C:\Users\dan\.m2\repository\org\yaml\snakeyaml\1.11\snakeyaml-1.11.jar
+ C:\Users\dan\.m2\repository\commons-logging\commons-logging\1.1.3\commons-logging-1.1.3.jar
+ C:\Users\dan\.m2\repository\commons-codec\commons-codec\1.6\commons-codec-1.6.jar
+ C:\Users\dan\.m2\repository\com\googlecode\disruptor\disruptor\2.10.1\disruptor-2.10.1.jar
+ C:\Users\dan\.m2\repository\org\jgrapht\jgrapht-core\0.9.0\jgrapht-core-0.9.0.jar
+ C:\Users\dan\.m2\repository\ch\qos\logback\logback-classic\1.0.13\logback-classic-1.0.13.jar
+ C:\Users\dan\.m2\repository\ch\qos\logback\logback-core\1.0.13\logback-core-1.0.13.jar
+ C:\Users\dan\.m2\repository\org\slf4j\slf4j-api\1.7.5\slf4j-api-1.7.5.jar
+ C:\Users\dan\.m2\repository\org\slf4j\log4j-over-slf4j\1.6.6\log4j-over-slf4j-1.6.6.jar
+ C:\Users\dan\.m2\repository\jline\jline\2.11\jline-2.11.jar
+ C:\Users\dan\.m2\repository\org\apache\storm\flux-core\0.10.0\flux-core-0.10.0.jar
+ C:\Users\dan\.m2\repository\commons-cli\commons-cli\1.2\commons-cli-1.2.jar
+ C:\Users\dan\.m2\repository\org\apache\kafka\kafka_2.10\0.8.1.1\kafka_2.10-0.8.1.1.jar
+ C:\Users\dan\.m2\repository\com\yammer\metrics\metrics-core\2.2.0\metrics-core-2.2.0.jar
+ C:\Users\dan\.m2\repository\org\xerial\snappy\snappy-java\1.0.5\snappy-java-1.0.5.jar
+ C:\Users\dan\.m2\repository\org\scala-lang\scala-library\2.10.1\scala-library-2.10.1.jar
+ C:\Users\dan\.m2\repository\com\101tec\zkclient\0.3\zkclient-0.3.jar
+ C:\Users\dan\.m2\repository\org\apache\storm\storm-kafka\0.9.3\storm-kafka-0.9.3.jar
+ C:\Users\dan\.m2\repository\org\apache\curator\curator-framework\2.5.0\curator-framework-2.5.0.jar
+ C:\Users\dan\.m2\repository\org\apache\curator\curator-client\2.5.0\curator-client-2.5.0.jar
+ C:\Users\dan\.m2\repository\org\apache\zookeeper\zookeeper\3.4.6\zookeeper-3.4.6.jar
+ C:\Users\dan\.m2\repository\io\netty\netty\3.7.0.Final\netty-3.7.0.Final.jar
+ C:\Users\dan\.m2\repository\com\google\guava\guava\16.0.1\guava-16.0.1.jar
+ C:\Users\dan\.m2\repository\com\google\code\gson\gson\2.3.1\gson-2.3.1.jar]
+[DEBUG] Output directory: D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes
+[DEBUG] CompilerReuseStrategy: reuseCreated
+[DEBUG] useIncrementalCompilation enabled
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\functions\TraceFieldExtractor.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\utils\EsConfig.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\functions\PropertyCreator.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\filters\FieldValuesOrFilter.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\functions\SuffixPropertyCreator.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\topologies\RealtimeTopology.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\utils\Document.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\states\DocumentBuilder.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\topologies\KafkaTopology.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\filters\FieldValueFilter.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\states\ESGameplayState.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\Analysis.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\functions\SimplePropertyCreator.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\states\ESStateFactory.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\states\GameplayStateUpdater.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\states\TraceStateUpdater.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\utils\DBUtils.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\functions\JsonToTrace.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\utils\StormElasticSearchClient.java
+[DEBUG] Stale source detected: D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java\es\eucm\rage\realtime\states\GameplayState.java
+[INFO] Changes detected - recompiling the module!
+[DEBUG] Classpath:
+[DEBUG]  D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes
+[DEBUG]  C:\Users\dan\.m2\repository\org\elasticsearch\elasticsearch\5.0.0-alpha5\elasticsearch-5.0.0-alpha5.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\tdunning\t-digest\3.0\t-digest-3.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.7.1\jackson-core-2.7.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\elasticsearch\securesm\1.1\securesm-1.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\net\sf\jopt-simple\jopt-simple\5.0.2\jopt-simple-5.0.2.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-smile\2.7.1\jackson-dataformat-smile-2.7.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\joda\joda-convert\1.2\joda-convert-1.2.jar
+[DEBUG]  C:\Users\dan\.m2\repository\net\java\dev\jna\jna\4.2.2\jna-4.2.2.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-yaml\2.7.1\jackson-dataformat-yaml-2.7.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\carrotsearch\hppc\0.7.1\hppc-0.7.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\hdrhistogram\HdrHistogram\2.1.6\HdrHistogram-2.1.6.jar
+[DEBUG]  C:\Users\dan\.m2\repository\joda-time\joda-time\2.9.4\joda-time-2.9.4.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-cbor\2.7.1\jackson-dataformat-cbor-2.7.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-core\6.1.0\lucene-core-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-join\6.1.0\lucene-join-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-queryparser\6.1.0\lucene-queryparser-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-misc\6.1.0\lucene-misc-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-highlighter\6.1.0\lucene-highlighter-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-sandbox\6.1.0\lucene-sandbox-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-spatial3d\6.1.0\lucene-spatial3d-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-backward-codecs\6.1.0\lucene-backward-codecs-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-spatial-extras\6.1.0\lucene-spatial-extras-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\locationtech\spatial4j\spatial4j\0.6\spatial4j-0.6.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-grouping\6.1.0\lucene-grouping-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-analyzers-common\6.1.0\lucene-analyzers-common-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-memory\6.1.0\lucene-memory-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-queries\6.1.0\lucene-queries-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-spatial\6.1.0\lucene-spatial-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\lucene\lucene-suggest\6.1.0\lucene-suggest-6.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\storm\storm-core\0.9.3\storm-core-0.9.3.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\clojure\clojure\1.5.1\clojure-1.5.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\clj-time\clj-time\0.4.1\clj-time-0.4.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\compojure\compojure\1.1.3\compojure-1.1.3.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\clojure\core.incubator\0.1.0\core.incubator-0.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\clojure\tools.macro\0.1.0\tools.macro-0.1.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\clout\clout\1.0.1\clout-1.0.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\ring\ring-core\1.1.5\ring-core-1.1.5.jar
+[DEBUG]  C:\Users\dan\.m2\repository\commons-fileupload\commons-fileupload\1.2.1\commons-fileupload-1.2.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\javax\servlet\servlet-api\2.5\servlet-api-2.5.jar
+[DEBUG]  C:\Users\dan\.m2\repository\hiccup\hiccup\0.3.6\hiccup-0.3.6.jar
+[DEBUG]  C:\Users\dan\.m2\repository\ring\ring-devel\0.3.11\ring-devel-0.3.11.jar
+[DEBUG]  C:\Users\dan\.m2\repository\clj-stacktrace\clj-stacktrace\0.2.2\clj-stacktrace-0.2.2.jar
+[DEBUG]  C:\Users\dan\.m2\repository\ring\ring-jetty-adapter\0.3.11\ring-jetty-adapter-0.3.11.jar
+[DEBUG]  C:\Users\dan\.m2\repository\ring\ring-servlet\0.3.11\ring-servlet-0.3.11.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\mortbay\jetty\jetty\6.1.26\jetty-6.1.26.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\mortbay\jetty\jetty-util\6.1.26\jetty-util-6.1.26.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\clojure\tools.logging\0.2.3\tools.logging-0.2.3.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\clojure\math.numeric-tower\0.0.1\math.numeric-tower-0.0.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\clojure\tools.cli\0.2.4\tools.cli-0.2.4.jar
+[DEBUG]  C:\Users\dan\.m2\repository\commons-io\commons-io\2.4\commons-io-2.4.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\commons\commons-exec\1.1\commons-exec-1.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\commons-lang\commons-lang\2.5\commons-lang-2.5.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\googlecode\json-simple\json-simple\1.1\json-simple-1.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\twitter\carbonite\1.4.0\carbonite-1.4.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\esotericsoftware\kryo\kryo\2.21\kryo-2.21.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\esotericsoftware\reflectasm\reflectasm\1.07\reflectasm-1.07-shaded.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\ow2\asm\asm\4.0\asm-4.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\esotericsoftware\minlog\minlog\1.2\minlog-1.2.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\objenesis\objenesis\1.2\objenesis-1.2.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\twitter\chill-java\0.3.5\chill-java-0.3.5.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\yaml\snakeyaml\1.11\snakeyaml-1.11.jar
+[DEBUG]  C:\Users\dan\.m2\repository\commons-logging\commons-logging\1.1.3\commons-logging-1.1.3.jar
+[DEBUG]  C:\Users\dan\.m2\repository\commons-codec\commons-codec\1.6\commons-codec-1.6.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\googlecode\disruptor\disruptor\2.10.1\disruptor-2.10.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\jgrapht\jgrapht-core\0.9.0\jgrapht-core-0.9.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\ch\qos\logback\logback-classic\1.0.13\logback-classic-1.0.13.jar
+[DEBUG]  C:\Users\dan\.m2\repository\ch\qos\logback\logback-core\1.0.13\logback-core-1.0.13.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\slf4j\slf4j-api\1.7.5\slf4j-api-1.7.5.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\slf4j\log4j-over-slf4j\1.6.6\log4j-over-slf4j-1.6.6.jar
+[DEBUG]  C:\Users\dan\.m2\repository\jline\jline\2.11\jline-2.11.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\storm\flux-core\0.10.0\flux-core-0.10.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\commons-cli\commons-cli\1.2\commons-cli-1.2.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\kafka\kafka_2.10\0.8.1.1\kafka_2.10-0.8.1.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\yammer\metrics\metrics-core\2.2.0\metrics-core-2.2.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\xerial\snappy\snappy-java\1.0.5\snappy-java-1.0.5.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\scala-lang\scala-library\2.10.1\scala-library-2.10.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\101tec\zkclient\0.3\zkclient-0.3.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\storm\storm-kafka\0.9.3\storm-kafka-0.9.3.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\curator\curator-framework\2.5.0\curator-framework-2.5.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\curator\curator-client\2.5.0\curator-client-2.5.0.jar
+[DEBUG]  C:\Users\dan\.m2\repository\org\apache\zookeeper\zookeeper\3.4.6\zookeeper-3.4.6.jar
+[DEBUG]  C:\Users\dan\.m2\repository\io\netty\netty\3.7.0.Final\netty-3.7.0.Final.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\google\guava\guava\16.0.1\guava-16.0.1.jar
+[DEBUG]  C:\Users\dan\.m2\repository\com\google\code\gson\gson\2.3.1\gson-2.3.1.jar
+[DEBUG] Source roots:
+[DEBUG]  D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java
+[DEBUG] Command line options:
+[DEBUG] -d D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes -classpath D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes;C:\Users\dan\.m2\repository\org\elasticsearch\elasticsearch\5.0.0-alpha5\elasticsearch-5.0.0-alpha5.jar;C:\Users\dan\.m2\repository\com\tdunning\t-digest\3.0\t-digest-3.0.jar;C:\Users\dan\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.7.1\jackson-core-2.7.1.jar;C:\Users\dan\.m2\repository\org\elasticsearch\securesm\1.1\securesm-1.1.jar;C:\Users\dan\.m2\repository\net\sf\jopt-simple\jopt-simple\5.0.2\jopt-simple-5.0.2.jar;C:\Users\dan\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-smile\2.7.1\jackson-dataformat-smile-2.7.1.jar;C:\Users\dan\.m2\repository\org\joda\joda-convert\1.2\joda-convert-1.2.jar;C:\Users\dan\.m2\repository\net\java\dev\jna\jna\4.2.2\jna-4.2.2.jar;C:\Users\dan\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-yaml\2.7.1\jackson-dataformat-yaml-2.7.1.jar;C:\Users\dan\.m2\repository\com\carrotsearch\hppc\0.7.1\hppc-0.7.1.jar;C:\Users\dan\.m2\repository\org\hdrhistogram\HdrHistogram\2.1.6\HdrHistogram-2.1.6.jar;C:\Users\dan\.m2\repository\joda-time\joda-time\2.9.4\joda-time-2.9.4.jar;C:\Users\dan\.m2\repository\com\fasterxml\jackson\dataformat\jackson-dataformat-cbor\2.7.1\jackson-dataformat-cbor-2.7.1.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-core\6.1.0\lucene-core-6.1.0.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-join\6.1.0\lucene-join-6.1.0.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-queryparser\6.1.0\lucene-queryparser-6.1.0.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-misc\6.1.0\lucene-misc-6.1.0.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-highlighter\6.1.0\lucene-highlighter-6.1.0.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-sandbox\6.1.0\lucene-sandbox-6.1.0.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-spatial3d\6.1.0\lucene-spatial3d-6.1.0.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-backward-codecs\6.1.0\lucene-backward-codecs-6.1.0.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-spatial-extras\6.1.0\lucene-spatial-extras-6.1.0.jar;C:\Users\dan\.m2\repository\org\locationtech\spatial4j\spatial4j\0.6\spatial4j-0.6.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-grouping\6.1.0\lucene-grouping-6.1.0.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-analyzers-common\6.1.0\lucene-analyzers-common-6.1.0.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-memory\6.1.0\lucene-memory-6.1.0.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-queries\6.1.0\lucene-queries-6.1.0.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-spatial\6.1.0\lucene-spatial-6.1.0.jar;C:\Users\dan\.m2\repository\org\apache\lucene\lucene-suggest\6.1.0\lucene-suggest-6.1.0.jar;C:\Users\dan\.m2\repository\org\apache\storm\storm-core\0.9.3\storm-core-0.9.3.jar;C:\Users\dan\.m2\repository\org\clojure\clojure\1.5.1\clojure-1.5.1.jar;C:\Users\dan\.m2\repository\clj-time\clj-time\0.4.1\clj-time-0.4.1.jar;C:\Users\dan\.m2\repository\compojure\compojure\1.1.3\compojure-1.1.3.jar;C:\Users\dan\.m2\repository\org\clojure\core.incubator\0.1.0\core.incubator-0.1.0.jar;C:\Users\dan\.m2\repository\org\clojure\tools.macro\0.1.0\tools.macro-0.1.0.jar;C:\Users\dan\.m2\repository\clout\clout\1.0.1\clout-1.0.1.jar;C:\Users\dan\.m2\repository\ring\ring-core\1.1.5\ring-core-1.1.5.jar;C:\Users\dan\.m2\repository\commons-fileupload\commons-fileupload\1.2.1\commons-fileupload-1.2.1.jar;C:\Users\dan\.m2\repository\javax\servlet\servlet-api\2.5\servlet-api-2.5.jar;C:\Users\dan\.m2\repository\hiccup\hiccup\0.3.6\hiccup-0.3.6.jar;C:\Users\dan\.m2\repository\ring\ring-devel\0.3.11\ring-devel-0.3.11.jar;C:\Users\dan\.m2\repository\clj-stacktrace\clj-stacktrace\0.2.2\clj-stacktrace-0.2.2.jar;C:\Users\dan\.m2\repository\ring\ring-jetty-adapter\0.3.11\ring-jetty-adapter-0.3.11.jar;C:\Users\dan\.m2\repository\ring\ring-servlet\0.3.11\ring-servlet-0.3.11.jar;C:\Users\dan\.m2\repository\org\mortbay\jetty\jetty\6.1.26\jetty-6.1.26.jar;C:\Users\dan\.m2\repository\org\mortbay\jetty\jetty-util\6.1.26\jetty-util-6.1.26.jar;C:\Users\dan\.m2\repository\org\clojure\tools.logging\0.2.3\tools.logging-0.2.3.jar;C:\Users\dan\.m2\repository\org\clojure\math.numeric-tower\0.0.1\math.numeric-tower-0.0.1.jar;C:\Users\dan\.m2\repository\org\clojure\tools.cli\0.2.4\tools.cli-0.2.4.jar;C:\Users\dan\.m2\repository\commons-io\commons-io\2.4\commons-io-2.4.jar;C:\Users\dan\.m2\repository\org\apache\commons\commons-exec\1.1\commons-exec-1.1.jar;C:\Users\dan\.m2\repository\commons-lang\commons-lang\2.5\commons-lang-2.5.jar;C:\Users\dan\.m2\repository\com\googlecode\json-simple\json-simple\1.1\json-simple-1.1.jar;C:\Users\dan\.m2\repository\com\twitter\carbonite\1.4.0\carbonite-1.4.0.jar;C:\Users\dan\.m2\repository\com\esotericsoftware\kryo\kryo\2.21\kryo-2.21.jar;C:\Users\dan\.m2\repository\com\esotericsoftware\reflectasm\reflectasm\1.07\reflectasm-1.07-shaded.jar;C:\Users\dan\.m2\repository\org\ow2\asm\asm\4.0\asm-4.0.jar;C:\Users\dan\.m2\repository\com\esotericsoftware\minlog\minlog\1.2\minlog-1.2.jar;C:\Users\dan\.m2\repository\org\objenesis\objenesis\1.2\objenesis-1.2.jar;C:\Users\dan\.m2\repository\com\twitter\chill-java\0.3.5\chill-java-0.3.5.jar;C:\Users\dan\.m2\repository\org\yaml\snakeyaml\1.11\snakeyaml-1.11.jar;C:\Users\dan\.m2\repository\commons-logging\commons-logging\1.1.3\commons-logging-1.1.3.jar;C:\Users\dan\.m2\repository\commons-codec\commons-codec\1.6\commons-codec-1.6.jar;C:\Users\dan\.m2\repository\com\googlecode\disruptor\disruptor\2.10.1\disruptor-2.10.1.jar;C:\Users\dan\.m2\repository\org\jgrapht\jgrapht-core\0.9.0\jgrapht-core-0.9.0.jar;C:\Users\dan\.m2\repository\ch\qos\logback\logback-classic\1.0.13\logback-classic-1.0.13.jar;C:\Users\dan\.m2\repository\ch\qos\logback\logback-core\1.0.13\logback-core-1.0.13.jar;C:\Users\dan\.m2\repository\org\slf4j\slf4j-api\1.7.5\slf4j-api-1.7.5.jar;C:\Users\dan\.m2\repository\org\slf4j\log4j-over-slf4j\1.6.6\log4j-over-slf4j-1.6.6.jar;C:\Users\dan\.m2\repository\jline\jline\2.11\jline-2.11.jar;C:\Users\dan\.m2\repository\org\apache\storm\flux-core\0.10.0\flux-core-0.10.0.jar;C:\Users\dan\.m2\repository\commons-cli\commons-cli\1.2\commons-cli-1.2.jar;C:\Users\dan\.m2\repository\org\apache\kafka\kafka_2.10\0.8.1.1\kafka_2.10-0.8.1.1.jar;C:\Users\dan\.m2\repository\com\yammer\metrics\metrics-core\2.2.0\metrics-core-2.2.0.jar;C:\Users\dan\.m2\repository\org\xerial\snappy\snappy-java\1.0.5\snappy-java-1.0.5.jar;C:\Users\dan\.m2\repository\org\scala-lang\scala-library\2.10.1\scala-library-2.10.1.jar;C:\Users\dan\.m2\repository\com\101tec\zkclient\0.3\zkclient-0.3.jar;C:\Users\dan\.m2\repository\org\apache\storm\storm-kafka\0.9.3\storm-kafka-0.9.3.jar;C:\Users\dan\.m2\repository\org\apache\curator\curator-framework\2.5.0\curator-framework-2.5.0.jar;C:\Users\dan\.m2\repository\org\apache\curator\curator-client\2.5.0\curator-client-2.5.0.jar;C:\Users\dan\.m2\repository\org\apache\zookeeper\zookeeper\3.4.6\zookeeper-3.4.6.jar;C:\Users\dan\.m2\repository\io\netty\netty\3.7.0.Final\netty-3.7.0.Final.jar;C:\Users\dan\.m2\repository\com\google\guava\guava\16.0.1\guava-16.0.1.jar;C:\Users\dan\.m2\repository\com\google\code\gson\gson\2.3.1\gson-2.3.1.jar; -sourcepath D:\rage\realtime_rage_old_project\rage-analytics-realtime\src\main\java; -s D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\generated-sources\annotations -g -nowarn -target 1.8 -source 1.8 -encoding UTF-8
+[DEBUG] incrementalBuildHelper#beforeRebuildExecution
+[INFO] Compiling 20 source files to D:\rage\realtime_rage_old_project\rage-analytics-realtime\target\classes
+[DEBUG] incrementalBuildHelper#afterRebuildExecution
+[INFO] -------------------------------------------------------------
+[WARNING] COMPILATION WARNING : 
+[INFO] -------------------------------------------------------------
+[WARNING] /D:/rage/realtime_rage_old_project/rage-analytics-realtime/src/main/java/es/eucm/rage/realtime/states/GameplayState.java: Some input files use unchecked or unsafe operations.
+[WARNING] /D:/rage/realtime_rage_old_project/rage-analytics-realtime/src/main/java/es/eucm/rage/realtime/states/GameplayState.java: Recompile with -Xlint:unchecked for details.
+[INFO] 2 warnings 
+[INFO] -------------------------------------------------------------
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /D:/rage/realtime_rage_old_project/rage-analytics-realtime/src/main/java/es/eucm/rage/realtime/utils/StormElasticSearchClient.java:[37,41] cannot find symbol
+  symbol:   method builder()
+  location: class org.elasticsearch.client.transport.TransportClient
+[INFO] 1 error
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 2.088 s
+[INFO] Finished at: 2016-09-15T16:56:56+02:00
+[INFO] Final Memory: 28M/328M
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.1:compile (default-compile) on project real-time: Compilation failure
+[ERROR] /D:/rage/realtime_rage_old_project/rage-analytics-realtime/src/main/java/es/eucm/rage/realtime/utils/StormElasticSearchClient.java:[37,41] cannot find symbol
+[ERROR] symbol:   method builder()
+[ERROR] location: class org.elasticsearch.client.transport.TransportClient
+[ERROR] -> [Help 1]
+org.apache.maven.lifecycle.LifecycleExecutionException: Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.1:compile (default-compile) on project real-time: Compilation failure
+/D:/rage/realtime_rage_old_project/rage-analytics-realtime/src/main/java/es/eucm/rage/realtime/utils/StormElasticSearchClient.java:[37,41] cannot find symbol
+  symbol:   method builder()
+  location: class org.elasticsearch.client.transport.TransportClient
+
+	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:212)
+	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:153)
+	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:145)
+	at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject(LifecycleModuleBuilder.java:116)
+	at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject(LifecycleModuleBuilder.java:80)
+	at org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder.build(SingleThreadedBuilder.java:51)
+	at org.apache.maven.lifecycle.internal.LifecycleStarter.execute(LifecycleStarter.java:128)
+	at org.apache.maven.DefaultMaven.doExecute(DefaultMaven.java:307)
+	at org.apache.maven.DefaultMaven.doExecute(DefaultMaven.java:193)
+	at org.apache.maven.DefaultMaven.execute(DefaultMaven.java:106)
+	at org.apache.maven.cli.MavenCli.execute(MavenCli.java:862)
+	at org.apache.maven.cli.MavenCli.doMain(MavenCli.java:286)
+	at org.apache.maven.cli.MavenCli.main(MavenCli.java:197)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:497)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.launchEnhanced(Launcher.java:289)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.launch(Launcher.java:229)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.mainWithExitCode(Launcher.java:415)
+	at org.codehaus.plexus.classworlds.launcher.Launcher.main(Launcher.java:356)
+Caused by: org.apache.maven.plugin.compiler.CompilationFailureException: Compilation failure
+/D:/rage/realtime_rage_old_project/rage-analytics-realtime/src/main/java/es/eucm/rage/realtime/utils/StormElasticSearchClient.java:[37,41] cannot find symbol
+  symbol:   method builder()
+  location: class org.elasticsearch.client.transport.TransportClient
+
+	at org.apache.maven.plugin.compiler.AbstractCompilerMojo.execute(AbstractCompilerMojo.java:858)
+	at org.apache.maven.plugin.compiler.CompilerMojo.execute(CompilerMojo.java:129)
+	at org.apache.maven.plugin.DefaultBuildPluginManager.executeMojo(DefaultBuildPluginManager.java:134)
+	at org.apache.maven.lifecycle.internal.MojoExecutor.execute(MojoExecutor.java:208)
+	... 20 more
+[ERROR] 
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

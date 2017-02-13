@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *         http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -48,182 +48,190 @@ import static org.junit.Assert.assertEquals;
  */
 public class RealtimeTopologyTest {
 
-	private static final Logger LOG = Logger
-			.getLogger(RealtimeTopologyTest.class.getName());
+    private static final Logger LOG = Logger
+            .getLogger(RealtimeTopologyTest.class.getName());
 
-	@Test
-	public void test() throws IOException {
-		FeederBatchSpout tracesSpout = new FeederBatchSpout(Arrays.asList(
-				"versionId", "trace"));
+    @Test
+    public void test() throws IOException {
+        FeederBatchSpout tracesSpout = new FeederBatchSpout(Arrays.asList(
+                "versionId", "trace"));
 
-		RealtimeTopology topology = new RealtimeTopology();
-		Factory factory = new Factory(new EsConfig("testEsHost",
-				"testSessionId"));
-		topology.prepareTest(tracesSpout, factory);
+        RealtimeTopology topology = new RealtimeTopology();
+        Factory factory = new Factory(new EsConfig("testEsHost",
+                "testSessionId"));
+        topology.prepareTest(tracesSpout, factory);
 
-		Config conf = new Config();
-		LocalCluster cluster = new LocalCluster();
-		cluster.submitTopology("realtime", conf, topology.build());
+        Config conf = new Config();
+        LocalCluster cluster = new LocalCluster();
+        cluster.submitTopology("realtime", conf, topology.build());
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				ClassLoader.getSystemResourceAsStream("traces.txt")));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(
+                ClassLoader.getSystemResourceAsStream("traces.txt")));
 
-		String line;
-		ArrayList<List<Object>> tuples = new ArrayList<List<Object>>();
-		while ((line = reader.readLine()) != null) {
-			tuples.add(Arrays.asList("version", buildTrace(line)));
-			LOG.info(line);
 
-		}
-		tracesSpout.feed(tuples);
-		for (Document document : Factory.state.documents) {
-			LOG.info(document.toString());
-		}
+        String line;
+        int touplesFromFile = 0;
+        ArrayList<List<Object>> tuples = new ArrayList<List<Object>>();
+        while ((line = reader.readLine()) != null) {
+            tuples.add(Arrays.asList("version", buildTrace(line)));
+            LOG.info(line);
+            touplesFromFile++;
+        }
+        tracesSpout.feed(tuples);
+        for (Document document : Factory.state.documents) {
+            LOG.info(document.toString());
+        }
 
-		assertEquals(10, Factory.state.documents.size());
+        assertEquals(10, Factory.state.documents.size());
 
-		Player player = Factory.state.getPlayer("1");
-		assertEquals("10", player.properties.get("NotaAT"));
-		assertEquals("16", player.properties.get("NotaDT"));
-		assertEquals("13", player.properties.get("NotaINC"));
+        Player player = Factory.state.getPlayer("1");
+        assertEquals("10", player.properties.get("NotaAT"));
+        assertEquals("16", player.properties.get("NotaDT"));
+        assertEquals("13", player.properties.get("NotaINC"));
 
-		Player player2 = Factory.state.getPlayer("2");
-		assertEquals("54", player2.properties.get("NotaAT"));
-		assertEquals("65", player2.properties.get("NotaDT"));
-		assertEquals("19", player2.properties.get("NotaINC"));
+        Player player2 = Factory.state.getPlayer("2");
+        assertEquals("54", player2.properties.get("NotaAT"));
+        assertEquals("65", player2.properties.get("NotaDT"));
+        assertEquals("19", player2.properties.get("NotaINC"));
 
-	}
+        assertEquals(touplesFromFile, Factory.state.documents.size());
 
-	private Map<String, Object> buildTrace(String line) {
-		String[] parts = line.split(",");
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("gameplayId", parts[0]);
-		map.put("timestamp", parts[1]);
-		map.put("event", parts[2]);
-		map.put("type", parts[3]);
-		map.put("target", parts[4]);
-		if (5 < parts.length) {
-			map.put("response", parts[5]);
-		}
-		if (7 < parts.length) {
-			map.put(parts[6], parts[7]);
-		}
-		return map;
-	}
+    }
 
-	public static class TestState extends ESGameplayState {
+    private Map<String, Object> buildTrace(String line) {
+        String[] parts = line.split(",");
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("gameplayId", parts[0]);
+        map.put("timestamp", parts[1]);
+        map.put("event", parts[2]);
+        map.put("type", parts[3]);
+        map.put("target", parts[4]);
+        if (5 < parts.length) {
+            map.put("response", parts[5]);
+        }
+        if (7 < parts.length) {
+            map.put(parts[6], parts[7]);
+        }
+        return map;
+    }
 
-		private Map<String, Player> players = new HashMap<String, Player>();
+    public static class TestState extends ESGameplayState {
 
-		public List<Document> documents = new ArrayList<>();
+        private Map<String, Player> players = new HashMap<String, Player>();
 
-		public TestState(TransportClient client, String sessionId) {
-			super(client, sessionId);
-		}
+        public List<Document> documents = new ArrayList<>();
 
-		@Override
-		public void setProperty(String versionId, String gameplayId,
-				String key, Object value) {
-			getPlayer(gameplayId).setProperty(key, value);
-		}
+        public TestState(TransportClient client, String sessionId) {
+            super(client, sessionId);
+        }
 
-		@Override
-		public void setOpaqueValue(String versionId, String gameplayId,
-				List<Object> key, OpaqueValue value) {
-			getPlayer(gameplayId).setValue(keyFromList(key), value);
-		}
+        // 'results-sessionId' test implementation into object Map<String, Player> players
+        @Override
+        public void setProperty(String versionId, String gameplayId,
+                                String key, Object value) {
+            getPlayer(gameplayId).setProperty(key, value);
+        }
 
-		@Override
-		public OpaqueValue getOpaqueValue(String versionId, String gameplayId,
-				List<Object> key) {
-			return getPlayer(gameplayId).getValue(keyFromList(key));
-		}
+        @Override
+        public void setOpaqueValue(String versionId, String gameplayId,
+                                   List<Object> key, OpaqueValue value) {
+            getPlayer(gameplayId).setValue(keyFromList(key), value);
+        }
 
-		private String keyFromList(List<Object> keys) {
-			String key = "";
-			for (Object o : keys) {
-				key += o;
-			}
-			return key;
-		}
+        @Override
+        public OpaqueValue getOpaqueValue(String versionId, String gameplayId,
+                                          List<Object> key) {
+            return getPlayer(gameplayId).getValue(keyFromList(key));
+        }
 
-		@Override
-		public void bulkUpdateIndices(List<TridentTuple> inputs) {
+        private String keyFromList(List<Object> keys) {
+            String key = "";
+            for (Object o : keys) {
+                key += o;
+            }
+            return key;
+        }
 
-			for (TridentTuple input : inputs) {
-				Document<Map> doc = (Document<Map>) input
-						.getValueByField("document");
-				documents.add(doc);
+        // 'sessionId' index implementation into object List<Document> documents
+        @Override
+        public void bulkUpdateIndices(List<TridentTuple> inputs) {
 
-				String key = "NotaDT";
-				Object score = doc.getSource().get(key);
-				if (score != null) {
-					getPlayer(doc.getSource().get("gameplayId").toString())
-							.setProperty(key, doc.getSource().get(key));
-				}
+            for (TridentTuple input : inputs) {
+                Document<Map> doc = (Document<Map>) input
+                        .getValueByField("document");
+                documents.add(doc);
 
-				key = "NotaAT";
-				score = doc.getSource().get(key);
-				if (score != null) {
-					getPlayer(doc.getSource().get("gameplayId").toString())
-							.setProperty(key, doc.getSource().get(key));
-				}
+                String key = "NotaDT";
+                Object score = doc.getSource().get(key);
+                if (score != null) {
+                    getPlayer(doc.getSource().get("gameplayId").toString())
+                            .setProperty(key, doc.getSource().get(key));
+                }
 
-				key = "NotaINC";
-				score = doc.getSource().get(key);
-				if (score != null) {
-					getPlayer(doc.getSource().get("gameplayId").toString())
-							.setProperty(key, doc.getSource().get(key));
-				}
-			}
-		}
+                key = "NotaAT";
+                score = doc.getSource().get(key);
+                if (score != null) {
+                    getPlayer(doc.getSource().get("gameplayId").toString())
+                            .setProperty(key, doc.getSource().get(key));
+                }
 
-		private Player getPlayer(String gameplayId) {
-			Player player = players.get(gameplayId);
-			if (player == null) {
-				player = new Player();
-				players.put(gameplayId, player);
-			}
-			return player;
-		}
-	}
+                key = "NotaINC";
+                score = doc.getSource().get(key);
+                if (score != null) {
+                    getPlayer(doc.getSource().get("gameplayId").toString())
+                            .setProperty(key, doc.getSource().get(key));
+                }
+            }
+        }
 
-	public static class Player {
+        private Player getPlayer(String gameplayId) {
+            Player player = players.get(gameplayId);
+            if (player == null) {
+                player = new Player();
+                players.put(gameplayId, player);
+            }
+            return player;
+        }
+    }
 
-		public Map<String, Object> properties = new HashMap<String, Object>();
+    public static class Player {
 
-		public Map<String, OpaqueValue> values = new HashMap<String, OpaqueValue>();
+        public Map<String, Object> properties = new HashMap<String, Object>();
 
-		public void setProperty(String key, Object value) {
-			LOG.info("setProperty " + key + ", " + value);
-			properties.put(key, value);
-		}
+        public Map<String, OpaqueValue> values = new HashMap<String, OpaqueValue>();
 
-		public void setValue(String key, OpaqueValue value) {
-			values.put(key, value);
-		}
+        public void setProperty(String key, Object value) {
+            LOG.info("setProperty " + key + ", " + value);
+            properties.put(key, value);
+        }
 
-		public OpaqueValue getValue(String key) {
-			return values.get(key);
-		}
-	}
+        public void setValue(String key, OpaqueValue value) {
+            values.put(key, value);
+        }
 
-	public static class Factory extends ESStateFactory {
+        public OpaqueValue getValue(String key) {
+            return values.get(key);
+        }
+    }
 
-		public static TestState state;
+    public static class Factory extends ESStateFactory {
 
-		public Factory(EsConfig config) {
-			super(config);
-		}
+        public static TestState state;
 
-		@Override
-		public State makeState(Map conf, IMetricsContext metrics,
-				int partitionIndex, int numPartitions) {
-			if (state == null) {
-				state = new TestState(null, getConfig().getSessionId());
-			}
-			return state;
-		}
-	}
+        public Factory(EsConfig config) {
+            super(config);
+        }
+
+        @Override
+        public State makeState(Map conf, IMetricsContext metrics,
+                               int partitionIndex, int numPartitions) {
+            if (state == null) {
+                state = new TestState(null, getConfig().getSessionId());
+            }
+            return state;
+        }
+
+
+    }
 
 }
