@@ -25,7 +25,7 @@ FROM eucm/maven
 ENV USER_NAME="user" \
     WORK_DIR="/app" \
     OUTPUT_VOL="/app/output" \
-    OUTPUT_JAR="realtime/target/realtime-jar-with-dependencies.jar"
+    OUTPUT_JAR="realtime/default/target/realtime-jar-with-dependencies.jar"
 
 # setup sources, user, group and workdir
 COPY ./ ${WORK_DIR}/realtime
@@ -38,7 +38,7 @@ USER ${USER_NAME}
 WORKDIR ${WORK_DIR}
 
 # build, remove downloaded/unneeded jars, and expose results
-RUN cd realtime && mvn license:format && mvn install  \
+RUN cd realtime && mvn license:format && mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V  \
     && rm -rf ../.m2
 
 VOLUME ${OUTPUT_VOL}
