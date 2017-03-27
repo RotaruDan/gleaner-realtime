@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.eucm.rage.realtime.functions;
+package es.eucm.rage.realtime.simple.functions;
 
+import es.eucm.rage.realtime.simple.topologies.ThomasKilmannTopologyBuilder;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.Document;
 import org.apache.storm.trident.operation.Function;
@@ -22,19 +23,17 @@ import org.apache.storm.trident.operation.TridentCollector;
 import org.apache.storm.trident.operation.TridentOperationContext;
 import org.apache.storm.trident.tuple.TridentTuple;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
  * Storm Trident function for building a {@link Document} object with the
  * information required to display Kibana bisualization.
  */
-public class DocumentBuilder implements Function {
-	private static final Logger LOG = Logger.getLogger(DocumentBuilder.class
-			.getName());
+public class ThomasKilmannDocumentBuilder implements Function {
+	private static final Logger LOG = Logger
+			.getLogger(ThomasKilmannDocumentBuilder.class.getName());
 
 	private final String defaultTraceKey;
 
@@ -45,7 +44,7 @@ public class DocumentBuilder implements Function {
 	 * 
 	 * @param defaultTraceKey
 	 */
-	public DocumentBuilder(String defaultTraceKey) {
+	public ThomasKilmannDocumentBuilder(String defaultTraceKey) {
 		this.defaultTraceKey = defaultTraceKey;
 	}
 
@@ -54,20 +53,48 @@ public class DocumentBuilder implements Function {
 
 		Map trace = (Map) tuple.getValueByField(defaultTraceKey);
 
-		Map resultTraces = buildTrace(trace);
+		Map resultTracee = buildTrace(trace);
 
-		Document<Map> doc = new Document(resultTraces);
+		Object biasExtObject = ((Map) resultTracee
+				.get(TopologyBuilder.EXTENSIONS_KEY))
+				.get(ThomasKilmannTopologyBuilder.BIASES_KEY);
 
-		ArrayList<Object> object = new ArrayList<Object>(1);
-		object.add(doc);
+		if (!(biasExtObject instanceof Map)) {
+			LOG.info(ThomasKilmannTopologyBuilder.BIASES_KEY
+					+ " extension is not a Map, found: " + biasExtObject);
+			return;
+		}
 
-		collector.emit(object);
+		Map<String, Boolean> biases = (Map<String, Boolean>) biasExtObject;
+
+		for (Map.Entry<String, Boolean> entry : biases.entrySet()) {
+			Map newTrace = new HashMap<>(resultTracee);
+			newTrace.put(ThomasKilmannTopologyBuilder.BIAS_TYPE_KEY,
+					entry.getKey());
+			if (entry.getValue()) {
+				newTrace.put(ThomasKilmannTopologyBuilder.BIAS_VALUE_TRUE_KEY,
+						1);
+			} else {
+				newTrace.put(ThomasKilmannTopologyBuilder.BIAS_VALUE_FALSE_KEY,
+						1);
+			}
+
+			Document<Map> doc = new Document(newTrace, null,
+					ThomasKilmannTopologyBuilder.THOMAS_KILMANN_KEY,
+					ThomasKilmannTopologyBuilder.THOMAS_KILMAN_INDEX_PREFIX);
+
+			ArrayList<Object> object = new ArrayList<Object>(1);
+			object.add(doc);
+
+			collector.emit(object);
+			return;
+		}
 	}
 
 	/**
 	 * Sanitizes some fields ads basic trace values useful for the Kibana
 	 * visualizations:
-	 * 
+	 * <p>
 	 * -> "stored": timestamp, -> sanitizes "score" to be a float field that can
 	 * be used in the Y-axis of Kibana visualizations -> sanitizes "progress" to
 	 * be a float field that can be used in the Y-axis of Kibana visualizations
@@ -75,6 +102,9 @@ public class DocumentBuilder implements Function {
 	 * of Kibana visualizations -> sanitizes "success" to be a boolean field ->
 	 * adds hash codes for "gameplayId", "event", "type" and "target" in case
 	 * they are needed to be used in the Y-axis of Kibana visualizations
+	 * <p>
+	 * Also per each Extension found of type "bias" it creates a new trace with
+	 * only that extension and the following fields:
 	 * 
 	 * @param inputTrace
 	 * @return

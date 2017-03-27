@@ -28,17 +28,20 @@ public class LogConsumer implements Consumer {
 			.getLogger(LogConsumer.class);
 
 	private String prefix = "";
-
-	public LogConsumer() {
-	}
+	private boolean log = false;
 
 	public LogConsumer(String prefix) {
+		this(prefix, false);
+	}
+
+	public LogConsumer(String prefix, boolean log) {
 		this.prefix = prefix;
+		this.log = log;
 	}
 
 	@Override
 	public void accept(TridentTuple tridentTuple) {
-		if (LOG_ENABLED) {
+		if (LOG_ENABLED || log) {
 			LOG.info(prefix + " - " + tridentTuple.toString());
 		}
 	}

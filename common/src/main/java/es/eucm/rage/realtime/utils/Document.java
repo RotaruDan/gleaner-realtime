@@ -36,9 +36,37 @@ public class Document<T> implements Serializable {
 	 */
 	private String id;
 
+	/**
+	 * The document type
+	 */
+	private String type;
+
+	/**
+	 * The document index prefix If its null no prefix will be added to the
+	 * writing prefix, otherwise the indexPrefix will be build as follows:
+	 * 
+	 * "indexPrefix" + "-" + {@link ESUtils#getTracesIndex(String)} == >
+	 * "indexPrefixValue-tracesIndexValue"
+	 */
+	private String indexPrefix;
+
+	public Document(T source) {
+		this(source, null);
+	}
+
 	public Document(T source, String id) {
+		this(source, id, null);
+	}
+
+	public Document(T source, String id, String type) {
+		this(source, id, type, null);
+	}
+
+	public Document(T source, String id, String type, String indexPrefix) {
 		this.source = source;
 		this.id = id;
+		this.type = type;
+		this.indexPrefix = indexPrefix;
 	}
 
 	public T getSource() {
@@ -47,6 +75,14 @@ public class Document<T> implements Serializable {
 
 	public String getId() {
 		return this.id;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public String getIndexPrefix() {
+		return indexPrefix;
 	}
 
 	@Override

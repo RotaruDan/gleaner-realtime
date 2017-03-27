@@ -55,14 +55,14 @@ public class CSVToMapTrace {
 	}
 
 	private Map<String, Object> CreateStatement(String trace) {
-		List<String> p = new ArrayList<String>();
 
 		String[] parts = trace.split(",");
 		String timestamp = parts[0];
 
 		Map<String, Object> ret = new HashMap<String, Object>();
 
-		ret.put(TopologyBuilder.TridentTraceKeys.TIMESTAMP, timestamp);
+		ret.put(TopologyBuilder.TridentTraceKeys.TIMESTAMP,
+				new Date(Long.valueOf(timestamp)));
 
 		ret.put(TopologyBuilder.TridentTraceKeys.EVENT, parts[1]);
 
@@ -97,6 +97,42 @@ public class CSVToMapTrace {
 					} else if (key
 							.equalsIgnoreCase(TopologyBuilder.TridentTraceKeys.NAME)) {
 						ret.put(key, value);
+					} else if (key.equalsIgnoreCase("biases")) {
+						if (ret.get(TopologyBuilder.TridentTraceKeys.EVENT)
+								.equals(TopologyBuilder.TraceEventTypes.SELECTED)) {
+
+							String[] biases = value.split("-");
+
+							Map<String, Object> biasesObject = new HashMap<>(
+									biases.length);
+
+							for (int k = 0; k < biases.length; ++k) {
+								String[] bias = biases[k].split("=");
+								if (bias[1].startsWith("random")) {
+									biasesObject.put(bias[0],
+											Math.random() > .5d ? true : false);
+								} else {
+									biasesObject.put(bias[0],
+											Boolean.valueOf(bias[1]));
+								}
+							}
+							extensions.put(key, biasesObject);
+						}
+					} else if (key.equalsIgnoreCase("thomasKilmann")) {
+						if (ret.get(TopologyBuilder.TridentTraceKeys.EVENT)
+								.equals(TopologyBuilder.TraceEventTypes.SELECTED)) {
+
+							if (!value.contains("random")) {
+								extensions.put(key, value);
+							} else {
+								String[] thomasKilmannValues = value.split("=")[1]
+										.split("-");
+								extensions
+										.put(key,
+												thomasKilmannValues[new Random()
+														.nextInt(thomasKilmannValues.length)]);
+							}
+						}
 					} else {
 						extensions.put(key, value);
 					}

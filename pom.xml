@@ -72,6 +72,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
             <dependency>
                 <groupId>org.apache.storm</groupId>
                 <artifactId>storm-core</artifactId>
@@ -166,6 +167,7 @@
         <module>common</module>
         <module>default</module>
         <module>mean-example</module>
+        <module>thomas-kilmann-example</module>
     </modules>
 
     <build>
@@ -282,6 +284,9 @@
                     <version>4.3.0</version>
                     <configuration>
                         <coberturaReports>
+                            <coberturaReport>
+                                ${basedir}/thomas-kilmann-example/target/coverage.xml
+                            </coberturaReport>
                             <coberturaReport>
                                 ${basedir}/mean-example/target/coverage.xml
                             </coberturaReport>
