@@ -56,7 +56,7 @@ public class DocumentBuilder implements Function {
 
 		Map resultTraces = buildTrace(trace);
 
-		Document<Map> doc = new Document(resultTraces, null);
+		Document<Map> doc = new Document(resultTraces);
 
 		ArrayList<Object> object = new ArrayList<Object>(1);
 		object.add(doc);
@@ -65,7 +65,7 @@ public class DocumentBuilder implements Function {
 	}
 
 	/**
-	 * Sanitizes some fields dds basic trace values useful for the Kibana
+	 * Sanitizes some fields ads basic trace values useful for the Kibana
 	 * visualizations:
 	 * 
 	 * -> "stored": timestamp, -> sanitizes "score" to be a float field that can
