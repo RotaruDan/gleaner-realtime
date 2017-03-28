@@ -134,7 +134,23 @@ public class CSVToMapTrace {
 							}
 						}
 					} else {
-						extensions.put(key, value);
+
+						try {
+							int valI = Integer.valueOf(value);
+							extensions.put(key, valI);
+						} catch (Exception ex) {
+							try {
+								float valF = Float.valueOf(value);
+								extensions.put(key, valF);
+							} catch (Exception exF) {
+								try {
+									double valD = Double.valueOf(value);
+									extensions.put(key, valD);
+								} catch (Exception exD) {
+									extensions.put(key, value);
+								}
+							}
+						}
 					}
 				}
 
