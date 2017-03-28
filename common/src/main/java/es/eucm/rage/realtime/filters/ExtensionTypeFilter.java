@@ -45,9 +45,9 @@ public class ExtensionTypeFilter implements Filter {
 		Object traceObject = objects.getValueByField(TopologyBuilder.TRACE_KEY);
 
 		if (!(traceObject instanceof Map)) {
-			if(LOG) {
-				LOGGER.info(TopologyBuilder.TRACE_KEY + " field of tuple " + objects
-						+ " is not a map, found: " + traceObject);
+			if (LOG) {
+				LOGGER.info(TopologyBuilder.TRACE_KEY + " field of tuple "
+						+ objects + " is not a map, found: " + traceObject);
 			}
 			return false;
 		}
@@ -57,7 +57,7 @@ public class ExtensionTypeFilter implements Filter {
 		Object extObject = trace.get(TopologyBuilder.EXTENSIONS_KEY);
 
 		if (!(extObject instanceof Map)) {
-			if(LOG) {
+			if (LOG) {
 				LOGGER.info(TopologyBuilder.EXTENSIONS_KEY + " field of trace "
 						+ trace + " is not a map, found: " + extObject);
 			}
@@ -69,7 +69,7 @@ public class ExtensionTypeFilter implements Filter {
 		Object extKeyObject = ext.get(extensionKey);
 
 		if (extKeyObject == null) {
-			if(LOG) {
+			if (LOG) {
 				LOGGER.info(extensionKey + " extension of extensions " + ext
 						+ " is null");
 			}
@@ -77,7 +77,7 @@ public class ExtensionTypeFilter implements Filter {
 		}
 
 		if (!(clazz.isAssignableFrom(extKeyObject.getClass()))) {
-			if(LOG) {
+			if (LOG) {
 				LOGGER.info(extensionKey + " extension of extensions " + ext
 						+ " is not a " + clazz + ", found: "
 						+ extKeyObject.getClass());

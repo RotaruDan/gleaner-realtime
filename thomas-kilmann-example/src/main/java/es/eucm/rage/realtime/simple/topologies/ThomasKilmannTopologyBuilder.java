@@ -39,267 +39,266 @@ import org.apache.storm.tuple.Fields;
  * <p>
  * Furthermore adds the Thomas Kilmann analysis of bias implementation
  */
-public class ThomasKilmannTopologyBuilder implements es.eucm.rage.realtime.topologies.TopologyBuilder {
+public class ThomasKilmannTopologyBuilder implements
+		es.eucm.rage.realtime.topologies.TopologyBuilder {
 
-    public static final String THOMAS_KILMANN_KEY = "thomasKilmann";
-    public static final String BIASES_KEY = "biases";
-    public static final String BIAS_TYPE_KEY = "bias_type";
-    public static final String BIAS_VALUE_TRUE_KEY = "bias_value_true";
-    public static final String BIAS_VALUE_FALSE_KEY = "bias_value_false";
-    public static final String THOMAS_KILMAN_INDEX_PREFIX = ThomasKilmannTopologyBuilder.THOMAS_KILMANN_KEY
-            .toLowerCase();
+	public static final String THOMAS_KILMANN_KEY = "thomasKilmann";
+	public static final String BIASES_KEY = "biases";
+	public static final String BIAS_TYPE_KEY = "bias_type";
+	public static final String BIAS_VALUE_TRUE_KEY = "bias_value_true";
+	public static final String BIAS_VALUE_FALSE_KEY = "bias_value_false";
+	public static final String THOMAS_KILMAN_INDEX_PREFIX = ThomasKilmannTopologyBuilder.THOMAS_KILMANN_KEY
+			.toLowerCase();
 
-    @Override
-    public void build(TridentTopology tridentTopology, Stream tracesStream,
-                      StateFactory partitionPersistFactory,
-                      StateFactory persistentAggregateFactory) {
+	@Override
+	public void build(TridentTopology tridentTopology, Stream tracesStream,
+			StateFactory partitionPersistFactory,
+			StateFactory persistentAggregateFactory) {
 
-
-
-        /** ---> AbstractAnalysis definition <--- **/
-            /*DEFAULT TOPOLOGY ANALYSIS*/
+		/** ---> AbstractAnalysis definition <--- **/
+		/* DEFAULT TOPOLOGY ANALYSIS */
 
 		/*
-         * --> Analyzing for Kibana visualizations (traces index, 'sessionId')
+		 * --> Analyzing for Kibana visualizations (traces index, 'sessionId')
 		 * <--
 		 */
 
-        // 1 - For each TRACE_KEY (from Kibana) that we receive
-        // 2 - Create an ElasticSearch "sanitized" document identified as
-        // "document"
-        // 3 - Finally persist the "document" to the SESSION_ID_KEY
-        // ElasticSearch
-        // index
-        tracesStream
-                .each(new Fields(TRACE_KEY), new DocumentBuilder(TRACE_KEY),
-                        new Fields(DOCUMENT_KEY))
-                .peek(new LogConsumer("0"))
-                .partitionPersist(partitionPersistFactory,
-                        new Fields(DOCUMENT_KEY), new TraceStateUpdater());
+		// 1 - For each TRACE_KEY (from Kibana) that we receive
+		// 2 - Create an ElasticSearch "sanitized" document identified as
+		// "document"
+		// 3 - Finally persist the "document" to the SESSION_ID_KEY
+		// ElasticSearch
+		// index
+		tracesStream
+				.each(new Fields(TRACE_KEY), new DocumentBuilder(TRACE_KEY),
+						new Fields(DOCUMENT_KEY))
+				.peek(new LogConsumer("0"))
+				.partitionPersist(partitionPersistFactory,
+						new Fields(DOCUMENT_KEY), new TraceStateUpdater());
 
 		/*
-         * --> Analyzing for the Alerts and Warnings system (results index,
+		 * --> Analyzing for the Alerts and Warnings system (results index,
 		 * 'results-sessionId') <--
 		 */
 
-        // 1 - For each TRACE_KEY (from Kibana) that we receive
-        // 2 - Extract the fields TridentTraceKeys.GAMEPLAY_ID and
-        // TridentTraceKeys.EVENT so that we can play
-        // with it below
-        Stream gameplayIdStream = tracesStream
-                .each(new Fields(TRACE_KEY),
-                        new TraceFieldExtractor(TridentTraceKeys.GAMEPLAY_ID,
-                                TridentTraceKeys.EVENT),
-                        new Fields(TridentTraceKeys.GAMEPLAY_ID,
-                                TridentTraceKeys.EVENT)).peek(
-                        new LogConsumer("1"));
+		// 1 - For each TRACE_KEY (from Kibana) that we receive
+		// 2 - Extract the fields TridentTraceKeys.GAMEPLAY_ID and
+		// TridentTraceKeys.EVENT so that we can play
+		// with it below
+		Stream gameplayIdStream = tracesStream
+				.each(new Fields(TRACE_KEY),
+						new TraceFieldExtractor(TridentTraceKeys.GAMEPLAY_ID,
+								TridentTraceKeys.EVENT),
+						new Fields(TridentTraceKeys.GAMEPLAY_ID,
+								TridentTraceKeys.EVENT)).peek(
+						new LogConsumer("1"));
 
-        // 3 - For each TRACE_KEY (from Kibana) that we receive
-        // 4 - Extract the field 'timestamp' and add it to the document per
-        // 'gameplayId' (player)
-        gameplayIdStream
-                .each(new Fields(TRACE_KEY),
-                        new TraceFieldExtractor(TridentTraceKeys.TIMESTAMP),
-                        new Fields(TridentTraceKeys.TIMESTAMP))
-                .each(new Fields(TridentTraceKeys.TIMESTAMP),
-                        new SimplePropertyCreator(TridentTraceKeys.TIMESTAMP,
-                                TridentTraceKeys.TIMESTAMP),
-                        new Fields(PROPERTY_KEY, VALUE_KEY))
-                .peek(new LogConsumer("3"))
-                .partitionPersist(
-                        partitionPersistFactory,
-                        new Fields(SESSION_ID_KEY,
-                                TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
-                                VALUE_KEY), new GameplayStateUpdater());
+		// 3 - For each TRACE_KEY (from Kibana) that we receive
+		// 4 - Extract the field 'timestamp' and add it to the document per
+		// 'gameplayId' (player)
+		gameplayIdStream
+				.each(new Fields(TRACE_KEY),
+						new TraceFieldExtractor(TridentTraceKeys.TIMESTAMP),
+						new Fields(TridentTraceKeys.TIMESTAMP))
+				.each(new Fields(TridentTraceKeys.TIMESTAMP),
+						new SimplePropertyCreator(TridentTraceKeys.TIMESTAMP,
+								TridentTraceKeys.TIMESTAMP),
+						new Fields(PROPERTY_KEY, VALUE_KEY))
+				.peek(new LogConsumer("3"))
+				.partitionPersist(
+						partitionPersistFactory,
+						new Fields(SESSION_ID_KEY,
+								TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
+								VALUE_KEY), new GameplayStateUpdater());
 
-        // 5 - Add the name of the given player to the document ('gameplayId')
-        gameplayIdStream
-                .each(new Fields(TRACE_KEY),
-                        new TraceFieldExtractor(TridentTraceKeys.NAME),
-                        new Fields(TridentTraceKeys.NAME))
-                .each(new Fields(TridentTraceKeys.NAME),
-                        new SimplePropertyCreator(TridentTraceKeys.NAME,
-                                TridentTraceKeys.NAME),
-                        new Fields(PROPERTY_KEY, VALUE_KEY))
-                .peek(new LogConsumer("4"))
-                .partitionPersist(
-                        partitionPersistFactory,
-                        new Fields(SESSION_ID_KEY,
-                                TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
-                                VALUE_KEY), new GameplayStateUpdater());
+		// 5 - Add the name of the given player to the document ('gameplayId')
+		gameplayIdStream
+				.each(new Fields(TRACE_KEY),
+						new TraceFieldExtractor(TridentTraceKeys.NAME),
+						new Fields(TridentTraceKeys.NAME))
+				.each(new Fields(TridentTraceKeys.NAME),
+						new SimplePropertyCreator(TridentTraceKeys.NAME,
+								TridentTraceKeys.NAME),
+						new Fields(PROPERTY_KEY, VALUE_KEY))
+				.peek(new LogConsumer("4"))
+				.partitionPersist(
+						partitionPersistFactory,
+						new Fields(SESSION_ID_KEY,
+								TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
+								VALUE_KEY), new GameplayStateUpdater());
 
-        // Alternatives (selected & unlocked) processing
-        // 6 - For each TraceEventTypes.SELECTED or TraceEventTypes.UNLOCKED
-        // trace (alternative type)
-        // 7 - Count the amount of different "responses" have been made (Group
-        // By TridentTraceKeys.RESPONSE)
-        gameplayIdStream
-                .each(new Fields(TridentTraceKeys.EVENT, TRACE_KEY),
-                        new FieldValuesOrFilter(TridentTraceKeys.EVENT,
-                                TraceEventTypes.SELECTED,
-                                TraceEventTypes.UNLOCKED))
-                .each(new Fields(TRACE_KEY),
-                        new TraceFieldExtractor(TridentTraceKeys.TARGET,
-                                TridentTraceKeys.TYPE,
-                                TridentTraceKeys.RESPONSE),
-                        new Fields(TridentTraceKeys.TARGET,
-                                TridentTraceKeys.TYPE,
-                                TridentTraceKeys.RESPONSE))
-                .each(new Fields(TRACE_KEY, TridentTraceKeys.TYPE,
-                                TridentTraceKeys.EVENT, TridentTraceKeys.TARGET,
-                                TridentTraceKeys.RESPONSE),
-                        new PropertyCreator(TRACE_KEY, TridentTraceKeys.EVENT,
-                                TridentTraceKeys.TYPE, TridentTraceKeys.TARGET),
-                        new Fields(PROPERTY_KEY, VALUE_KEY))
-                .peek(new LogConsumer("5"))
-                .groupBy(
-                        new Fields(SESSION_ID_KEY,
-                                TridentTraceKeys.GAMEPLAY_ID,
-                                TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
-                                TridentTraceKeys.TARGET,
-                                TridentTraceKeys.RESPONSE))
-                .persistentAggregate(persistentAggregateFactory, new Count(),
-                        new Fields("count"));
+		// Alternatives (selected & unlocked) processing
+		// 6 - For each TraceEventTypes.SELECTED or TraceEventTypes.UNLOCKED
+		// trace (alternative type)
+		// 7 - Count the amount of different "responses" have been made (Group
+		// By TridentTraceKeys.RESPONSE)
+		gameplayIdStream
+				.each(new Fields(TridentTraceKeys.EVENT, TRACE_KEY),
+						new FieldValuesOrFilter(TridentTraceKeys.EVENT,
+								TraceEventTypes.SELECTED,
+								TraceEventTypes.UNLOCKED))
+				.each(new Fields(TRACE_KEY),
+						new TraceFieldExtractor(TridentTraceKeys.TARGET,
+								TridentTraceKeys.TYPE,
+								TridentTraceKeys.RESPONSE),
+						new Fields(TridentTraceKeys.TARGET,
+								TridentTraceKeys.TYPE,
+								TridentTraceKeys.RESPONSE))
+				.each(new Fields(TRACE_KEY, TridentTraceKeys.TYPE,
+						TridentTraceKeys.EVENT, TridentTraceKeys.TARGET,
+						TridentTraceKeys.RESPONSE),
+						new PropertyCreator(TRACE_KEY, TridentTraceKeys.EVENT,
+								TridentTraceKeys.TYPE, TridentTraceKeys.TARGET),
+						new Fields(PROPERTY_KEY, VALUE_KEY))
+				.peek(new LogConsumer("5"))
+				.groupBy(
+						new Fields(SESSION_ID_KEY,
+								TridentTraceKeys.GAMEPLAY_ID,
+								TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
+								TridentTraceKeys.TARGET,
+								TridentTraceKeys.RESPONSE))
+				.persistentAggregate(persistentAggregateFactory, new Count(),
+						new Fields("count"));
 
-        // Accessible (accessed & skipped)), GameObject (interacted & used) and
-        // Completable (initialized) processing
-        // 8 - For each TraceEventTypes.ACCESSED, TraceEventTypes.SKIPPED
-        // (Accessible), TraceEventTypes.INITIALIZED
-        // (Completable), "interacted" or TraceEventTypes.USED (GameObject)
-        // trace
-        // 9 - Count the amount of different "targets" have been made (Group By
-        // TridentTraceKeys.TARGET)
-        gameplayIdStream
-                .each(new Fields(TridentTraceKeys.EVENT, TRACE_KEY),
-                        new FieldValuesOrFilter(TridentTraceKeys.EVENT,
-                                TraceEventTypes.ACCESSED,
-                                TraceEventTypes.SKIPPED,
-                                TraceEventTypes.INITIALIZED,
-                                TraceEventTypes.INTERACTED,
-                                TraceEventTypes.USED))
-                .each(new Fields(TRACE_KEY),
-                        new TraceFieldExtractor(TridentTraceKeys.TARGET,
-                                TridentTraceKeys.TYPE),
-                        new Fields(TridentTraceKeys.TARGET,
-                                TridentTraceKeys.TYPE))
-                .peek(new LogConsumer("initialized 1"))
-                .each(new Fields(TRACE_KEY, TridentTraceKeys.TYPE,
-                                TridentTraceKeys.EVENT, TridentTraceKeys.TARGET),
-                        new PropertyCreator(TRACE_KEY, TridentTraceKeys.EVENT,
-                                TridentTraceKeys.TYPE, TridentTraceKeys.TARGET),
-                        new Fields(PROPERTY_KEY, VALUE_KEY))
-                .peek(new LogConsumer("initialized 2"))
-                .groupBy(
-                        new Fields(SESSION_ID_KEY,
-                                TridentTraceKeys.GAMEPLAY_ID,
-                                TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
-                                TridentTraceKeys.TARGET))
-                .persistentAggregate(persistentAggregateFactory, new Count(),
-                        new Fields("count"));
+		// Accessible (accessed & skipped)), GameObject (interacted & used) and
+		// Completable (initialized) processing
+		// 8 - For each TraceEventTypes.ACCESSED, TraceEventTypes.SKIPPED
+		// (Accessible), TraceEventTypes.INITIALIZED
+		// (Completable), "interacted" or TraceEventTypes.USED (GameObject)
+		// trace
+		// 9 - Count the amount of different "targets" have been made (Group By
+		// TridentTraceKeys.TARGET)
+		gameplayIdStream
+				.each(new Fields(TridentTraceKeys.EVENT, TRACE_KEY),
+						new FieldValuesOrFilter(TridentTraceKeys.EVENT,
+								TraceEventTypes.ACCESSED,
+								TraceEventTypes.SKIPPED,
+								TraceEventTypes.INITIALIZED,
+								TraceEventTypes.INTERACTED,
+								TraceEventTypes.USED))
+				.each(new Fields(TRACE_KEY),
+						new TraceFieldExtractor(TridentTraceKeys.TARGET,
+								TridentTraceKeys.TYPE),
+						new Fields(TridentTraceKeys.TARGET,
+								TridentTraceKeys.TYPE))
+				.peek(new LogConsumer("initialized 1"))
+				.each(new Fields(TRACE_KEY, TridentTraceKeys.TYPE,
+						TridentTraceKeys.EVENT, TridentTraceKeys.TARGET),
+						new PropertyCreator(TRACE_KEY, TridentTraceKeys.EVENT,
+								TridentTraceKeys.TYPE, TridentTraceKeys.TARGET),
+						new Fields(PROPERTY_KEY, VALUE_KEY))
+				.peek(new LogConsumer("initialized 2"))
+				.groupBy(
+						new Fields(SESSION_ID_KEY,
+								TridentTraceKeys.GAMEPLAY_ID,
+								TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
+								TridentTraceKeys.TARGET))
+				.persistentAggregate(persistentAggregateFactory, new Count(),
+						new Fields("count"));
 
-        // Completable (Progressed) processing
-        // 10 - For each TraceEventTypes.PROGRESSED (Completable) trace
-        // 11 - Update the TridentTraceKeys.PROGRESS field to its latest value
-        gameplayIdStream
-                .each(new Fields(TridentTraceKeys.EVENT, TRACE_KEY),
-                        new FieldValueFilter(TridentTraceKeys.EVENT,
-                                TraceEventTypes.PROGRESSED))
-                .each(new Fields(TRACE_KEY),
-                        new TraceFieldExtractor(TridentTraceKeys.TARGET,
-                                TridentTraceKeys.TYPE),
-                        new Fields(TridentTraceKeys.TARGET,
-                                TridentTraceKeys.TYPE))
-                .each(new Fields(TRACE_KEY),
-                        new ExtensionsFieldExtractor(TridentTraceKeys.PROGRESS),
-                        new Fields(TridentTraceKeys.PROGRESS))
-                .each(new Fields(TridentTraceKeys.PROGRESS,
-                                TridentTraceKeys.TYPE, TridentTraceKeys.EVENT,
-                                TridentTraceKeys.TARGET),
-                        new SuffixPropertyCreator(TridentTraceKeys.PROGRESS,
-                                TridentTraceKeys.PROGRESS,
-                                TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
-                                TridentTraceKeys.TARGET),
-                        new Fields(PROPERTY_KEY, VALUE_KEY))
-                .peek(new LogConsumer("6"))
-                .partitionPersist(
-                        partitionPersistFactory,
-                        new Fields(SESSION_ID_KEY,
-                                TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
-                                VALUE_KEY), new GameplayStateUpdater());
+		// Completable (Progressed) processing
+		// 10 - For each TraceEventTypes.PROGRESSED (Completable) trace
+		// 11 - Update the TridentTraceKeys.PROGRESS field to its latest value
+		gameplayIdStream
+				.each(new Fields(TridentTraceKeys.EVENT, TRACE_KEY),
+						new FieldValueFilter(TridentTraceKeys.EVENT,
+								TraceEventTypes.PROGRESSED))
+				.each(new Fields(TRACE_KEY),
+						new TraceFieldExtractor(TridentTraceKeys.TARGET,
+								TridentTraceKeys.TYPE),
+						new Fields(TridentTraceKeys.TARGET,
+								TridentTraceKeys.TYPE))
+				.each(new Fields(TRACE_KEY),
+						new ExtensionsFieldExtractor(TridentTraceKeys.PROGRESS),
+						new Fields(TridentTraceKeys.PROGRESS))
+				.each(new Fields(TridentTraceKeys.PROGRESS,
+						TridentTraceKeys.TYPE, TridentTraceKeys.EVENT,
+						TridentTraceKeys.TARGET),
+						new SuffixPropertyCreator(TridentTraceKeys.PROGRESS,
+								TridentTraceKeys.PROGRESS,
+								TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
+								TridentTraceKeys.TARGET),
+						new Fields(PROPERTY_KEY, VALUE_KEY))
+				.peek(new LogConsumer("6"))
+				.partitionPersist(
+						partitionPersistFactory,
+						new Fields(SESSION_ID_KEY,
+								TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
+								VALUE_KEY), new GameplayStateUpdater());
 
-        // Completable (Completed) processing for field TridentTraceKeys.SUCCESS
-        // 11 - For each TraceEventTypes.COMPLETED (Completable) trace
-        // 12 - Update the TridentTraceKeys.SUCCESS field to its latest value
-        gameplayIdStream
-                .each(new Fields(TridentTraceKeys.EVENT, TRACE_KEY),
-                        new FieldValueFilter(TridentTraceKeys.EVENT,
-                                TraceEventTypes.COMPLETED))
-                .each(new Fields(TRACE_KEY),
-                        new TraceFieldExtractor(TridentTraceKeys.TARGET,
-                                TridentTraceKeys.TYPE, TridentTraceKeys.SUCCESS),
-                        new Fields(TridentTraceKeys.TARGET,
-                                TridentTraceKeys.TYPE, TridentTraceKeys.SUCCESS))
-                .each(new Fields(TridentTraceKeys.SUCCESS,
-                                TridentTraceKeys.TYPE, TridentTraceKeys.EVENT,
-                                TridentTraceKeys.TARGET),
-                        new SuffixPropertyCreator(TridentTraceKeys.SUCCESS,
-                                TridentTraceKeys.SUCCESS,
-                                TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
-                                TridentTraceKeys.TARGET),
-                        new Fields(PROPERTY_KEY, VALUE_KEY))
-                .partitionPersist(
-                        partitionPersistFactory,
-                        new Fields(SESSION_ID_KEY,
-                                TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
-                                VALUE_KEY), new GameplayStateUpdater());
+		// Completable (Completed) processing for field TridentTraceKeys.SUCCESS
+		// 11 - For each TraceEventTypes.COMPLETED (Completable) trace
+		// 12 - Update the TridentTraceKeys.SUCCESS field to its latest value
+		gameplayIdStream
+				.each(new Fields(TridentTraceKeys.EVENT, TRACE_KEY),
+						new FieldValueFilter(TridentTraceKeys.EVENT,
+								TraceEventTypes.COMPLETED))
+				.each(new Fields(TRACE_KEY),
+						new TraceFieldExtractor(TridentTraceKeys.TARGET,
+								TridentTraceKeys.TYPE, TridentTraceKeys.SUCCESS),
+						new Fields(TridentTraceKeys.TARGET,
+								TridentTraceKeys.TYPE, TridentTraceKeys.SUCCESS))
+				.each(new Fields(TridentTraceKeys.SUCCESS,
+						TridentTraceKeys.TYPE, TridentTraceKeys.EVENT,
+						TridentTraceKeys.TARGET),
+						new SuffixPropertyCreator(TridentTraceKeys.SUCCESS,
+								TridentTraceKeys.SUCCESS,
+								TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
+								TridentTraceKeys.TARGET),
+						new Fields(PROPERTY_KEY, VALUE_KEY))
+				.partitionPersist(
+						partitionPersistFactory,
+						new Fields(SESSION_ID_KEY,
+								TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
+								VALUE_KEY), new GameplayStateUpdater());
 
-        // Completable (Completed) processing for field TridentTraceKeys.SCORE
-        // 13 - For each TraceEventTypes.COMPLETED (Completable) trace
-        // 14 - Update the TridentTraceKeys.SCORE field to its latest value
-        gameplayIdStream
-                .each(new Fields(TridentTraceKeys.EVENT, TRACE_KEY),
-                        new FieldValueFilter(TridentTraceKeys.EVENT,
-                                TraceEventTypes.COMPLETED))
-                .each(new Fields(TRACE_KEY),
-                        new TraceFieldExtractor(TridentTraceKeys.TARGET,
-                                TridentTraceKeys.TYPE, TridentTraceKeys.SCORE),
-                        new Fields(TridentTraceKeys.TARGET,
-                                TridentTraceKeys.TYPE, TridentTraceKeys.SCORE))
-                .each(new Fields(TridentTraceKeys.SCORE, TridentTraceKeys.TYPE,
-                                TridentTraceKeys.EVENT, TridentTraceKeys.TARGET),
-                        new SuffixPropertyCreator(TridentTraceKeys.SCORE,
-                                TridentTraceKeys.SCORE, TridentTraceKeys.EVENT,
-                                TridentTraceKeys.TYPE, TridentTraceKeys.TARGET),
-                        new Fields(PROPERTY_KEY, VALUE_KEY))
-                .partitionPersist(
-                        partitionPersistFactory,
-                        new Fields(SESSION_ID_KEY,
-                                TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
-                                VALUE_KEY), new GameplayStateUpdater());
+		// Completable (Completed) processing for field TridentTraceKeys.SCORE
+		// 13 - For each TraceEventTypes.COMPLETED (Completable) trace
+		// 14 - Update the TridentTraceKeys.SCORE field to its latest value
+		gameplayIdStream
+				.each(new Fields(TridentTraceKeys.EVENT, TRACE_KEY),
+						new FieldValueFilter(TridentTraceKeys.EVENT,
+								TraceEventTypes.COMPLETED))
+				.each(new Fields(TRACE_KEY),
+						new TraceFieldExtractor(TridentTraceKeys.TARGET,
+								TridentTraceKeys.TYPE, TridentTraceKeys.SCORE),
+						new Fields(TridentTraceKeys.TARGET,
+								TridentTraceKeys.TYPE, TridentTraceKeys.SCORE))
+				.each(new Fields(TridentTraceKeys.SCORE, TridentTraceKeys.TYPE,
+						TridentTraceKeys.EVENT, TridentTraceKeys.TARGET),
+						new SuffixPropertyCreator(TridentTraceKeys.SCORE,
+								TridentTraceKeys.SCORE, TridentTraceKeys.EVENT,
+								TridentTraceKeys.TYPE, TridentTraceKeys.TARGET),
+						new Fields(PROPERTY_KEY, VALUE_KEY))
+				.partitionPersist(
+						partitionPersistFactory,
+						new Fields(SESSION_ID_KEY,
+								TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
+								VALUE_KEY), new GameplayStateUpdater());
 
 		/*
 		 * --> Additional/custom analysis needed can be added here or changing
 		 * the code above <--
 		 */
-            /*THOMAS KILMANN TOPOLOGY ANALYSIS*/
+		/* THOMAS KILMANN TOPOLOGY ANALYSIS */
 
-        gameplayIdStream
-                .each(new Fields(TridentTraceKeys.EVENT),
-                        new FieldValueFilter(TridentTraceKeys.EVENT,
-                                TraceEventTypes.SELECTED))
-                        // Filter only traces with ext.thomasKilmann
-                .peek(new LogConsumer("ThomasKilmannTopologyBuilder 1", true))
-                .each(new Fields(TRACE_KEY),
-                        new ExtensionTypeFilter(THOMAS_KILMANN_KEY,
-                                String.class))
-                .peek(new LogConsumer("ThomasKilmannTopologyBuilder 2", true))
-                .each(new Fields(TRACE_KEY),
-                        new ThomasKilmannDocumentBuilder(TRACE_KEY),
-                        new Fields(THOMAS_KILMANN_KEY))
-                .peek(new LogConsumer("ThomasKilmannTopologyBuilder 3", true))
-                .partitionPersist(EsState.opaque(),
-                        new Fields(THOMAS_KILMANN_KEY), new TraceStateUpdater());
+		gameplayIdStream
+				.each(new Fields(TridentTraceKeys.EVENT),
+						new FieldValueFilter(TridentTraceKeys.EVENT,
+								TraceEventTypes.SELECTED))
+				// Filter only traces with ext.thomasKilmann
+				.peek(new LogConsumer("ThomasKilmannTopologyBuilder 1", true))
+				.each(new Fields(TRACE_KEY),
+						new ExtensionTypeFilter(THOMAS_KILMANN_KEY,
+								String.class))
+				.peek(new LogConsumer("ThomasKilmannTopologyBuilder 2", true))
+				.each(new Fields(TRACE_KEY),
+						new ThomasKilmannDocumentBuilder(TRACE_KEY),
+						new Fields(THOMAS_KILMANN_KEY))
+				.peek(new LogConsumer("ThomasKilmannTopologyBuilder 3", true))
+				.partitionPersist(EsState.opaque(),
+						new Fields(THOMAS_KILMANN_KEY), new TraceStateUpdater());
 
-    }
+	}
 
 }
