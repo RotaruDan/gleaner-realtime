@@ -25,8 +25,8 @@ FROM eucm/maven
 ENV USER_NAME="user" \
     WORK_DIR="/app" \
     OUTPUT_VOL="/app/output" \
-    OUTPUT_JAR="realtime/default/target/realtime-jar-with-dependencies.jar" \
-    OUTPUT_INDICES_JSON="realtime/default/indices.json"
+    OUTPUT_JAR="realtime/thomas-kilmann-example/target/realtime-jar-with-dependencies.jar" \
+    OUTPUT_INDICES_JSON="realtime/thomas-kilmann-example/indices.json"
 
 # setup sources, user, group and workdir
 COPY ./ ${WORK_DIR}/realtime
