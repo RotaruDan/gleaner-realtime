@@ -43,107 +43,109 @@ import static org.junit.Assert.assertEquals;
  */
 public class VerbsTest {
 
-    private static final String[] VERBS_FILES = {"completable/initialized",
-            "completable/progressed", "completable/completed",
-            "accessible/accessed", "accessible/skipped",
-            "alternative/selected", "alternative/unlocked"};
+	private static final String[] VERBS_FILES = { "completable/initialized",
+			"completable/progressed", "completable/completed",
+			"accessible/accessed", "accessible/skipped",
+			"alternative/selected", "alternative/unlocked" };
 
-    private static final String NOW_DATE = new Date().toString().toLowerCase()
-            .trim().replace(" ", "-");
-    private static final String ES_HOST = "localhost";
-    private static final String ZOOKEEPER_URL = "localhost";
+	private static final String NOW_DATE = new Date().toString().toLowerCase()
+			.trim().replace(" ", "-");
+	private static final String ES_HOST = "localhost";
+	private static final String ZOOKEEPER_URL = "localhost";
 
-    @Test
-    public void xAPIVerbsTest() throws IOException {
+	@Test
+	public void xAPIVerbsTest() throws IOException {
 
-        FeederBatchSpout tracesSpout = new FeederBatchSpout(Arrays.asList(
-                TopologyBuilder.SESSION_ID_KEY,
-                es.eucm.rage.realtime.topologies.TopologyBuilder.TRACE_KEY));
+		FeederBatchSpout tracesSpout = new FeederBatchSpout(Arrays.asList(
+				TopologyBuilder.SESSION_ID_KEY,
+				es.eucm.rage.realtime.topologies.TopologyBuilder.TRACE_KEY));
 
-        TridentTopology topology = new TridentTopology();
+		TridentTopology topology = new TridentTopology();
 
-        EsState.Factory partitionPersist = new EsState.Factory();
-        StateFactory persistentAggregateFactory = new EsMapState.Factory();
+		EsState.Factory partitionPersist = new EsState.Factory();
+		StateFactory persistentAggregateFactory = new EsMapState.Factory();
 
-        // Test topology Builder configuration
-        new TopologyBuilder().build(topology,
-                topology.newStream("testFileStream", tracesSpout),
-                partitionPersist, persistentAggregateFactory);
+		// Test topology Builder configuration
+		new TopologyBuilder().build(topology,
+				topology.newStream("testFileStream", tracesSpout),
+				partitionPersist, persistentAggregateFactory);
 
-        Config conf = new Config();
-        conf.put(AbstractAnalysis.SESSION_ID_FLUX_PARAM, NOW_DATE);
-        conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);
-        conf.put(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM, ES_HOST);
-        conf.put(AbstractAnalysis.SESSION_ID_FLUX_PARAM, NOW_DATE);
-        LocalCluster cluster = new LocalCluster();
-        cluster.submitTopology("realtime", conf, topology.build());
+		Config conf = new Config();
+		conf.put(AbstractAnalysis.SESSION_ID_FLUX_PARAM, NOW_DATE);
+		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);
+		conf.put(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM, ES_HOST);
+		conf.put(AbstractAnalysis.SESSION_ID_FLUX_PARAM, NOW_DATE);
+		LocalCluster cluster = new LocalCluster();
+		cluster.submitTopology("realtime", conf, topology.build());
 
-        CSVToMapTrace parser = new CSVToMapTrace(NOW_DATE);
-        int totalTraces = 0;
-        for (int i = 0; i < VERBS_FILES.length; ++i) {
-            List tuples = parser.getTuples("verbs/" + VERBS_FILES[i] + ".csv");
-            tracesSpout.feed(tuples);
-            totalTraces += tuples.size();
-        }
+		CSVToMapTrace parser = new CSVToMapTrace(NOW_DATE);
+		int totalTraces = 0;
+		for (int i = 0; i < VERBS_FILES.length; ++i) {
+			List tuples = parser.getTuples("verbs/" + VERBS_FILES[i] + ".csv");
+			tracesSpout.feed(tuples);
+			totalTraces += tuples.size();
+		}
 
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
-        TransportClient client = partitionPersist
-                .makeElasticsearchClient(Arrays.asList(InetAddress
-                        .getByName(ES_HOST)));
+		TransportClient client = partitionPersist
+				.makeElasticsearchClient(Arrays.asList(InetAddress
+						.getByName(ES_HOST)));
 
-        SearchResponse tracesSearch = client
-                .prepareSearch(ESUtils.getTracesIndex(NOW_DATE))
-                .setQuery(QueryBuilders.matchAllQuery()).setSize(10000).get();
+		SearchResponse tracesSearch = client
+				.prepareSearch(ESUtils.getTracesIndex(NOW_DATE))
+				.setQuery(QueryBuilders.matchAllQuery()).setSize(10000).get();
 
-        SearchHit[] hits = tracesSearch.getHits().getHits();
-        /*
-         * for (SearchHit hit : hits) { //Handle the hit... }
+		SearchHit[] hits = tracesSearch.getHits().getHits();
+		/*
+		 * for (SearchHit hit : hits) { //Handle the hit... }
 		 */
-        assertEquals(
-                "Total traces " + totalTraces + ", current " + hits.length,
-                totalTraces, hits.length);
+		assertEquals(
+				"Total traces " + totalTraces + ", current " + hits.length,
+				totalTraces, hits.length);
 
-        String resultsIndex = ESUtils.getResultsIndex(NOW_DATE);
-        for (int i = 0; i < VERBS_FILES.length; ++i) {
-            List<String> lines = parser.getLines("verbs/results/"
-                    + VERBS_FILES[i] + ".result");
+		String resultsIndex = ESUtils.getResultsIndex(NOW_DATE);
+		for (int i = 0; i < VERBS_FILES.length; ++i) {
+			List<String> lines = parser.getLines("verbs/results/"
+					+ VERBS_FILES[i] + ".result");
 
-            Map playerState = client
-                    .prepareGet(resultsIndex, ESUtils.getResultsType(),
-                            "verbs/" + VERBS_FILES[i] + ".csv")
-                    .setOperationThreaded(false).get().getSourceAsMap();
+			Map playerState = client
+					.prepareGet(resultsIndex, ESUtils.getResultsType(),
+							"verbs/" + VERBS_FILES[i] + ".csv")
+					.setOperationThreaded(false).get().getSourceAsMap();
 
-            for (String line : lines) {
-                String[] keyValue = line.split("=");
-                String flatObjectKey = keyValue[0];
-                String[] keys = flatObjectKey.split("\\.");
+			for (String line : lines) {
+				String[] keyValue = line.split("=");
+				String flatObjectKey = keyValue[0];
+				String[] keys = flatObjectKey.split("\\.");
 
-                Map propertyMap = playerState;
-                for (int j = 0; j < keys.length - 1; ++j) {
-                    propertyMap = (Map) propertyMap.get(keys[j]);
-                }
-                Object value = propertyMap.get(keys[keys.length - 1]);
+				Map propertyMap = playerState;
+				for (int j = 0; j < keys.length - 1; ++j) {
+					propertyMap = (Map) propertyMap.get(keys[j]);
+				}
+				Object value = propertyMap.get(keys[keys.length - 1]);
 
-                if (flatObjectKey
-                        .startsWith(es.eucm.rage.realtime.topologies.TopologyBuilder.TraceEventTypes.PROGRESSED)
-                        || flatObjectKey
-                        .startsWith(es.eucm.rage.realtime.topologies.TopologyBuilder.TraceEventTypes.COMPLETED)) {
+				if (flatObjectKey
+						.startsWith(es.eucm.rage.realtime.topologies.TopologyBuilder.TraceEventTypes.PROGRESSED)
+						|| flatObjectKey
+								.startsWith(es.eucm.rage.realtime.topologies.TopologyBuilder.TraceEventTypes.COMPLETED)) {
 
-                    try {
-                        assertEquals(flatObjectKey, Double.valueOf(value.toString()), Double.valueOf(keyValue[1]));
-                    } catch (Exception ex) {
-                        assertEquals(flatObjectKey, value, keyValue[1]);
-                    }
-                } else {
-                    assertEquals(flatObjectKey, value,
-                            Integer.valueOf(keyValue[1]));
-                }
-            }
-        }
-    }
+					try {
+						assertEquals(flatObjectKey,
+								Double.valueOf(value.toString()),
+								Double.valueOf(keyValue[1]));
+					} catch (Exception ex) {
+						assertEquals(flatObjectKey, value, keyValue[1]);
+					}
+				} else {
+					assertEquals(flatObjectKey, value,
+							Integer.valueOf(keyValue[1]));
+				}
+			}
+		}
+	}
 }

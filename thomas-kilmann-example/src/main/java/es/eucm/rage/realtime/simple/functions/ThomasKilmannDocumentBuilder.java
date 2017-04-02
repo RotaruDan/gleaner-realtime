@@ -87,7 +87,6 @@ public class ThomasKilmannDocumentBuilder implements Function {
 			object.add(doc);
 
 			collector.emit(object);
-			return;
 		}
 	}
 

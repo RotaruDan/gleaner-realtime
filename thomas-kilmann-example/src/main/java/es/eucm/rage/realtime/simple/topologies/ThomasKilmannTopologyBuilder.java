@@ -287,15 +287,15 @@ public class ThomasKilmannTopologyBuilder implements
 						new FieldValueFilter(TridentTraceKeys.EVENT,
 								TraceEventTypes.SELECTED))
 				// Filter only traces with ext.thomasKilmann
-				.peek(new LogConsumer("ThomasKilmannTopologyBuilder 1", true))
+				.peek(new LogConsumer("ThomasKilmannTopologyBuilder 1"))
 				.each(new Fields(TRACE_KEY),
 						new ExtensionTypeFilter(THOMAS_KILMANN_KEY,
 								String.class))
-				.peek(new LogConsumer("ThomasKilmannTopologyBuilder 2", true))
+				.peek(new LogConsumer("ThomasKilmannTopologyBuilder 2"))
 				.each(new Fields(TRACE_KEY),
 						new ThomasKilmannDocumentBuilder(TRACE_KEY),
 						new Fields(THOMAS_KILMANN_KEY))
-				.peek(new LogConsumer("ThomasKilmannTopologyBuilder 3", true))
+				.peek(new LogConsumer("ThomasKilmannTopologyBuilder 3"))
 				.partitionPersist(EsState.opaque(),
 						new Fields(THOMAS_KILMANN_KEY), new TraceStateUpdater());
 
