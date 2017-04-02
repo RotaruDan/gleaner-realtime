@@ -135,7 +135,9 @@ public class VerbsTest {
 								.startsWith(es.eucm.rage.realtime.topologies.TopologyBuilder.TraceEventTypes.COMPLETED)) {
 
 					try {
-						assertEquals(flatObjectKey, Double.valueOf(value.toString()), Double.valueOf(keyValue[1]));
+						assertEquals(flatObjectKey,
+								Double.valueOf(value.toString()),
+								Double.valueOf(keyValue[1]));
 					} catch (Exception ex) {
 						assertEquals(flatObjectKey, value, keyValue[1]);
 					}

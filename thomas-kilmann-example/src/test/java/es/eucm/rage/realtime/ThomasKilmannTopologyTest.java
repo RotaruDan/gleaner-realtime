@@ -47,7 +47,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class ThomasKilmannTopologyTest {
 
-	private static final String[] TRACES_FILES = { "DSIR", "KXIH", "SSYP", "TQBG", "ZEHU" };
+	private static final String[] TRACES_FILES = { "DSIR", "KXIH", "SSYP",
+			"TQBG", "ZEHU" };
 	private static final String NOW_DATE = new Date().toString().toLowerCase()
 			.trim().replace(" ", "-");
 	private static final String ES_HOST = "localhost";
