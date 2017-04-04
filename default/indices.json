@@ -1,0 +1,8 @@
+{
+  "sessionKey": "{id}",
+  "indices": ["{id}","results-{id}", "opaque-values-{id}"],
+  "userKey": "userId",
+  "query": {
+    "term": { "name": "userId" }
+  }
+}
