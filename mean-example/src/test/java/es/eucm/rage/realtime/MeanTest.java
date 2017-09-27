@@ -25,7 +25,6 @@ import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.testing.FeederBatchSpout;
-import org.elasticsearch.client.transport.TransportClient;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -102,15 +101,13 @@ public class MeanTest {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
+/*
 		TransportClient client = partitionPersist
 				.makeElasticsearchClient(Arrays.asList(InetAddress
 						.getByName(ES_HOST)));
 
 		String tracesIndex = ESUtils.getTracesIndex(NOW_DATE);
-		/*
-		 * for (SearchHit hit : hits) { //Handle the hit... }
-		 */
+
 		Map meanState = client.prepareGet(tracesIndex, type, event)
 				.setOperationThreaded(false).get().getSourceAsMap();
 
@@ -122,5 +119,6 @@ public class MeanTest {
 				"Total scores sum " + totalSum + ", current "
 						+ meanState.get(AverageUpdater.SUM_KEY), totalSum,
 				meanState.get(AverageUpdater.SUM_KEY));
+				*/
 	}
 }
