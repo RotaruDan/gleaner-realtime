@@ -15,20 +15,22 @@
  */
 package es.eucm.rage.realtime;
 
+import com.google.gson.Gson;
 import es.eucm.rage.realtime.simple.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.CSVToMapTrace;
 import es.eucm.rage.realtime.utils.ESUtils;
 import es.eucm.rage.realtime.states.elasticsearch.EsMapState;
 import es.eucm.rage.realtime.states.elasticsearch.EsState;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
+import org.apache.http.util.EntityUtils;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.state.StateFactory;
 import org.apache.storm.trident.testing.FeederBatchSpout;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -36,6 +38,7 @@ import java.net.InetAddress;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests the {@link TopologyBuilder} executed on a local cluster and receiving
@@ -48,8 +51,7 @@ public class VerbsTest {
 			"accessible/accessed", "accessible/skipped",
 			"alternative/selected", "alternative/unlocked" };
 
-	private static final String NOW_DATE = new Date().toString().toLowerCase()
-			.trim().replace(" ", "-");
+	private static final String NOW_DATE = String.valueOf(new Date().getTime());
 	private static final String ES_HOST = "localhost";
 	private static final String ZOOKEEPER_URL = "localhost";
 
@@ -81,7 +83,8 @@ public class VerbsTest {
 		CSVToMapTrace parser = new CSVToMapTrace(NOW_DATE);
 		int totalTraces = 0;
 		for (int i = 0; i < VERBS_FILES.length; ++i) {
-			List tuples = parser.getTuples("verbs/" + VERBS_FILES[i] + ".csv");
+			List tuples = parser.getTuples("verbs/" + VERBS_FILES[i] + ".csv",
+					i);
 			tracesSpout.feed(tuples);
 			totalTraces += tuples.size();
 		}
@@ -92,32 +95,52 @@ public class VerbsTest {
 			e.printStackTrace();
 		}
 
-		TransportClient client = partitionPersist
-				.makeElasticsearchClient(Arrays.asList(InetAddress
-						.getByName(ES_HOST)));
+		Gson gson = new Gson();
 
-		SearchResponse tracesSearch = client
-				.prepareSearch(ESUtils.getTracesIndex(NOW_DATE))
-				.setQuery(QueryBuilders.matchAllQuery()).setSize(10000).get();
+		RestClient client = RestClient.builder(new HttpHost(ES_HOST, 9200))
+				.build();
 
-		SearchHit[] hits = tracesSearch.getHits().getHits();
-		/*
-		 * for (SearchHit hit : hits) { //Handle the hit... }
-		 */
-		assertEquals(
-				"Total traces " + totalTraces + ", current " + hits.length,
-				totalTraces, hits.length);
+		Response response = client.performRequest("GET",
+				"/" + ESUtils.getTracesIndex(NOW_DATE)
+						+ "/_search?size=5000&q=*:*");
+		int status = response.getStatusLine().getStatusCode();
+
+		assertEquals("TEST GET error, status is" + status, status,
+				HttpStatus.SC_OK);
+
+		String responseString = EntityUtils.toString(response.getEntity());
+		Map<String, Object> responseDocs = gson.fromJson(responseString,
+				Map.class);
+
+		Map hits = (Map) responseDocs.get("hits");
+
+		int total = ((Double) hits.get("total")).intValue();
+
+		assertEquals("Total traces " + totalTraces + ", current " + total,
+				totalTraces, total);
 
 		String resultsIndex = ESUtils.getResultsIndex(NOW_DATE);
 		for (int i = 0; i < VERBS_FILES.length; ++i) {
 			List<String> lines = parser.getLines("verbs/results/"
 					+ VERBS_FILES[i] + ".result");
 
-			Map playerState = client
-					.prepareGet(resultsIndex, ESUtils.getResultsType(),
-							"verbs/" + VERBS_FILES[i] + ".csv")
-					.setOperationThreaded(false).get().getSourceAsMap();
+			System.out.println("ROUTE PLAYER: " + resultsIndex + "/"
+					+ ESUtils.getResultsType() + "/gameplayid" + i);
+			Response resultResponse = client.performRequest("GET", "/"
+					+ resultsIndex + "/" + ESUtils.getResultsType()
+					+ "/gameplayid" + i);
+			int resultStatus = resultResponse.getStatusLine().getStatusCode();
+			System.out.println("resultStatus = " + resultStatus);
+			assertEquals("TEST GET result error, status is" + resultStatus,
+					resultStatus, HttpStatus.SC_OK);
 
+			String responseResultString = EntityUtils.toString(resultResponse
+					.getEntity());
+			System.out
+					.println("responseResultString = " + responseResultString);
+			Map<String, Object> playerState = (Map) gson.fromJson(
+					responseResultString, Map.class).get("_source");
+			System.out.println("playerState = " + playerState);
 			for (String line : lines) {
 				String[] keyValue = line.split("=");
 				String flatObjectKey = keyValue[0];
@@ -126,6 +149,8 @@ public class VerbsTest {
 				Map propertyMap = playerState;
 				for (int j = 0; j < keys.length - 1; ++j) {
 					propertyMap = (Map) propertyMap.get(keys[j]);
+					assertNotNull("Property Map should not be null for key "
+							+ keys[j], propertyMap);
 				}
 				Object value = propertyMap.get(keys[keys.length - 1]);
 
@@ -143,9 +168,10 @@ public class VerbsTest {
 					}
 				} else {
 					assertEquals(flatObjectKey, value,
-							Integer.valueOf(keyValue[1]));
+							Double.valueOf(keyValue[1]));
 				}
 			}
 		}
+
 	}
 }

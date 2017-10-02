@@ -15,21 +15,23 @@
  */
 package es.eucm.rage.realtime;
 
+import com.google.gson.Gson;
 import es.eucm.rage.realtime.simple.topologies.ThomasKilmannTopologyBuilder;
 import es.eucm.rage.realtime.states.elasticsearch.EsMapState;
 import es.eucm.rage.realtime.states.elasticsearch.EsState;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.CSVToMapTrace;
 import es.eucm.rage.realtime.utils.ESUtils;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
+import org.apache.http.util.EntityUtils;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.state.StateFactory;
 import org.apache.storm.trident.testing.FeederBatchSpout;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -49,8 +51,7 @@ public class ThomasKilmannTopologyTest {
 
 	private static final String[] TRACES_FILES = { "DSIR", "KXIH", "SSYP",
 			"TQBG", "ZEHU" };
-	private static final String NOW_DATE = new Date().toString().toLowerCase()
-			.trim().replace(" ", "-");
+	private static final String NOW_DATE = String.valueOf(new Date().getTime());
 	private static final String ES_HOST = "localhost";
 	private static final String ZOOKEEPER_URL = "localhost";
 
@@ -83,7 +84,7 @@ public class ThomasKilmannTopologyTest {
 		int totalTraces = 0;
 		for (int i = 0; i < TRACES_FILES.length; ++i) {
 			List tuples = parser.getTuples("thomaskilmann/" + TRACES_FILES[i]
-					+ ".csv");
+					+ ".csv", i);
 			tracesSpout.feed(tuples);
 			totalTraces += tuples.size();
 		}
@@ -94,31 +95,47 @@ public class ThomasKilmannTopologyTest {
 			e.printStackTrace();
 		}
 
-		TransportClient client = partitionPersist
-				.makeElasticsearchClient(Arrays.asList(InetAddress
-						.getByName(ES_HOST)));
+		Gson gson = new Gson();
 
-		SearchResponse tracesSearch = client
-				.prepareSearch(ESUtils.getTracesIndex(NOW_DATE))
-				.setQuery(QueryBuilders.matchAllQuery()).setSize(10000).get();
+		RestClient client = RestClient.builder(new HttpHost(ES_HOST, 9200))
+				.build();
 
-		SearchHit[] hits = tracesSearch.getHits().getHits();
-		/*
-		 * for (SearchHit hit : hits) { //Handle the hit... }
-		 */
-		assertEquals(
-				"Total traces " + totalTraces + ", current " + hits.length,
-				totalTraces, hits.length);
+		Response response = client.performRequest("GET",
+				"/" + ESUtils.getTracesIndex(NOW_DATE)
+						+ "/_search?size=5000&q=*:*");
+		int status = response.getStatusLine().getStatusCode();
+
+		assertEquals("TEST GET error, status is" + status, status,
+				HttpStatus.SC_OK);
+
+		String responseString = EntityUtils.toString(response.getEntity());
+		Map<String, Object> responseDocs = (Map) gson.fromJson(responseString,
+				Map.class);
+
+		Map hits = (Map) responseDocs.get("hits");
+
+		int total = ((Double) hits.get("total")).intValue();
+
+		assertEquals("Total traces " + totalTraces + ", current " + total,
+				totalTraces, total);
 
 		String resultsIndex = ESUtils.getResultsIndex(NOW_DATE);
 		for (int i = 0; i < TRACES_FILES.length; ++i) {
 			List<String> lines = parser.getLines("thomaskilmann/results/"
 					+ TRACES_FILES[i] + ".csv-result");
 
-			Map playerState = client
-					.prepareGet(resultsIndex, ESUtils.getResultsType(),
-							"thomaskilmann/" + TRACES_FILES[i] + ".csv")
-					.setOperationThreaded(false).get().getSourceAsMap();
+			Response resultResponse = client.performRequest("GET", "/"
+					+ resultsIndex + "/" + ESUtils.getResultsType()
+					+ "/gameplayid" + i);
+			int resultStatus = resultResponse.getStatusLine().getStatusCode();
+
+			assertEquals("TEST GET result error, status is" + resultStatus,
+					resultStatus, HttpStatus.SC_OK);
+
+			String responseResultString = EntityUtils.toString(resultResponse
+					.getEntity());
+			Map<String, Object> playerState = (Map) gson.fromJson(
+					responseResultString, Map.class).get("_source");
 
 			for (String line : lines) {
 				String[] keyValue = line.split("=");
@@ -139,7 +156,7 @@ public class ThomasKilmannTopologyTest {
 					assertEquals(flatObjectKey, value, keyValue[1]);
 				} else {
 					assertEquals(flatObjectKey, value,
-							Integer.valueOf(keyValue[1]));
+							Double.valueOf(keyValue[1]));
 				}
 			}
 		}

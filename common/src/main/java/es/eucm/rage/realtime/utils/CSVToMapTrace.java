@@ -30,7 +30,7 @@ public class CSVToMapTrace {
 		this.sessionId = sessionId;
 	}
 
-	public List<List<Object>> getTuples(String csvTracesFile) {
+	public List<List<Object>> getTuples(String csvTracesFile, int i) {
 
 		List<List<Object>> ret = new ArrayList<List<Object>>();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -42,7 +42,7 @@ public class CSVToMapTrace {
 				if (!line.startsWith("--") && line.length() > 10) {
 					Map trace = CreateStatement(line);
 					if (trace != null) {
-						trace.put("gameplayId", csvTracesFile);
+						trace.put("gameplayId", "gameplayid" + i);
 						ret.add(Arrays.asList(sessionId, trace));
 					}
 				}

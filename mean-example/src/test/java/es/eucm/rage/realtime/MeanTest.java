@@ -15,17 +15,22 @@
  */
 package es.eucm.rage.realtime;
 
+import com.google.gson.Gson;
 import es.eucm.rage.realtime.example.AverageUpdater;
 import es.eucm.rage.realtime.example.topologies.MeanTopologyBuilder;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.CSVToMapTrace;
 import es.eucm.rage.realtime.utils.ESUtils;
 import es.eucm.rage.realtime.states.elasticsearch.EsState;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
+import org.apache.http.util.EntityUtils;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.testing.FeederBatchSpout;
-import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -44,8 +49,7 @@ public class MeanTest {
 	private static final String[] VERBS_FILES = { "completable/completed.1",
 			"completable/completed.2", "completable/completed.3" };
 
-	private static final String NOW_DATE = new Date().toString().toLowerCase()
-			.trim().replace(" ", "-");
+	private static final String NOW_DATE = String.valueOf(new Date().getTime());
 	private static final String ES_HOST = "localhost";
 	private static final String ZOOKEEPER_URL = "localhost";
 	private static final Logger LOG = Logger
@@ -81,7 +85,7 @@ public class MeanTest {
 		String event = "completed";
 		for (int i = 0; i < VERBS_FILES.length; ++i) {
 			List<List<Object>> tuples = parser.getTuples("verbs/"
-					+ VERBS_FILES[i] + ".csv");
+					+ VERBS_FILES[i] + ".csv", i);
 			totalTraces += tuples.size();
 			tracesSpout.feed(tuples);
 
@@ -103,24 +107,33 @@ public class MeanTest {
 			e.printStackTrace();
 		}
 
-		TransportClient client = partitionPersist
-				.makeElasticsearchClient(Arrays.asList(InetAddress
-						.getByName(ES_HOST)));
+		Gson gson = new Gson();
 
-		String tracesIndex = ESUtils.getTracesIndex(NOW_DATE);
-		/*
-		 * for (SearchHit hit : hits) { //Handle the hit... }
-		 */
-		Map meanState = client.prepareGet(tracesIndex, type, event)
-				.setOperationThreaded(false).get().getSourceAsMap();
+		RestClient client = RestClient.builder(new HttpHost(ES_HOST, 9200))
+				.build();
 
-		assertEquals("Count completables " + totalTraces + ", current "
-				+ meanState.get(AverageUpdater.COUNT_KEY), totalTraces,
-				meanState.get(AverageUpdater.COUNT_KEY));
+		Response response = client.performRequest("GET",
+				"/" + ESUtils.getTracesIndex(NOW_DATE) + "/" + type + "/"
+						+ event);
+		int status = response.getStatusLine().getStatusCode();
+
+		assertEquals("TEST GET error, status is" + status, status,
+				HttpStatus.SC_OK);
+
+		String responseString = EntityUtils.toString(response.getEntity());
+		Map<String, Object> meanState = (Map) gson.fromJson(responseString,
+				Map.class).get("_source");
+
+		int count = ((Double) meanState.get(AverageUpdater.COUNT_KEY))
+				.intValue();
+		assertEquals(
+				"Count completables " + totalTraces + ", current " + count,
+				totalTraces, count);
 
 		assertEquals(
 				"Total scores sum " + totalSum + ", current "
 						+ meanState.get(AverageUpdater.SUM_KEY), totalSum,
 				meanState.get(AverageUpdater.SUM_KEY));
+
 	}
 }
