@@ -19,13 +19,6 @@ import org.apache.storm.shade.org.json.simple.JSONValue;
 import org.apache.storm.trident.state.OpaqueValue;
 import org.json.simple.JSONObject;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.*;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 public class JSONOpaqueSerializerString {
 	private static final class MapOpaqueValue {
 		long t;
@@ -37,16 +30,8 @@ public class JSONOpaqueSerializerString {
 
 	public String serialize(OpaqueValue<Object> obj) {
 
-		String ret;
-		try {
-			ret = jsonBuilder().startObject().field("t", obj.getCurrTxid())
-					.field("c", obj.getCurr()).field("p", obj.getPrev())
-					.endObject().string();
-		} catch (IOException e) {
-			ret = "{" + "\"t\":\"" + obj.getCurrTxid() + "\"," + "\"c\":\""
-					+ obj.getCurr() + "\"," + "\"p\":\"" + obj.getPrev() + "\""
-					+ "}";
-		}
+		String ret = "{\"t\":" + obj.getCurrTxid() + "," + "\"c\":"
+				+ obj.getCurr() + ",\"p\":" + obj.getPrev() + "}";
 
 		return ret;
 	}

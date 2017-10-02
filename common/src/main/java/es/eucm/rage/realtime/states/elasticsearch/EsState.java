@@ -15,35 +15,40 @@
  */
 package es.eucm.rage.realtime.states.elasticsearch;
 
+import com.google.gson.Gson;
 import es.eucm.rage.realtime.AbstractAnalysis;
 import es.eucm.rage.realtime.utils.Document;
 import es.eucm.rage.realtime.utils.ESUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.util.EntityUtils;
 import org.apache.storm.task.IMetricsContext;
 import org.apache.storm.topology.ReportedFailedException;
 import org.apache.storm.trident.state.State;
 import org.apache.storm.trident.state.StateFactory;
 import org.apache.storm.trident.tuple.TridentTuple;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkItemResponse;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.index.IndexNotFoundException;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.action.update.UpdateResponse;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class EsState implements State {
 
@@ -51,6 +56,9 @@ public class EsState implements State {
 
 	private final String writingIndex;
 	private final String resultsIndex;
+	private final RestHighLevelClient hClient;
+
+	private Gson gson = new Gson();
 
 	@Override
 	public void beginCommit(Long aLong) {
@@ -62,18 +70,20 @@ public class EsState implements State {
 
 	}
 
-	private final TransportClient _client;
+	private RestClient _client;
 
-	public EsState(TransportClient client, String writingIndex,
-			String resultsIndex) {
+	public EsState(RestClient client, RestHighLevelClient hClient,
+			String writingIndex, String resultsIndex) {
 		_client = client;
 		this.writingIndex = writingIndex;
 		this.resultsIndex = resultsIndex;
+		this.hClient = hClient;
 	}
 
 	public void bulkUpdateIndices(List<TridentTuple> inputs) {
 
-		BulkRequestBuilder bulkRequest = _client.prepareBulk();
+		BulkRequest request = new BulkRequest();
+
 		for (TridentTuple input : inputs) {
 			Document<Map> doc = (Document<Map>) input.get(0);
 			Map source = doc.getSource();
@@ -89,72 +99,80 @@ public class EsState implements State {
 				type = ESUtils.getTracesType();
 			}
 
-			IndexRequestBuilder request = _client.prepareIndex(index, type,
-					doc.getId()).setSource(source);
-
-			bulkRequest.add(request);
+			request.add(new IndexRequest(index, type).source(source));
 		}
 
-		if (bulkRequest.numberOfActions() > 0) {
-			try {
-				BulkResponse response = bulkRequest.execute().actionGet();
-				if (response.hasFailures()) {
-					LOG.error("BulkResponse has failures : {}",
-							response.buildFailureMessage());
+		try {
 
+			BulkResponse bulkResponse = hClient.bulk(request);
+
+			if (bulkResponse.hasFailures()) {
+				LOG.error("BULK hasFailures proceeding to re-bulk");
+				for (BulkItemResponse bulkItemResponse : bulkResponse) {
+					if (bulkItemResponse.isFailed()) {
+						BulkItemResponse.Failure failure = bulkItemResponse
+								.getFailure();
+						LOG.error("Failure " + failure.getCause());
+					}
 				}
-			} catch (Exception e) {
-				LOG.error(
-						"error while executing bulk request to elasticsearch, "
-								+ "failed to store data into elasticsearch", e);
 			}
+		} catch (Exception e) {
+			LOG.error("error while executing bulk request to elasticsearch, "
+					+ "failed to store data into elasticsearch", e);
 		}
 	}
 
 	public void setProperty(String gameplayId, String key, Object value) {
 
 		try {
-			XContentBuilder xContentBuilder = jsonBuilder().startObject();
 
+			Map<String, Object> map = new HashMap<>();
 			String[] keys = key.split("\\.");
+			Map nested = map;
 			for (int i = 0; i < keys.length - 1; ++i) {
-				xContentBuilder = xContentBuilder.startObject(keys[i]);
+				Map<String, Object> keymap = new HashMap<>();
+				nested.put(keys[i], keymap);
+				nested = keymap;
 			}
-			xContentBuilder.field(keys[keys.length - 1], value);
-			for (int i = 0; i < keys.length - 1; ++i) {
-				xContentBuilder = xContentBuilder.endObject();
-			}
-			UpdateRequest updateRequest = new UpdateRequest(resultsIndex,
-					ESUtils.getResultsType(), gameplayId).doc(
-					xContentBuilder.endObject()).docAsUpsert(true);
-			_client.update(updateRequest).get();
+
+			nested.put(keys[keys.length - 1], value);
+
+			hClient.update(new UpdateRequest(resultsIndex, ESUtils
+					.getResultsType(), gameplayId).docAsUpsert(true).doc(map)
+					.retryOnConflict(50));
 
 		} catch (Exception e) {
 			LOG.error("Set Property has failures : {}", e);
-			checkElasticsearchException(e);
 		}
-
 	}
 
 	public Map<String, Object> getFromIndex(String index, String type, String id) {
+		Map ret;
 		try {
-			GetResponse response = _client.prepareGet(index, type, id)
-					.setOperationThreaded(false).get();
-			return response.getSourceAsMap();
-		} catch (IndexNotFoundException ex) {
-			return null;
+			GetRequest getRequest = new GetRequest(index, type, id);
+
+			GetResponse resp = hClient.get(getRequest);
+
+			ret = resp.getSourceAsMap();
+		} catch (Exception e) {
+			LOG.error(
+					"error while executing getFromIndex request from elasticsearch, "
+							+ "failed to store data into elasticsearch", e);
+			ret = null;
 		}
+		return ret;
 	}
 
 	public void setOnIndex(String index, String type, String id, Map source) {
-		_client.prepareIndex(index, type, id).setSource(source).get();
-	}
+		try {
 
-	private void checkElasticsearchException(Exception e) {
-		if (e instanceof ReportedFailedException) {
-			throw (ReportedFailedException) e;
-		} else {
-			throw new RuntimeException(e);
+			hClient.update(new UpdateRequest(index, type, id).docAsUpsert(true)
+					.doc(source).retryOnConflict(50));
+		} catch (Exception e) {
+			LOG.error(
+					"error while executing setOnIndex request to elasticsearch, "
+							+ "failed to store data into elasticsearch", e);
+
 		}
 	}
 
@@ -170,40 +188,30 @@ public class EsState implements State {
 		@Override
 		public State makeState(Map conf, IMetricsContext context,
 				int partitionIndex, int numPartitions) {
-			EsState s;
-			try {
-				String esHost = (String) conf
-						.get(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM);
-				String sessionId = (String) conf
-						.get(AbstractAnalysis.SESSION_ID_FLUX_PARAM);
-				String writingIndex = ESUtils.getTracesIndex(sessionId);
-				String resultsIndex = ESUtils.getResultsIndex((String) conf
-						.get(AbstractAnalysis.SESSION_ID_FLUX_PARAM));
-				s = new EsState(
-						makeElasticsearchClient(Arrays.asList(InetAddress
-								.getByName(esHost))), writingIndex,
-						resultsIndex);
-			} catch (UnknownHostException e) {
-				throw new RuntimeException(e);
-			}
+
+			String esHost = (String) conf
+					.get(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM);
+			String sessionId = (String) conf
+					.get(AbstractAnalysis.SESSION_ID_FLUX_PARAM);
+			String writingIndex = ESUtils.getTracesIndex(sessionId);
+			String resultsIndex = ESUtils.getResultsIndex((String) conf
+					.get(AbstractAnalysis.SESSION_ID_FLUX_PARAM));
+			RestClient client = makeElasticsearchClient(new HttpHost(esHost,
+					9200));
+			EsState s = new EsState(client, new RestHighLevelClient(client),
+					writingIndex, resultsIndex);
+
 			return s;
 		}
 
 		/**
 		 * Constructs a java elasticsearch 5 client for the host..
 		 * 
-		 * @return {@link TransportClient} to read/write to the hash ring of the
+		 * @return {@link RestClient} to read/write to the hash ring of the
 		 *         servers..
 		 */
-		public TransportClient makeElasticsearchClient(
-				List<InetAddress> endpoints) throws UnknownHostException {
-			TransportClient client = new PreBuiltTransportClient(Settings.EMPTY);
-
-			for (InetAddress endpoint : endpoints) {
-				client.addTransportAddress(new InetSocketTransportAddress(
-						endpoint, 9300));
-			}
-			return client;
+		public RestClient makeElasticsearchClient(HttpHost... endpoints) {
+			return RestClient.builder(endpoints).build();
 		}
 	}
 }
