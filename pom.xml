@@ -30,7 +30,7 @@
     <name>RAGE Real Time Parent Project</name>
 
     <properties>
-        <storm.version>1.0.2</storm.version>
+        <storm.version>1.1.1</storm.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <pluginRepositories>
@@ -51,26 +51,9 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.elasticsearch</groupId>
-                <artifactId>elasticsearch</artifactId>
-                <version>5.0.0-alpha5</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>org.elasticsearch.client</groupId>
-                <artifactId>transport</artifactId>
-                <version>5.0.0-alpha5</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.slf4j</groupId>
-                        <artifactId>slf4j-log4j12</artifactId>
-                    </exclusion>
-                </exclusions>
+                <artifactId>elasticsearch-rest-high-level-client</artifactId>
+                <version>5.6.2</version>
             </dependency>
 
             <dependency>

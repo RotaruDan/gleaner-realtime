@@ -47,16 +47,16 @@ public class AverageUpdater implements StateUpdater<EsState> {
 			}
 
 			// Compute the new mean value
-			int count;
+			double count;
 			double sum;
 			double score = tuple
 					.getDoubleByField(TopologyBuilder.TridentTraceKeys.SCORE
 							+ "-double");
 			Object countObject = mean.get(COUNT_KEY);
 			if (countObject == null) {
-				countObject = 0;
+				countObject = 0d;
 			}
-			count = (int) countObject + 1;
+			count = (double) countObject + 1d;
 			mean.put(COUNT_KEY, count);
 
 			Object sumObject = mean.get(SUM_KEY);

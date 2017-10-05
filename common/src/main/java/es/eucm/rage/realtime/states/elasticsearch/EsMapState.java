@@ -15,42 +15,41 @@
  */
 package es.eucm.rage.realtime.states.elasticsearch;
 
+import com.google.gson.Gson;
 import es.eucm.rage.realtime.AbstractAnalysis;
 import es.eucm.rage.realtime.JSONOpaqueSerializerString;
 import es.eucm.rage.realtime.utils.ESUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.NStringEntity;
+import org.apache.http.util.EntityUtils;
 import org.apache.storm.Config;
 import org.apache.storm.metric.api.CountMetric;
 import org.apache.storm.task.IMetricsContext;
-import org.apache.storm.topology.ReportedFailedException;
 import org.apache.storm.trident.state.*;
 import org.apache.storm.trident.state.map.*;
 import org.apache.storm.tuple.Values;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkItemResponse;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.get.MultiGetItemResponse;
-import org.elasticsearch.action.get.MultiGetRequestBuilder;
-import org.elasticsearch.action.get.MultiGetResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.*;
-
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class EsMapState<T> implements IBackingMap<T> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EsMapState.class);
+	private final RestHighLevelClient hClient;
 
 	public static class Options implements Serializable {
 
@@ -59,7 +58,6 @@ public class EsMapState<T> implements IBackingMap<T> {
 
 		public String opaqueIndex;
 		public String resultsIndex;
-		public int maxMultiGetBatchSize = 100;
 	}
 
 	public static StateFactory opaque() {
@@ -84,20 +82,18 @@ public class EsMapState<T> implements IBackingMap<T> {
 		@Override
 		public State makeState(Map conf, IMetricsContext context,
 				int partitionIndex, int numPartitions) {
-			EsMapState s;
-			try {
-				String esHost = (String) conf
-						.get(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM);
-				String sessionId = (String) conf
-						.get(AbstractAnalysis.SESSION_ID_FLUX_PARAM);
-				_opts.opaqueIndex = ESUtils.getOpaqueValuesIndex(sessionId);
-				_opts.resultsIndex = ESUtils.getResultsIndex(sessionId);
-				s = new EsMapState(
-						makeElasticsearchClient(Arrays.asList(InetAddress
-								.getByName(esHost))), _opts);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+
+			String esHost = (String) conf
+					.get(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM);
+			String sessionId = (String) conf
+					.get(AbstractAnalysis.SESSION_ID_FLUX_PARAM);
+			_opts.opaqueIndex = ESUtils.getOpaqueValuesIndex(sessionId);
+			_opts.resultsIndex = ESUtils.getResultsIndex(sessionId);
+			RestClient client = makeElasticsearchClient(new HttpHost(esHost,
+					9200));
+			EsMapState s = new EsMapState(client, new RestHighLevelClient(
+					client), _opts);
+
 			s.registerMetrics(conf, context);
 			CachedMap c = new CachedMap(s, _opts.localCacheSize);
 			MapState ms = OpaqueMap.build(c);
@@ -111,31 +107,27 @@ public class EsMapState<T> implements IBackingMap<T> {
 		 * @param endpoints
 		 *            list of {@code InetAddress} for all the elasticsearch 5
 		 *            servers
-		 * @return {@link TransportClient} to read/write to the hash ring of the
+		 * @return {@link RestClient} to read/write to the hash ring of the
 		 *         servers..
 		 */
-		protected TransportClient makeElasticsearchClient(
-				List<InetAddress> endpoints) throws UnknownHostException {
-			TransportClient client = new PreBuiltTransportClient(Settings.EMPTY);
-
-			for (InetAddress endpoint : endpoints) {
-				client.addTransportAddress(new InetSocketTransportAddress(
-						endpoint, 9300));
-			}
-			return client;
+		public RestClient makeElasticsearchClient(HttpHost... endpoints) {
+			return RestClient.builder(endpoints).build();
 		}
 	}
 
 	private JSONOpaqueSerializerString ser = new JSONOpaqueSerializerString();
-	private final TransportClient _client;
+	private final RestClient _client;
 	private Options _opts;
 	CountMetric _mreads;
 	CountMetric _mwrites;
 	CountMetric _mexceptions;
+	private Gson gson = new Gson();
 
-	public EsMapState(TransportClient client, Options opts) {
+	public EsMapState(RestClient client, RestHighLevelClient hClient,
+			Options opts) {
 		_client = client;
 		_opts = opts;
+		this.hClient = hClient;
 	}
 
 	/**
@@ -144,6 +136,8 @@ public class EsMapState<T> implements IBackingMap<T> {
 
 	@Override
 	public List<T> multiGet(List<List<Object>> keys) {
+
+		String mgetJson = "";
 		try {
 			LinkedList<String> singleKeys = new LinkedList();
 			for (List<Object> key : keys) {
@@ -151,44 +145,64 @@ public class EsMapState<T> implements IBackingMap<T> {
 			}
 			List<T> ret = new ArrayList(singleKeys.size());
 
+			Map<String, List> body = new HashMap<>();
+			List<Map> query = new ArrayList<>();
+			body.put("docs", query);
+
 			while (!singleKeys.isEmpty()) {
-				MultiGetRequestBuilder multiGetBuilder = _client
-						.prepareMultiGet();
-				for (int i = 0; i < _opts.maxMultiGetBatchSize
-						&& !singleKeys.isEmpty(); i++) {
-					multiGetBuilder.add(_opts.opaqueIndex,
-							ESUtils.getOpaqueValuesType(),
-							singleKeys.removeFirst());
-				}
 
-				MultiGetResponse multiGetItemResponses = multiGetBuilder.get();
+				Map<String, String> doc = new HashMap<>();
+				query.add(doc);
 
-				for (MultiGetItemResponse itemResponse : multiGetItemResponses) {
-					GetResponse response = itemResponse.getResponse();
-
-					if (!itemResponse.isFailed() && response.isExists()) {
-						T val = (T) ser.deserialize(response
-								.getSourceAsString());
-						ret.add(val);
-					} else {
-						ret.add(null);
-					}
-				}
+				doc.put("_type", ESUtils.getOpaqueValuesType());
+				doc.put("_id", singleKeys.removeFirst());
 			}
+
+			mgetJson = gson.toJson(body, Map.class);
+			HttpEntity entity = new NStringEntity(mgetJson,
+					ContentType.APPLICATION_JSON);
+
+			Response response = _client.performRequest("GET", "/"
+					+ _opts.opaqueIndex + "/_mget", Collections.emptyMap(),
+					entity);
+
+			int status = response.getStatusLine().getStatusCode();
+			if (status > HttpStatus.SC_ACCEPTED) {
+				LOG.info("There was an MGET error, mget JSON " + mgetJson);
+				LOG.error("MGET error, status is " + status);
+				return ret;
+			}
+
+			String responseString = EntityUtils.toString(response.getEntity());
+			System.out.println("responseString multiGet = " + responseString);
+			Map<String, Object> responseDocs = gson.fromJson(responseString,
+					Map.class);
+
+			List<Object> docs = (List) responseDocs.get("docs");
+			for (Object doc : docs) {
+				Map<String, Object> docMap = (Map) doc;
+				T resDoc = (T) docMap.get("_source");
+
+				ret.add(resDoc);
+			}
+
 			if (_mreads != null) {
 				_mreads.incrBy(ret.size());
 			}
 			return ret;
 		} catch (Exception e) {
-			checkElasticsearchException(e);
-			throw new IllegalStateException("Impossible to reach this code");
+			LOG.info("There was an MGET error, mget JSON " + mgetJson);
+			LOG.error("Exception while mget", e);
 		}
+
+		return null;
 	}
 
 	@Override
 	public void multiPut(List<List<Object>> keys, List<T> vals) {
+
 		try {
-			BulkRequestBuilder bulkRequest = _client.prepareBulk();
+			BulkRequest request = new BulkRequest();
 
 			for (int i = 0; i < keys.size(); i++) {
 
@@ -203,63 +217,55 @@ public class EsMapState<T> implements IBackingMap<T> {
 				String keyId = toSingleKey(keys.get(i));
 				String serialized = ser.serialize(val);
 
-				IndexRequestBuilder request = _client
-						.prepareIndex(_opts.opaqueIndex,
-								ESUtils.getOpaqueValuesType(), keyId)
-						.setSource(serialized);
+				String index = _opts.opaqueIndex;
+				String type = ESUtils.getOpaqueValuesType();
+				String id = keyId;
+				String source = serialized;
 
-				bulkRequest.add(request);
+				request.add(new IndexRequest(index, type, id).source(source,
+						XContentType.JSON));
 			}
 
-			BulkResponse bulkResponse = bulkRequest.get();
+			BulkResponse bulkResponse = hClient.bulk(request);
+
 			if (bulkResponse.hasFailures()) {
-				// process failures by iterating through each bulk response item
-				String errorMessage = bulkResponse.buildFailureMessage();
-				LOG.error("BulkResponse has failures : {}", errorMessage);
-				throw new ReportedFailedException(errorMessage);
+				LOG.error("BULK hasFailures proceeding to re-bulk");
+				for (BulkItemResponse bulkItemResponse : bulkResponse) {
+					if (bulkItemResponse.isFailed()) {
+						BulkItemResponse.Failure failure = bulkItemResponse
+								.getFailure();
+						LOG.error("Failure " + failure.getCause());
+					}
+				}
 			}
 
-			if (_mwrites != null) {
-				_mwrites.incrBy(keys.size());
-			}
 		} catch (Exception e) {
-			checkElasticsearchException(e);
+			LOG.error("MULTI PUT error", e);
 		}
 	}
 
 	public void setProperty(String gameplayId, List<Object> keys, Object value) {
-		try {
-			XContentBuilder xContentBuilder = jsonBuilder().startObject();
 
+		try {
+
+			Map<String, Object> doc = new HashMap<>();
+
+			Map<String, Object> map = doc;
 			for (int i = 0; i < keys.size() - 1; ++i) {
-				xContentBuilder = xContentBuilder.startObject(keys.get(i)
-						.toString());
+				Map<String, Object> keymap = new HashMap<>();
+				map.put(keys.get(i).toString(), keymap);
+				map = keymap;
 			}
-			xContentBuilder.field(keys.get(keys.size() - 1).toString(), value);
-			for (int i = 0; i < keys.size() - 1; ++i) {
-				xContentBuilder = xContentBuilder.endObject();
-			}
-			UpdateRequest updateRequest = new UpdateRequest(_opts.resultsIndex,
-					ESUtils.getResultsType(), gameplayId)
-					.doc(xContentBuilder.endObject()).docAsUpsert(true)
-					.retryOnConflict(10);
-			_client.update(updateRequest).get();
+			map.put(keys.get(keys.size() - 1).toString(), value);
+
+			hClient.update(new UpdateRequest(_opts.resultsIndex, ESUtils
+					.getResultsType(), gameplayId).docAsUpsert(true).doc(doc)
+					.retryOnConflict(50));
 
 		} catch (Exception e) {
 			LOG.error("Set Property has failures : {}", e);
-			checkElasticsearchException(e);
 		}
-	}
 
-	private void checkElasticsearchException(Exception e) {
-		if (_mexceptions != null) {
-			_mexceptions.incr();
-		}
-		if (e instanceof ReportedFailedException) {
-			throw (ReportedFailedException) e;
-		} else {
-			throw new RuntimeException(e);
-		}
 	}
 
 	private void registerMetrics(Map conf, IMetricsContext context) {
