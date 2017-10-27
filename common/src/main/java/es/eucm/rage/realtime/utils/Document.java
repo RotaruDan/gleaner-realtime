@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
+ * Copyright © 2016 e-UCM (http://www.e-ucm.es/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,23 +50,15 @@ public class Document<T> implements Serializable {
 	 */
 	private String indexPrefix;
 
-	public Document(T source) {
-		this(source, null);
-	}
+	private String index;
 
-	public Document(T source, String id) {
-		this(source, id, null);
-	}
-
-	public Document(T source, String id, String type) {
-		this(source, id, type, null);
-	}
-
-	public Document(T source, String id, String type, String indexPrefix) {
+	public Document(T source, String id, String type, String indexPrefix,
+			String index) {
 		this.source = source;
 		this.id = id;
 		this.type = type;
 		this.indexPrefix = indexPrefix;
+		this.index = index;
 	}
 
 	public T getSource() {
@@ -83,6 +75,10 @@ public class Document<T> implements Serializable {
 
 	public String getIndexPrefix() {
 		return indexPrefix;
+	}
+
+	public String getIndex() {
+		return index;
 	}
 
 	@Override

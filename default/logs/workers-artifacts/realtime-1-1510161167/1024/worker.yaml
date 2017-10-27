@@ -1,0 +1,4 @@
+worker-id: 1d2e05f0-06a8-4d17-a5aa-ed36dc6152ed
+logs.users: []
+logs.groups: []
+topology.submitter.user: dan

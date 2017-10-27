@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
+ * Copyright © 2016 e-UCM (http://www.e-ucm.es/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,14 +40,11 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.support.single.instance.InstanceShardOperationRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,8 +53,6 @@ public class EsState implements State {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EsState.class);
 
-	private final String writingIndex;
-	private final String resultsIndex;
 	private final RestHighLevelClient hClient;
 
 	private Gson gson = new Gson();
@@ -74,11 +69,8 @@ public class EsState implements State {
 
 	private RestClient _client;
 
-	public EsState(RestClient client, RestHighLevelClient hClient,
-			String writingIndex, String resultsIndex) {
+	public EsState(RestClient client, RestHighLevelClient hClient) {
 		_client = client;
-		this.writingIndex = writingIndex;
-		this.resultsIndex = resultsIndex;
 		this.hClient = hClient;
 	}
 
@@ -90,7 +82,7 @@ public class EsState implements State {
 			Document<Map> doc = (Document<Map>) input.get(0);
 			Map source = doc.getSource();
 
-			String index = writingIndex;
+			String index = ESUtils.getTracesIndex(doc.getIndex());
 			String indexPrefix = doc.getIndexPrefix();
 			if (indexPrefix != null) {
 				index = indexPrefix + "-" + index;
@@ -123,7 +115,9 @@ public class EsState implements State {
 					if (bulkItemResponse.isFailed()) {
 						BulkItemResponse.Failure failure = bulkItemResponse
 								.getFailure();
-						LOG.error("Failure " + failure.getCause());
+						LOG.error("Failure " + failure.getCause()
+								+ ", response: "
+								+ gson.toJson(bulkItemResponse));
 
 						BulkResponse bulkResponse2 = hClient.bulk(request);
 						if (bulkResponse2.hasFailures()) {
@@ -132,8 +126,12 @@ public class EsState implements State {
 								if (bulkItemResponse2.isFailed()) {
 									BulkItemResponse.Failure failure2 = bulkItemResponse2
 											.getFailure();
-									LOG.error("Failure " + failure2.getCause());
+									LOG.error("Failure " + failure2.getCause()
+											+ ", response: "
+											+ gson.toJson(bulkItemResponse2));
 								}
+
+
 							}
 						}
 					}
@@ -145,7 +143,8 @@ public class EsState implements State {
 		}
 	}
 
-	public void setProperty(String gameplayId, String key, Object value) {
+	public void setProperty(String activityId, String gameplayId, String key,
+			Object value) {
 
 		try {
 
@@ -160,9 +159,9 @@ public class EsState implements State {
 
 			nested.put(keys[keys.length - 1], value);
 
-			hClient.update(new UpdateRequest(resultsIndex, ESUtils
-					.getResultsType(), gameplayId).docAsUpsert(true).doc(map)
-					.retryOnConflict(50));
+			hClient.update(new UpdateRequest(ESUtils
+					.getResultsIndex(activityId), ESUtils.getResultsType(),
+					gameplayId).docAsUpsert(true).doc(map).retryOnConflict(50));
 
 		} catch (Exception e) {
 			LOG.error("Set Property has failures : {}", e);
@@ -214,15 +213,9 @@ public class EsState implements State {
 
 			String esHost = (String) conf
 					.get(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM);
-			String sessionId = (String) conf
-					.get(AbstractAnalysis.SESSION_ID_FLUX_PARAM);
-			String writingIndex = ESUtils.getTracesIndex(sessionId);
-			String resultsIndex = ESUtils.getResultsIndex((String) conf
-					.get(AbstractAnalysis.SESSION_ID_FLUX_PARAM));
 			RestClient client = makeElasticsearchClient(new HttpHost(esHost,
 					9200));
-			EsState s = new EsState(client, new RestHighLevelClient(client),
-					writingIndex, resultsIndex);
+			EsState s = new EsState(client, new RestHighLevelClient(client));
 
 			return s;
 		}

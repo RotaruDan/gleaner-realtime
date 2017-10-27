@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
+ * Copyright © 2016 e-UCM (http://www.e-ucm.es/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,7 +56,19 @@ public class DocumentBuilder implements Function {
 
 		Map resultTraces = buildTrace(trace);
 
-		Document<Map> doc = new Document(resultTraces);
+		if (resultTraces == null) {
+			return;
+		}
+
+		String index = null;
+
+		Object indexObj = trace.get(TopologyBuilder.ACTIVITY_ID_KEY);
+
+		if (indexObj != null && (indexObj instanceof String)) {
+			index = indexObj.toString();
+		}
+
+		Document<Map> doc = new Document(resultTraces, null, null, null, index);
 
 		ArrayList<Object> object = new ArrayList<Object>(1);
 		object.add(doc);
@@ -67,7 +79,7 @@ public class DocumentBuilder implements Function {
 	/**
 	 * Sanitizes some fields ads basic trace values useful for the Kibana
 	 * visualizations:
-	 * 
+	 * <p>
 	 * -> "stored": timestamp, -> sanitizes "score" to be a float field that can
 	 * be used in the Y-axis of Kibana visualizations -> sanitizes "progress" to
 	 * be a float field that can be used in the Y-axis of Kibana visualizations
@@ -80,7 +92,20 @@ public class DocumentBuilder implements Function {
 	 * @return
 	 */
 	private Map buildTrace(Map inputTrace) {
-		Map trace = new HashMap(inputTrace);
+
+		Object out = inputTrace.get(TopologyBuilder.OUT_KEY);
+
+		if (out == null) {
+			return null;
+		}
+
+		if (!(out instanceof Map)) {
+			return null;
+		}
+
+		Map outMap = (Map) out;
+
+		Map trace = new HashMap(outMap);
 		trace.put(TopologyBuilder.TridentTraceKeys.STORED, new Date());
 
 		Object score = trace.get(TopologyBuilder.TridentTraceKeys.SCORE);
@@ -102,6 +127,14 @@ public class DocumentBuilder implements Function {
 			if (progress instanceof String) {
 				try {
 					float finalProgress = Float.valueOf(progress.toString());
+					trace.put("progress", finalProgress);
+				} catch (NumberFormatException numberFormatException) {
+					LOG.info("Error parsing progress to float: "
+							+ numberFormatException.getMessage());
+				}
+			} else if (progress instanceof Long) {
+				try {
+					float finalProgress = Float.valueOf((Long) progress);
 					trace.put("progress", finalProgress);
 				} catch (NumberFormatException numberFormatException) {
 					LOG.info("Error parsing progress to float: "
@@ -151,12 +184,6 @@ public class DocumentBuilder implements Function {
 			}
 		}
 
-		Object gameplayId = trace
-				.get(TopologyBuilder.TridentTraceKeys.GAMEPLAY_ID);
-		if (gameplayId != null) {
-			trace.put("gameplayId_hashCode", gameplayId.hashCode());
-		}
-
 		Object event = trace.get(TopologyBuilder.TridentTraceKeys.EVENT);
 		if (event != null) {
 			trace.put("event_hashCode", event.hashCode());
@@ -172,7 +199,10 @@ public class DocumentBuilder implements Function {
 			trace.put("target_hashCode", target.hashCode());
 		}
 
-		return trace;
+		Map result = new HashMap<>(inputTrace);
+		result.put(TopologyBuilder.OUT_KEY, trace);
+
+		return result;
 	}
 
 	@Override
