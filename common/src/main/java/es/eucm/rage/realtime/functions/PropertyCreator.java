@@ -57,7 +57,20 @@ public class PropertyCreator implements Function {
 	private String toPropertyKey(TridentTuple tuple) {
 		String result = "";
 		for (String key : keysField) {
-			result += tuple.getStringByField(key) + ".";
+			String prop = "";
+			try {
+				prop = tuple.getStringByField(key);
+			} catch (RuntimeException re) {
+				System.err.print(re);
+				Object val = tuple.getValueByField(key);
+				if (val == null) {
+					prop = "null";
+				} else {
+					prop = val.toString();
+				}
+			}
+
+			result += prop + ".";
 		}
 		return result.substring(0, result.length() - 1);
 	}

@@ -88,7 +88,15 @@ public class CSVToMapTrace {
 
 					} else if (key
 							.equalsIgnoreCase(TopologyBuilder.TridentTraceKeys.SUCCESS)) {
-						ret.put(key, value);
+						if (value.startsWith("bool")) {
+							if (value.endsWith("True")) {
+								ret.put(key, true);
+							} else {
+								ret.put(key, false);
+							}
+						} else {
+							ret.put(key, value);
+						}
 					} else if (key.equalsIgnoreCase("completion")) {
 						ret.put(key, value);
 					} else if (key
