@@ -52,7 +52,7 @@ public class ESUtils {
 	 * @return
 	 */
 	public static String getResultsIndex(String sessionId) {
-		return "results-" + getTracesIndex(sessionId);
+		return "beaconing-overall";
 	}
 
 	/**
