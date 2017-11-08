@@ -221,9 +221,9 @@ public class EsMapState<T> implements IBackingMap<T> {
 				String type = ESUtils.getOpaqueValuesType();
 				String id = keyId;
 				String source = serialized;
-
-				request.add(new IndexRequest(index, type, id).source(source,
-						XContentType.JSON));
+				request.add(new UpdateRequest(index, type, id)
+						.docAsUpsert(true).doc(source, XContentType.JSON)
+						.retryOnConflict(50));
 			}
 
 			BulkResponse bulkResponse = hClient.bulk(request);
