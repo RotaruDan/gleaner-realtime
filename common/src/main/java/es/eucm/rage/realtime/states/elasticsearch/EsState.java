@@ -31,12 +31,14 @@ import org.apache.storm.topology.ReportedFailedException;
 import org.apache.storm.trident.state.State;
 import org.apache.storm.trident.state.StateFactory;
 import org.apache.storm.trident.tuple.TridentTuple;
+import org.elasticsearch.action.DocWriteRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.support.single.instance.InstanceShardOperationRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.Response;
@@ -99,7 +101,16 @@ public class EsState implements State {
 				type = ESUtils.getTracesType();
 			}
 
-			request.add(new IndexRequest(index, type).source(source));
+			DocWriteRequest req;
+			Object uuidv4 = source.get("uuidv4");
+			if (uuidv4 != null) {
+				req = new UpdateRequest(index, type, uuidv4.toString())
+						.docAsUpsert(true).doc(source).retryOnConflict(10);
+			} else {
+				req = new IndexRequest(index, type).source(source);
+			}
+
+			request.add(req);
 		}
 
 		try {
@@ -113,6 +124,18 @@ public class EsState implements State {
 						BulkItemResponse.Failure failure = bulkItemResponse
 								.getFailure();
 						LOG.error("Failure " + failure.getCause());
+
+						BulkResponse bulkResponse2 = hClient.bulk(request);
+						if (bulkResponse2.hasFailures()) {
+							LOG.error("BULK hasFailures proceeding to re-bulk");
+							for (BulkItemResponse bulkItemResponse2 : bulkResponse2) {
+								if (bulkItemResponse2.isFailed()) {
+									BulkItemResponse.Failure failure2 = bulkItemResponse2
+											.getFailure();
+									LOG.error("Failure " + failure2.getCause());
+								}
+							}
+						}
 					}
 				}
 			}

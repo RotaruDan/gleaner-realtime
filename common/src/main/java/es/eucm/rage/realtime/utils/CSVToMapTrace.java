@@ -43,6 +43,7 @@ public class CSVToMapTrace {
 					Map trace = CreateStatement(line);
 					if (trace != null) {
 						trace.put("gameplayId", "gameplayid" + i);
+						trace.put("uuidv4", UUID.randomUUID().toString());
 						ret.add(Arrays.asList(sessionId, trace));
 					}
 				}
