@@ -17,6 +17,7 @@ package es.eucm.rage.realtime.states.elasticsearch;
 
 import com.google.gson.Gson;
 import es.eucm.rage.realtime.AbstractAnalysis;
+import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.Document;
 import es.eucm.rage.realtime.utils.ESUtils;
 import org.apache.commons.io.IOUtils;
@@ -94,7 +95,7 @@ public class EsState implements State {
 			}
 
 			DocWriteRequest req;
-			Object uuidv4 = source.get("uuidv4");
+			Object uuidv4 = source.get(TopologyBuilder.UUIDV4);
 			if (uuidv4 != null) {
 				req = new UpdateRequest(index, type, uuidv4.toString())
 						.docAsUpsert(true).doc(source).retryOnConflict(10);
@@ -130,7 +131,6 @@ public class EsState implements State {
 											+ ", response: "
 											+ gson.toJson(bulkItemResponse2));
 								}
-
 
 							}
 						}
