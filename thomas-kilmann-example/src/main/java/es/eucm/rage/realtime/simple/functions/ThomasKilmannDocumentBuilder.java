@@ -70,6 +70,7 @@ public class ThomasKilmannDocumentBuilder implements Function {
 
 		for (Map.Entry<String, Boolean> entry : biases.entrySet()) {
 			Map newTrace = new HashMap<>(resultTracee);
+			newTrace.put(ThomasKilmannTopologyBuilder.UUIDV4, null);
 			newTrace.put(ThomasKilmannTopologyBuilder.BIAS_TYPE_KEY,
 					entry.getKey());
 			if (entry.getValue()) {

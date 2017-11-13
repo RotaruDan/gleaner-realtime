@@ -47,7 +47,8 @@ public class CSVToMapTrace {
 						trace.put(TopologyBuilder.GAMEPLAY_ID, "gameplayid" + i);
 						trace.put(TopologyBuilder.OUT_KEY, outTrace);
 						trace.put(TopologyBuilder.ACTIVITY_ID_KEY, activityId);
-						trace.put(TopologyBuilder.UUIDV4, UUID.randomUUID().toString());
+						trace.put(TopologyBuilder.UUIDV4, UUID.randomUUID()
+								.toString());
 						ret.add(Arrays.asList(trace));
 					}
 				}
@@ -112,7 +113,9 @@ public class CSVToMapTrace {
 							Map<String, Object> biasesObject = new HashMap<>(
 									biases.length);
 
-							biasesCount += biases.length;
+							if(parts[1].equalsIgnoreCase("selected")) {
+								biasesCount += biases.length;
+							}
 							for (int k = 0; k < biases.length; ++k) {
 								String[] bias = biases[k].split("=");
 								if (bias[1].startsWith("random")) {
