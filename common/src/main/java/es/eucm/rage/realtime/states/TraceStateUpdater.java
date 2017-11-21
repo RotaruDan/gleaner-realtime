@@ -32,7 +32,11 @@ public class TraceStateUpdater extends BaseStateUpdater<EsState> {
 	@Override
 	public void updateState(EsState state, List<TridentTuple> tuples,
 			TridentCollector collector) {
+		try {
 		state.bulkUpdateIndices(tuples);
+		} catch (Exception ex) {
+			System.out.println("Error unexpected exception, discarding" + ex.toString());
+		}
 	}
 
 	@Override

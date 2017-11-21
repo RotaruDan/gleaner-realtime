@@ -42,21 +42,25 @@ public class TraceFieldExtractor implements Function {
 
 	@Override
 	public void execute(TridentTuple tuple, TridentCollector collector) {
-		Map trace = (Map) tuple.getValueByField(TopologyBuilder.TRACE_KEY);
-		ArrayList<Object> object = new ArrayList<Object>();
-		for (String field : fields) {
-			if (field.contains(".")) {
-				String[] nested = field.split(Pattern.quote("."));
-				Map nestedMap = trace;
-				for (int i = 0; i < nested.length - 1; ++i) {
-					nestedMap = (Map) nestedMap.get(nested[i]);
+		try {
+			Map trace = (Map) tuple.getValueByField(TopologyBuilder.TRACE_KEY);
+			ArrayList<Object> object = new ArrayList<Object>();
+			for (String field : fields) {
+				if (field.contains(".")) {
+					String[] nested = field.split(Pattern.quote("."));
+					Map nestedMap = trace;
+					for (int i = 0; i < nested.length - 1; ++i) {
+						nestedMap = (Map) nestedMap.get(nested[i]);
+					}
+					object.add(nestedMap.get(nested[nested.length - 1]));
+				} else {
+					object.add(trace.get(field));
 				}
-				object.add(nestedMap.get(nested[nested.length - 1]));
-			} else {
-				object.add(trace.get(field));
 			}
+			collector.emit(object);
+		} catch (Exception ex) {
+			System.out.print("Error unexpected exception, discarding" + ex.toString());
 		}
-		collector.emit(object);
 	}
 
 	@Override

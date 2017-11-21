@@ -33,185 +33,188 @@ import java.util.logging.Logger;
  * information required to display Kibana bisualization.
  */
 public class DocumentBuilder implements Function {
-	private static final Logger LOG = Logger.getLogger(DocumentBuilder.class
-			.getName());
+    private static final Logger LOG = Logger.getLogger(DocumentBuilder.class
+            .getName());
 
-	private final String defaultTraceKey;
+    private final String defaultTraceKey;
 
-	/**
-	 * Builds a {@link Document} from a TridentTouple. The trace is sanitized
-	 * before being persisted. The {@link Document} is designed to be persisted
-	 * in ElasticSearch.
-	 * 
-	 * @param defaultTraceKey
-	 */
-	public DocumentBuilder(String defaultTraceKey) {
-		this.defaultTraceKey = defaultTraceKey;
-	}
+    /**
+     * Builds a {@link Document} from a TridentTouple. The trace is sanitized
+     * before being persisted. The {@link Document} is designed to be persisted
+     * in ElasticSearch.
+     *
+     * @param defaultTraceKey
+     */
+    public DocumentBuilder(String defaultTraceKey) {
+        this.defaultTraceKey = defaultTraceKey;
+    }
 
-	@Override
-	public void execute(TridentTuple tuple, TridentCollector collector) {
+    @Override
+    public void execute(TridentTuple tuple, TridentCollector collector) {
+        try {
+            Map trace = (Map) tuple.getValueByField(defaultTraceKey);
 
-		Map trace = (Map) tuple.getValueByField(defaultTraceKey);
+            Map resultTraces = buildTrace(trace);
 
-		Map resultTraces = buildTrace(trace);
+            if (resultTraces == null) {
+                return;
+            }
 
-		if (resultTraces == null) {
-			return;
-		}
+            String index = null;
 
-		String index = null;
+            Object indexObj = trace.get(TopologyBuilder.ACTIVITY_ID_KEY);
 
-		Object indexObj = trace.get(TopologyBuilder.ACTIVITY_ID_KEY);
+            if (indexObj != null && (indexObj instanceof String)) {
+                index = indexObj.toString();
+            }
 
-		if (indexObj != null && (indexObj instanceof String)) {
-			index = indexObj.toString();
-		}
+            Document<Map> doc = new Document(resultTraces, null, null, null, index);
 
-		Document<Map> doc = new Document(resultTraces, null, null, null, index);
+            ArrayList<Object> object = new ArrayList<Object>(1);
+            object.add(doc);
 
-		ArrayList<Object> object = new ArrayList<Object>(1);
-		object.add(doc);
+            collector.emit(object);
+        } catch (Exception ex) {
+            LOG.info("Error unexpected exception, discarding" + ex.toString());
+        }
+    }
 
-		collector.emit(object);
-	}
+    /**
+     * Sanitizes some fields ads basic trace values useful for the Kibana
+     * visualizations:
+     * <p>
+     * -> "stored": timestamp, -> sanitizes "score" to be a float field that can
+     * be used in the Y-axis of Kibana visualizations -> sanitizes "progress" to
+     * be a float field that can be used in the Y-axis of Kibana visualizations
+     * -> sanitizes "health" to be a float field that can be used in the Y-axis
+     * of Kibana visualizations -> sanitizes "success" to be a boolean field ->
+     * adds hash codes for "gameplayId", "event", "type" and "target" in case
+     * they are needed to be used in the Y-axis of Kibana visualizations
+     *
+     * @param inputTrace
+     * @return
+     */
+    private Map buildTrace(Map inputTrace) {
 
-	/**
-	 * Sanitizes some fields ads basic trace values useful for the Kibana
-	 * visualizations:
-	 * <p>
-	 * -> "stored": timestamp, -> sanitizes "score" to be a float field that can
-	 * be used in the Y-axis of Kibana visualizations -> sanitizes "progress" to
-	 * be a float field that can be used in the Y-axis of Kibana visualizations
-	 * -> sanitizes "health" to be a float field that can be used in the Y-axis
-	 * of Kibana visualizations -> sanitizes "success" to be a boolean field ->
-	 * adds hash codes for "gameplayId", "event", "type" and "target" in case
-	 * they are needed to be used in the Y-axis of Kibana visualizations
-	 * 
-	 * @param inputTrace
-	 * @return
-	 */
-	private Map buildTrace(Map inputTrace) {
+        Object out = inputTrace.get(TopologyBuilder.OUT_KEY);
 
-		Object out = inputTrace.get(TopologyBuilder.OUT_KEY);
+        if (out == null) {
+            return null;
+        }
 
-		if (out == null) {
-			return null;
-		}
+        if (!(out instanceof Map)) {
+            return null;
+        }
 
-		if (!(out instanceof Map)) {
-			return null;
-		}
+        Map outMap = (Map) out;
 
-		Map outMap = (Map) out;
+        Map trace = new HashMap(outMap);
+        trace.put(TopologyBuilder.TridentTraceKeys.STORED, new Date());
 
-		Map trace = new HashMap(outMap);
-		trace.put(TopologyBuilder.TridentTraceKeys.STORED, new Date());
+        Object score = trace.get(TopologyBuilder.TridentTraceKeys.SCORE);
+        if (score != null) {
+            if (score instanceof String) {
+                try {
+                    float finalScore = Float.valueOf(score.toString());
+                    trace.put(TopologyBuilder.TridentTraceKeys.SCORE,
+                            finalScore);
+                } catch (NumberFormatException numberFormatException) {
+                    LOG.info("Error parsing score to float: "
+                            + numberFormatException.getMessage());
+                }
+            }
+        }
 
-		Object score = trace.get(TopologyBuilder.TridentTraceKeys.SCORE);
-		if (score != null) {
-			if (score instanceof String) {
-				try {
-					float finalScore = Float.valueOf(score.toString());
-					trace.put(TopologyBuilder.TridentTraceKeys.SCORE,
-							finalScore);
-				} catch (NumberFormatException numberFormatException) {
-					LOG.info("Error parsing score to float: "
-							+ numberFormatException.getMessage());
-				}
-			}
-		}
+        Object progress = trace.get("progress");
+        if (progress != null) {
+            if (progress instanceof String) {
+                try {
+                    float finalProgress = Float.valueOf(progress.toString());
+                    trace.put("progress", finalProgress);
+                } catch (NumberFormatException numberFormatException) {
+                    LOG.info("Error parsing progress to float: "
+                            + numberFormatException.getMessage());
+                }
+            } else if (progress instanceof Long) {
+                try {
+                    float finalProgress = Float.valueOf((Long) progress);
+                    trace.put("progress", finalProgress);
+                } catch (NumberFormatException numberFormatException) {
+                    LOG.info("Error parsing progress to float: "
+                            + numberFormatException.getMessage());
+                }
+            }
+        }
 
-		Object progress = trace.get("progress");
-		if (progress != null) {
-			if (progress instanceof String) {
-				try {
-					float finalProgress = Float.valueOf(progress.toString());
-					trace.put("progress", finalProgress);
-				} catch (NumberFormatException numberFormatException) {
-					LOG.info("Error parsing progress to float: "
-							+ numberFormatException.getMessage());
-				}
-			} else if (progress instanceof Long) {
-				try {
-					float finalProgress = Float.valueOf((Long) progress);
-					trace.put("progress", finalProgress);
-				} catch (NumberFormatException numberFormatException) {
-					LOG.info("Error parsing progress to float: "
-							+ numberFormatException.getMessage());
-				}
-			}
-		}
+        Object health = trace.get("health");
+        if (health != null) {
+            if (health instanceof String) {
+                try {
+                    float finalHealth = Float.valueOf(health.toString());
+                    trace.put("health", finalHealth);
+                } catch (NumberFormatException numberFormatException) {
+                    LOG.info("Error parsing health to float: "
+                            + numberFormatException.getMessage());
+                }
+            }
+        }
 
-		Object health = trace.get("health");
-		if (health != null) {
-			if (health instanceof String) {
-				try {
-					float finalHealth = Float.valueOf(health.toString());
-					trace.put("health", finalHealth);
-				} catch (NumberFormatException numberFormatException) {
-					LOG.info("Error parsing health to float: "
-							+ numberFormatException.getMessage());
-				}
-			}
-		}
+        Object time = trace.get("time");
+        if (time != null) {
+            if (time instanceof String) {
+                try {
+                    float finalTime = Float.valueOf(time.toString());
+                    trace.put("time", finalTime);
+                } catch (NumberFormatException numberFormatException) {
+                    LOG.info("Error parsing time to float: "
+                            + numberFormatException.getMessage());
+                }
+            }
+        }
 
-		Object time = trace.get("time");
-		if (time != null) {
-			if (time instanceof String) {
-				try {
-					float finalTime = Float.valueOf(time.toString());
-					trace.put("time", finalTime);
-				} catch (NumberFormatException numberFormatException) {
-					LOG.info("Error parsing time to float: "
-							+ numberFormatException.getMessage());
-				}
-			}
-		}
+        Object success = trace.get(TopologyBuilder.TridentTraceKeys.SUCCESS);
 
-		Object success = trace.get(TopologyBuilder.TridentTraceKeys.SUCCESS);
+        if (success != null) {
+            if (success instanceof String) {
+                boolean finalSuccess;
+                if (success.toString().equalsIgnoreCase("true")) {
+                    finalSuccess = true;
+                } else {
+                    finalSuccess = false;
+                }
+                trace.put(TopologyBuilder.TridentTraceKeys.SUCCESS,
+                        finalSuccess);
+            }
+        }
 
-		if (success != null) {
-			if (success instanceof String) {
-				boolean finalSuccess;
-				if (success.toString().equalsIgnoreCase("true")) {
-					finalSuccess = true;
-				} else {
-					finalSuccess = false;
-				}
-				trace.put(TopologyBuilder.TridentTraceKeys.SUCCESS,
-						finalSuccess);
-			}
-		}
+        Object event = trace.get(TopologyBuilder.TridentTraceKeys.EVENT);
+        if (event != null) {
+            trace.put("event_hashCode", event.hashCode());
+        }
 
-		Object event = trace.get(TopologyBuilder.TridentTraceKeys.EVENT);
-		if (event != null) {
-			trace.put("event_hashCode", event.hashCode());
-		}
+        Object type = trace.get(TopologyBuilder.TridentTraceKeys.TYPE);
+        if (type != null) {
+            trace.put("type_hashCode", type.hashCode());
+        }
 
-		Object type = trace.get(TopologyBuilder.TridentTraceKeys.TYPE);
-		if (type != null) {
-			trace.put("type_hashCode", type.hashCode());
-		}
+        Object target = trace.get(TopologyBuilder.TridentTraceKeys.TARGET);
+        if (target != null) {
+            trace.put("target_hashCode", target.hashCode());
+        }
 
-		Object target = trace.get(TopologyBuilder.TridentTraceKeys.TARGET);
-		if (target != null) {
-			trace.put("target_hashCode", target.hashCode());
-		}
+        Map result = new HashMap<>(inputTrace);
+        result.put(TopologyBuilder.OUT_KEY, trace);
 
-		Map result = new HashMap<>(inputTrace);
-		result.put(TopologyBuilder.OUT_KEY, trace);
+        return result;
+    }
 
-		return result;
-	}
+    @Override
+    public void prepare(Map conf, TridentOperationContext context) {
 
-	@Override
-	public void prepare(Map conf, TridentOperationContext context) {
+    }
 
-	}
+    @Override
+    public void cleanup() {
 
-	@Override
-	public void cleanup() {
-
-	}
+    }
 }

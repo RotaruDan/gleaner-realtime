@@ -22,27 +22,31 @@ import org.slf4j.LoggerFactory;
 
 public class LogConsumer implements Consumer {
 
-	public static boolean LOG_ENABLED = false;
+    public static boolean LOG_ENABLED = false;
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(LogConsumer.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(LogConsumer.class);
 
-	private String prefix = "";
-	private boolean log = false;
+    private String prefix = "";
+    private boolean log = false;
 
-	public LogConsumer(String prefix) {
-		this(prefix, false);
-	}
+    public LogConsumer(String prefix) {
+        this(prefix, false);
+    }
 
-	public LogConsumer(String prefix, boolean log) {
-		this.prefix = prefix;
-		this.log = log;
-	}
+    public LogConsumer(String prefix, boolean log) {
+        this.prefix = prefix;
+        this.log = log;
+    }
 
-	@Override
-	public void accept(TridentTuple tridentTuple) {
-		if (LOG_ENABLED || log) {
-			LOG.info(prefix + " - " + tridentTuple.toString());
-		}
-	}
+    @Override
+    public void accept(TridentTuple tridentTuple) {
+        try {
+            if (LOG_ENABLED || log) {
+                LOG.info(prefix + " - " + tridentTuple.toString());
+            }
+        } catch (Exception ex) {
+            LOG.info("Error unexpected exception, discarding" + ex.toString());
+        }
+    }
 }

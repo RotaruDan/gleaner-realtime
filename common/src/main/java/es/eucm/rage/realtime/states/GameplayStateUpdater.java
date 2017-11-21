@@ -33,28 +33,32 @@ import java.util.Map;
  */
 public class GameplayStateUpdater implements StateUpdater<EsState> {
 
-	@Override
-	public void updateState(EsState state, List<TridentTuple> tuples,
-			TridentCollector collector) {
-		for (TridentTuple tuple : tuples) {
-			String activityId = tuple
-					.getStringByField(TopologyBuilder.ACTIVITY_ID_KEY);
-			String gameplayId = tuple
-					.getStringByField(TopologyBuilder.GAMEPLAY_ID);
-			String property = tuple
-					.getStringByField(TopologyBuilder.PROPERTY_KEY);
-			Object value = tuple.getValueByField(TopologyBuilder.VALUE_KEY);
-			state.setProperty(activityId, gameplayId, property, value);
-		}
-	}
+    @Override
+    public void updateState(EsState state, List<TridentTuple> tuples,
+                            TridentCollector collector) {
+        try {
+            for (TridentTuple tuple : tuples) {
+                String activityId = tuple
+                        .getStringByField(TopologyBuilder.ACTIVITY_ID_KEY);
+                String gameplayId = tuple
+                        .getStringByField(TopologyBuilder.GAMEPLAY_ID);
+                String property = tuple
+                        .getStringByField(TopologyBuilder.PROPERTY_KEY);
+                Object value = tuple.getValueByField(TopologyBuilder.VALUE_KEY);
+                state.setProperty(activityId, gameplayId, property, value);
+            }
+        } catch (Exception ex) {
+            System.out.println("Error unexpected exception, discarding" + ex.toString());
+        }
+    }
 
-	@Override
-	public void prepare(Map conf, TridentOperationContext context) {
+    @Override
+    public void prepare(Map conf, TridentOperationContext context) {
 
-	}
+    }
 
-	@Override
-	public void cleanup() {
+    @Override
+    public void cleanup() {
 
-	}
+    }
 }

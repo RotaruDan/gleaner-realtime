@@ -23,44 +23,49 @@ import java.util.Map;
 
 public class FieldValuesOrFilter implements Filter {
 
-	private String field;
+    private String field;
 
-	private Object[] values;
+    private Object[] values;
 
-	/**
-	 * Filters a TridentTuple depending on the value of multiple filters, if any
-	 * of the given values the value from the provided field (OR)
-	 * 
-	 * @param field
-	 *            field key to extract from the {@link TridentTuple}
-	 * @param values
-	 *            values that must be matched with the value from the field from
-	 *            the {@link TridentTuple}
-	 */
-	public FieldValuesOrFilter(String field, Object... values) {
-		this.field = field;
-		this.values = values;
-	}
+    /**
+     * Filters a TridentTuple depending on the value of multiple filters, if any
+     * of the given values the value from the provided field (OR)
+     *
+     * @param field
+     *            field key to extract from the {@link TridentTuple}
+     * @param values
+     *            values that must be matched with the value from the field from
+     *            the {@link TridentTuple}
+     */
+    public FieldValuesOrFilter(String field, Object... values) {
+        this.field = field;
+        this.values = values;
+    }
 
-	@Override
-	public boolean isKeep(TridentTuple objects) {
-		Object valueField = objects.getValueByField(field);
-		for (int i = 0; i < values.length; ++i) {
-			if (values[i].equals(valueField)) {
-				return true;
-			}
-		}
+    @Override
+    public boolean isKeep(TridentTuple objects) {
+        try {
+            Object valueField = objects.getValueByField(field);
+            for (int i = 0; i < values.length; ++i) {
+                if (values[i].equals(valueField)) {
+                    return true;
+                }
+            }
+        } catch (Exception ex) {
+            System.out.println("Error unexpected exception, discarding" + ex.toString());
+            return false;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public void prepare(Map map, TridentOperationContext tridentOperationContext) {
+    @Override
+    public void prepare(Map map, TridentOperationContext tridentOperationContext) {
 
-	}
+    }
 
-	@Override
-	public void cleanup() {
+    @Override
+    public void cleanup() {
 
-	}
+    }
 }
