@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
+ * Copyright © 2016 e-UCM (http://www.e-ucm.es/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,16 +46,16 @@ public class RealtimeTopologyTest {
 
 	private static final String[] TRACES_FILES = { "DSIR", "KXIH", "SSYP",
 			"TQBG", "ZEHU" };
-	private static final String NOW_DATE = String.valueOf(new Date().getTime());
+	private static final String NOW_DATE = "name-"
+			+ String.valueOf(new Date().getTime());
 	private static final String ES_HOST = "localhost";
 	private static final String ZOOKEEPER_URL = "localhost";
 
 	@Test
 	public void test() throws IOException {
 
-		FeederBatchSpout tracesSpout = new FeederBatchSpout(Arrays.asList(
-				TopologyBuilder.SESSION_ID_KEY,
-				es.eucm.rage.realtime.topologies.TopologyBuilder.TRACE_KEY));
+		FeederBatchSpout tracesSpout = new FeederBatchSpout(
+				Arrays.asList(es.eucm.rage.realtime.topologies.TopologyBuilder.TRACE_KEY));
 
 		TridentTopology topology = new TridentTopology();
 
@@ -68,21 +68,36 @@ public class RealtimeTopologyTest {
 				partitionPersist, persistentAggregateFactory);
 
 		Config conf = new Config();
-		conf.put(AbstractAnalysis.SESSION_ID_FLUX_PARAM, NOW_DATE);
 		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);
 		conf.put(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM, ES_HOST);
-		conf.put(AbstractAnalysis.SESSION_ID_FLUX_PARAM, NOW_DATE);
+		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, NOW_DATE);
 		LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology("realtime", conf, topology.build());
 
-		CSVToMapTrace parser = new CSVToMapTrace(NOW_DATE);
-		int totalTraces = 0;
+		CSVToMapTrace parser = new CSVToMapTrace();
+		String firstIndex = "1-" + NOW_DATE;
+		String secondIndex = "2-" + NOW_DATE;
+		Map<String, Integer> res = new HashMap<>();
 		for (int i = 0; i < TRACES_FILES.length; ++i) {
+			String idx;
+			if (i < 3) {
+				idx = firstIndex;
+			} else {
+				idx = secondIndex;
+			}
 			List tuples = parser.getTuples(
-					"traces/" + TRACES_FILES[i] + ".csv", i);
+					"traces/" + TRACES_FILES[i] + ".csv", idx, i);
 			tracesSpout.feed(tuples);
-			totalTraces += tuples.size();
+
+			Integer current = res.get(idx);
+			if (current == null) {
+				res.put(idx, tuples.size());
+			} else {
+				res.put(idx, current + tuples.size());
+			}
 		}
+
+		Gson gson = new Gson();
 
 		try {
 			Thread.sleep(5000);
@@ -90,51 +105,53 @@ public class RealtimeTopologyTest {
 			e.printStackTrace();
 		}
 
-		Gson gson = new Gson();
-
 		RestClient client = RestClient.builder(new HttpHost(ES_HOST, 9200))
 				.build();
 
-		Response response = client.performRequest("GET",
-				"/" + ESUtils.getTracesIndex(NOW_DATE)
-						+ "/_search?size=5000&q=*:*");
-		int status = response.getStatusLine().getStatusCode();
+		for (Map.Entry<String, Integer> entry : res.entrySet()) {
 
-		assertEquals("TEST GET error, status is" + status, status,
-				HttpStatus.SC_OK);
+			Response response = client.performRequest("GET",
+					"/" + entry.getKey() + "/_search?size=5000&q=*:*");
+			int status = response.getStatusLine().getStatusCode();
 
-		String responseString = EntityUtils.toString(response.getEntity());
-		System.out.println("responseString = " + responseString);
-		Map<String, Object> responseDocs = (Map) gson.fromJson(responseString,
-				Map.class);
+			assertEquals("TEST GET error, status is" + status, status,
+					HttpStatus.SC_OK);
 
-		Map hits = (Map) responseDocs.get("hits");
+			String responseString = EntityUtils.toString(response.getEntity());
+			Map<String, Object> responseDocs = (Map) gson.fromJson(
+					responseString, Map.class);
 
-		int total = ((Double) hits.get("total")).intValue();
+			Map hits = (Map) responseDocs.get("hits");
 
-		assertEquals("Total traces " + totalTraces + ", current " + total,
-				totalTraces, total);
+			int total = ((Double) hits.get("total")).intValue();
 
-		String resultsIndex = ESUtils.getResultsIndex(NOW_DATE);
+			assertEquals("Total traces " + entry.getValue() + ", current "
+					+ total, Math.abs(total - entry.getValue().intValue()) < 5,
+					true);
+		}
+
 		for (int i = 0; i < TRACES_FILES.length; ++i) {
 			List<String> lines = parser.getLines("traces/results/"
 					+ TRACES_FILES[i] + ".csv-result");
 
-			System.out.println("ROUTE PLAYER: " + resultsIndex + "/"
-					+ ESUtils.getResultsType() + "/gameplayid" + i);
+			String idx;
+			if (i < 3) {
+				idx = firstIndex;
+			} else {
+				idx = secondIndex;
+			}
+
+			String resultsIndex = ESUtils.getResultsIndex(idx);
+
 			Response resultResponse = client.performRequest("GET", "/"
 					+ resultsIndex + "/" + ESUtils.getResultsType()
 					+ "/gameplayid" + i);
 			int resultStatus = resultResponse.getStatusLine().getStatusCode();
-			System.out.println("resultStatus = " + resultStatus);
 			assertEquals("TEST GET result error, status is" + resultStatus,
 					resultStatus, HttpStatus.SC_OK);
 
 			String responseResultString = EntityUtils.toString(resultResponse
 					.getEntity());
-
-			System.out
-					.println("responseResultString = " + responseResultString);
 			Map<String, Object> playerState = (Map) gson.fromJson(
 					responseResultString, Map.class).get("_source");
 			System.out.println("playerState = " + playerState);

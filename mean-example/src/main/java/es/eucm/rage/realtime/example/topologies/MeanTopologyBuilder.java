@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
+ * Copyright © 2016 e-UCM (http://www.e-ucm.es/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,6 +39,10 @@ import org.apache.storm.tuple.Fields;
 public class MeanTopologyBuilder implements
 		es.eucm.rage.realtime.topologies.TopologyBuilder {
 
+	private String o(String key) {
+		return OUT_KEY + "." + key;
+	}
+
 	@Override
 	public void build(TridentTopology tridentTopology, Stream tracesStream,
 			StateFactory partitionPersistFactory,
@@ -59,17 +63,18 @@ public class MeanTopologyBuilder implements
 		// (2) updates the state of the object with the new value of the SCORE
 		tracesStream
 				.each(new Fields(TRACE_KEY),
-						new TraceFieldExtractor(TridentTraceKeys.GAMEPLAY_ID,
-								TridentTraceKeys.EVENT),
-						new Fields(TridentTraceKeys.GAMEPLAY_ID,
+						new TraceFieldExtractor(ACTIVITY_ID_KEY, GAMEPLAY_ID,
+								o(TridentTraceKeys.EVENT)),
+						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID,
 								TridentTraceKeys.EVENT))
 				.peek(new LogConsumer("1"))
 				.each(new Fields(TridentTraceKeys.EVENT, TRACE_KEY),
 						new FieldValueFilter(TridentTraceKeys.EVENT,
 								TraceEventTypes.COMPLETED))
 				.each(new Fields(TRACE_KEY),
-						new TraceFieldExtractor(TridentTraceKeys.TARGET,
-								TridentTraceKeys.TYPE, TridentTraceKeys.SCORE),
+						new TraceFieldExtractor(o(TridentTraceKeys.TARGET),
+								o(TridentTraceKeys.TYPE),
+								o(TridentTraceKeys.SCORE)),
 						new Fields(TridentTraceKeys.TARGET,
 								TridentTraceKeys.TYPE, TridentTraceKeys.SCORE))
 				.peek(new LogConsumer("2"))
@@ -78,8 +83,8 @@ public class MeanTopologyBuilder implements
 				.peek(new LogConsumer("3"))
 				.partitionPersist(
 						partitionPersistFactory,
-						new Fields(TopologyBuilder.SESSION_ID_KEY,
-								TridentTraceKeys.TYPE, TridentTraceKeys.EVENT,
+						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.TYPE,
+								TridentTraceKeys.EVENT,
 								TopologyBuilder.TridentTraceKeys.SCORE
 										+ "-double"), new AverageUpdater(),
 						new Fields("persistedAverage"));

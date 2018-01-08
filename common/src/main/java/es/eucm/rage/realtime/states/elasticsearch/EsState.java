@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
+ * Copyright © 2016 e-UCM (http://www.e-ucm.es/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@ package es.eucm.rage.realtime.states.elasticsearch;
 
 import com.google.gson.Gson;
 import es.eucm.rage.realtime.AbstractAnalysis;
+import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.Document;
 import es.eucm.rage.realtime.utils.ESUtils;
 import org.apache.commons.io.IOUtils;
@@ -40,201 +41,193 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.support.single.instance.InstanceShardOperationRequest;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class EsState implements State {
 
-	private static final Logger LOG = LoggerFactory.getLogger(EsState.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EsState.class);
 
-	private final String writingIndex;
-	private final String resultsIndex;
-	private final RestHighLevelClient hClient;
+    private final RestHighLevelClient hClient;
 
-	private Gson gson = new Gson();
+    private Gson gson = new Gson();
 
-	@Override
-	public void beginCommit(Long aLong) {
+    @Override
+    public void beginCommit(Long aLong) {
 
-	}
+    }
 
-	@Override
-	public void commit(Long aLong) {
+    @Override
+    public void commit(Long aLong) {
 
-	}
+    }
 
-	private RestClient _client;
+    private RestClient _client;
 
-	public EsState(RestClient client, RestHighLevelClient hClient,
-			String writingIndex, String resultsIndex) {
-		_client = client;
-		this.writingIndex = writingIndex;
-		this.resultsIndex = resultsIndex;
-		this.hClient = hClient;
-	}
+    public EsState(RestClient client, RestHighLevelClient hClient) {
+        _client = client;
+        this.hClient = hClient;
+    }
 
-	public void bulkUpdateIndices(List<TridentTuple> inputs) {
+    public void bulkUpdateIndices(List<TridentTuple> inputs) {
 
-		BulkRequest request = new BulkRequest();
+        try {
+            BulkRequest request = new BulkRequest();
 
-		for (TridentTuple input : inputs) {
-			Document<Map> doc = (Document<Map>) input.get(0);
-			Map source = doc.getSource();
+            for (TridentTuple input : inputs) {
+                Document<Map> doc = (Document<Map>) input.get(0);
+                Map source = doc.getSource();
 
-			String index = writingIndex;
-			String indexPrefix = doc.getIndexPrefix();
-			if (indexPrefix != null) {
-				index = indexPrefix + "-" + index;
-			}
+                String index = ESUtils.getTracesIndex(doc.getIndex());
+                String indexPrefix = doc.getIndexPrefix();
+                if (indexPrefix != null) {
+                    index = indexPrefix + "-" + index;
+                }
 
-			String type = doc.getType();
-			if (type == null) {
-				type = ESUtils.getTracesType();
-			}
+                String type = doc.getType();
+                if (type == null) {
+                    type = ESUtils.getTracesType();
+                }
 
-			DocWriteRequest req;
-			Object uuidv4 = source.get("uuidv4");
-			if (uuidv4 != null) {
-				req = new UpdateRequest(index, type, uuidv4.toString())
-						.docAsUpsert(true).doc(source).retryOnConflict(10);
-			} else {
-				req = new IndexRequest(index, type).source(source);
-			}
+                DocWriteRequest req;
+                Object uuidv4 = source.get(TopologyBuilder.UUIDV4);
+                if (uuidv4 != null) {
+                    req = new UpdateRequest(index, type, uuidv4.toString())
+                            .docAsUpsert(true).doc(source).retryOnConflict(10);
+                } else {
+                    req = new IndexRequest(index, type).source(source);
+                }
 
-			request.add(req);
-		}
+                request.add(req);
+            }
 
-		try {
 
-			BulkResponse bulkResponse = hClient.bulk(request);
+            BulkResponse bulkResponse = hClient.bulk(request);
 
-			if (bulkResponse.hasFailures()) {
-				LOG.error("BULK hasFailures proceeding to re-bulk");
-				for (BulkItemResponse bulkItemResponse : bulkResponse) {
-					if (bulkItemResponse.isFailed()) {
-						BulkItemResponse.Failure failure = bulkItemResponse
-								.getFailure();
-						LOG.error("Failure " + failure.getCause());
+            if (bulkResponse.hasFailures()) {
+                LOG.error("BULK hasFailures proceeding to re-bulk");
+                for (BulkItemResponse bulkItemResponse : bulkResponse) {
+                    if (bulkItemResponse.isFailed()) {
+                        BulkItemResponse.Failure failure = bulkItemResponse
+                                .getFailure();
+                        LOG.error("Failure " + failure.getCause()
+                                + ", response: "
+                                + gson.toJson(bulkItemResponse));
 
-						BulkResponse bulkResponse2 = hClient.bulk(request);
-						if (bulkResponse2.hasFailures()) {
-							LOG.error("BULK hasFailures proceeding to re-bulk");
-							for (BulkItemResponse bulkItemResponse2 : bulkResponse2) {
-								if (bulkItemResponse2.isFailed()) {
-									BulkItemResponse.Failure failure2 = bulkItemResponse2
-											.getFailure();
-									LOG.error("Failure " + failure2.getCause());
-								}
-							}
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			LOG.error("error while executing bulk request to elasticsearch, "
-					+ "failed to store data into elasticsearch", e);
-		}
-	}
+                        BulkResponse bulkResponse2 = hClient.bulk(request);
+                        if (bulkResponse2.hasFailures()) {
+                            LOG.error("BULK hasFailures proceeding to re-bulk");
+                            for (BulkItemResponse bulkItemResponse2 : bulkResponse2) {
+                                if (bulkItemResponse2.isFailed()) {
+                                    BulkItemResponse.Failure failure2 = bulkItemResponse2
+                                            .getFailure();
+                                    LOG.error("Failure " + failure2.getCause()
+                                            + ", response: "
+                                            + gson.toJson(bulkItemResponse2));
+                                }
 
-	public void setProperty(String gameplayId, String key, Object value) {
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("error while executing bulk request to elasticsearch, "
+                    + "failed to store data into elasticsearch", e);
+        }
+    }
 
-		try {
+    public void setProperty(String activityId, String gameplayId, String key,
+                            Object value) {
 
-			Map<String, Object> map = new HashMap<>();
-			String[] keys = key.split("\\.");
-			Map nested = map;
-			for (int i = 0; i < keys.length - 1; ++i) {
-				Map<String, Object> keymap = new HashMap<>();
-				nested.put(keys[i], keymap);
-				nested = keymap;
-			}
+        try {
 
-			nested.put(keys[keys.length - 1], value);
+            Map<String, Object> map = new HashMap<>();
+            String[] keys = key.split("\\.");
+            Map nested = map;
+            for (int i = 0; i < keys.length - 1; ++i) {
+                Map<String, Object> keymap = new HashMap<>();
+                nested.put(keys[i], keymap);
+                nested = keymap;
+            }
 
-			hClient.update(new UpdateRequest(resultsIndex, ESUtils
-					.getResultsType(), gameplayId).docAsUpsert(true).doc(map)
-					.retryOnConflict(50));
+            nested.put(keys[keys.length - 1], value);
 
-		} catch (Exception e) {
-			LOG.error("Set Property has failures : {}", e);
-		}
-	}
+            hClient.update(new UpdateRequest(ESUtils
+                    .getResultsIndex(activityId), ESUtils.getResultsType(),
+                    gameplayId).docAsUpsert(true).doc(map).retryOnConflict(50));
 
-	public Map<String, Object> getFromIndex(String index, String type, String id) {
-		Map ret;
-		try {
-			GetRequest getRequest = new GetRequest(index, type, id);
+        } catch (Exception e) {
+            LOG.error("Set Property has failures : {}", e);
+        }
+    }
 
-			GetResponse resp = hClient.get(getRequest);
+    public Map<String, Object> getFromIndex(String index, String type, String id) {
+        Map ret;
+        try {
+            GetRequest getRequest = new GetRequest(index, type, id);
 
-			ret = resp.getSourceAsMap();
-		} catch (Exception e) {
-			LOG.error(
-					"error while executing getFromIndex request from elasticsearch, "
-							+ "failed to store data into elasticsearch", e);
-			ret = null;
-		}
-		return ret;
-	}
+            GetResponse resp = hClient.get(getRequest);
 
-	public void setOnIndex(String index, String type, String id, Map source) {
-		try {
+            ret = resp.getSourceAsMap();
+        } catch (Exception e) {
+            LOG.error(
+                    "error while executing getFromIndex request from elasticsearch, "
+                            + "failed to store data into elasticsearch", e);
+            ret = null;
+        }
+        return ret;
+    }
 
-			hClient.update(new UpdateRequest(index, type, id).docAsUpsert(true)
-					.doc(source).retryOnConflict(50));
-		} catch (Exception e) {
-			LOG.error(
-					"error while executing setOnIndex request to elasticsearch, "
-							+ "failed to store data into elasticsearch", e);
+    public void setOnIndex(String index, String type, String id, Map source) {
+        try {
 
-		}
-	}
+            hClient.update(new UpdateRequest(index, type, id).docAsUpsert(true)
+                    .doc(source).retryOnConflict(50));
+        } catch (Exception e) {
+            LOG.error(
+                    "error while executing setOnIndex request to elasticsearch, "
+                            + "failed to store data into elasticsearch", e);
 
-	public static StateFactory opaque() {
-		return new Factory();
-	}
+        }
+    }
 
-	public static class Factory implements StateFactory {
+    public static StateFactory opaque() {
+        return new Factory();
+    }
 
-		public Factory() {
-		}
+    public static class Factory implements StateFactory {
 
-		@Override
-		public State makeState(Map conf, IMetricsContext context,
-				int partitionIndex, int numPartitions) {
+        public Factory() {
+        }
 
-			String esHost = (String) conf
-					.get(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM);
-			String sessionId = (String) conf
-					.get(AbstractAnalysis.SESSION_ID_FLUX_PARAM);
-			String writingIndex = ESUtils.getTracesIndex(sessionId);
-			String resultsIndex = ESUtils.getResultsIndex((String) conf
-					.get(AbstractAnalysis.SESSION_ID_FLUX_PARAM));
-			RestClient client = makeElasticsearchClient(new HttpHost(esHost,
-					9200));
-			EsState s = new EsState(client, new RestHighLevelClient(client),
-					writingIndex, resultsIndex);
+        @Override
+        public State makeState(Map conf, IMetricsContext context,
+                               int partitionIndex, int numPartitions) {
 
-			return s;
-		}
+            String esHost = (String) conf
+                    .get(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM);
+            RestClient client = makeElasticsearchClient(new HttpHost(esHost,
+                    9200));
+            EsState s = new EsState(client, new RestHighLevelClient(client));
 
-		/**
-		 * Constructs a java elasticsearch 5 client for the host..
-		 * 
-		 * @return {@link RestClient} to read/write to the hash ring of the
-		 *         servers..
-		 */
-		public RestClient makeElasticsearchClient(HttpHost... endpoints) {
-			return RestClient.builder(endpoints).build();
-		}
-	}
+            return s;
+        }
+
+        /**
+         * Constructs a java elasticsearch 5 client for the host..
+         *
+         * @return {@link RestClient} to read/write to the hash ring of the
+         *         servers..
+         */
+        public RestClient makeElasticsearchClient(HttpHost... endpoints) {
+            return RestClient.builder(endpoints).build();
+        }
+    }
 }

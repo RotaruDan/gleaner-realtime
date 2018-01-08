@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
+ * Copyright © 2016 e-UCM (http://www.e-ucm.es/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,14 +24,14 @@ import java.util.*;
 
 public class CSVToMapTrace {
 
-	private String sessionId;
+	int biasesCount = 0;
 
-	public CSVToMapTrace(String sessionId) {
-		this.sessionId = sessionId;
+	public CSVToMapTrace() {
 	}
 
-	public List<List<Object>> getTuples(String csvTracesFile, int i) {
-
+	public List<List<Object>> getTuples(String csvTracesFile,
+			String activityId, int i) {
+		biasesCount = 0;
 		List<List<Object>> ret = new ArrayList<List<Object>>();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				ClassLoader.getSystemResourceAsStream(csvTracesFile)));
@@ -40,11 +40,16 @@ public class CSVToMapTrace {
 		try {
 			while ((line = reader.readLine()) != null) {
 				if (!line.startsWith("--") && line.length() > 10) {
-					Map trace = CreateStatement(line);
-					if (trace != null) {
-						trace.put("gameplayId", "gameplayid" + i);
-						trace.put("uuidv4", UUID.randomUUID().toString());
-						ret.add(Arrays.asList(sessionId, trace));
+					Map outTrace = CreateStatement(line);
+					if (outTrace != null) {
+
+						Map trace = new HashMap<String, Object>();
+						trace.put(TopologyBuilder.GAMEPLAY_ID, "gameplayid" + i);
+						trace.put(TopologyBuilder.OUT_KEY, outTrace);
+						trace.put(TopologyBuilder.ACTIVITY_ID_KEY, activityId);
+						trace.put(TopologyBuilder.UUIDV4, UUID.randomUUID()
+								.toString());
+						ret.add(Arrays.asList(trace));
 					}
 				}
 			}
@@ -84,6 +89,7 @@ public class CSVToMapTrace {
 					if (key.equals("") || value.equals("")) {
 						continue;
 					}
+					value = value.toString();
 					if (key.equalsIgnoreCase(TopologyBuilder.TridentTraceKeys.SCORE)) {
 						ret.put(key, value);
 
@@ -107,6 +113,9 @@ public class CSVToMapTrace {
 							Map<String, Object> biasesObject = new HashMap<>(
 									biases.length);
 
+							if(parts[1].equalsIgnoreCase("selected")) {
+								biasesCount += biases.length;
+							}
 							for (int k = 0; k < biases.length; ++k) {
 								String[] bias = biases[k].split("=");
 								if (bias[1].startsWith("random")) {
@@ -178,5 +187,9 @@ public class CSVToMapTrace {
 			e.printStackTrace();
 		}
 		return ret;
+	}
+
+	public int getBiasesCount() {
+		return biasesCount;
 	}
 }

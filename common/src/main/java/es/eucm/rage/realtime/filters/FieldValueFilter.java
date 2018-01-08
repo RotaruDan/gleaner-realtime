@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
+ * Copyright © 2016 e-UCM (http://www.e-ucm.es/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,36 +23,41 @@ import java.util.Map;
 
 public class FieldValueFilter implements Filter {
 
-	private String field;
+    private String field;
 
-	private Object value;
+    private Object value;
 
-	/**
-	 * Filters a TridentTuple depending on the value of a given field
-	 * 
-	 * @param field
-	 *            field key to extract from the {@link TridentTuple}
-	 * @param value
-	 *            value that must be matched with the value from the field from
-	 *            the {@link TridentTuple}
-	 */
-	public FieldValueFilter(String field, Object value) {
-		this.field = field;
-		this.value = value;
-	}
+    /**
+     * Filters a TridentTuple depending on the value of a given field
+     *
+     * @param field
+     *            field key to extract from the {@link TridentTuple}
+     * @param value
+     *            value that must be matched with the value from the field from
+     *            the {@link TridentTuple}
+     */
+    public FieldValueFilter(String field, Object value) {
+        this.field = field;
+        this.value = value;
+    }
 
-	@Override
-	public boolean isKeep(TridentTuple objects) {
-		return value.equals(objects.getValueByField(field));
-	}
+    @Override
+    public boolean isKeep(TridentTuple objects) {
+        try {
+            return value.equals(objects.getValueByField(field));
+        } catch (Exception ex) {
+            System.out.println("Error unexpected exception, discarding" + ex.toString());
+            return false;
+        }
+    }
 
-	@Override
-	public void prepare(Map map, TridentOperationContext tridentOperationContext) {
+    @Override
+    public void prepare(Map map, TridentOperationContext tridentOperationContext) {
 
-	}
+    }
 
-	@Override
-	public void cleanup() {
+    @Override
+    public void cleanup() {
 
-	}
+    }
 }

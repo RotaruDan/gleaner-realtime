@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
+ * Copyright © 2016 e-UCM (http://www.e-ucm.es/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,6 +37,10 @@ import org.apache.storm.tuple.Fields;
  */
 public class TopologyBuilder implements
 		es.eucm.rage.realtime.topologies.TopologyBuilder {
+
+	private String o(String key) {
+		return OUT_KEY + "." + key;
+	}
 
 	@Override
 	public void build(TridentTopology tridentTopology, Stream tracesStream,
@@ -74,11 +78,12 @@ public class TopologyBuilder implements
 		// 2 - Extract the fields TridentTraceKeys.GAMEPLAY_ID and
 		// TridentTraceKeys.EVENT so that we can play
 		// with it below
+
 		Stream gameplayIdStream = tracesStream
 				.each(new Fields(TRACE_KEY),
-						new TraceFieldExtractor(TridentTraceKeys.GAMEPLAY_ID,
-								TridentTraceKeys.EVENT),
-						new Fields(TridentTraceKeys.GAMEPLAY_ID,
+						new TraceFieldExtractor(ACTIVITY_ID_KEY, GAMEPLAY_ID,
+								o(TridentTraceKeys.EVENT)),
+						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID,
 								TridentTraceKeys.EVENT)).peek(
 						new LogConsumer("1"));
 
@@ -87,7 +92,7 @@ public class TopologyBuilder implements
 		// 'gameplayId' (player)
 		gameplayIdStream
 				.each(new Fields(TRACE_KEY),
-						new TraceFieldExtractor(TridentTraceKeys.TIMESTAMP),
+						new TraceFieldExtractor(o(TridentTraceKeys.TIMESTAMP)),
 						new Fields(TridentTraceKeys.TIMESTAMP))
 				.each(new Fields(TridentTraceKeys.TIMESTAMP),
 						new SimplePropertyCreator(TridentTraceKeys.TIMESTAMP,
@@ -96,14 +101,13 @@ public class TopologyBuilder implements
 				.peek(new LogConsumer("3"))
 				.partitionPersist(
 						partitionPersistFactory,
-						new Fields(SESSION_ID_KEY,
-								TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
+						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID, PROPERTY_KEY,
 								VALUE_KEY), gameplayStateUpdater);
 
 		// 5 - Add the name of the given player to the document ('gameplayId')
 		gameplayIdStream
 				.each(new Fields(TRACE_KEY),
-						new TraceFieldExtractor(TridentTraceKeys.NAME),
+						new TraceFieldExtractor(o(TridentTraceKeys.NAME)),
 						new Fields(TridentTraceKeys.NAME))
 				.each(new Fields(TridentTraceKeys.NAME),
 						new SimplePropertyCreator(TridentTraceKeys.NAME,
@@ -112,8 +116,7 @@ public class TopologyBuilder implements
 				.peek(new LogConsumer("4"))
 				.partitionPersist(
 						partitionPersistFactory,
-						new Fields(SESSION_ID_KEY,
-								TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
+						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID, PROPERTY_KEY,
 								VALUE_KEY), gameplayStateUpdater);
 
 		// Alternatives (selected & unlocked) processing
@@ -127,9 +130,9 @@ public class TopologyBuilder implements
 								TraceEventTypes.SELECTED,
 								TraceEventTypes.UNLOCKED))
 				.each(new Fields(TRACE_KEY),
-						new TraceFieldExtractor(TridentTraceKeys.TARGET,
-								TridentTraceKeys.TYPE,
-								TridentTraceKeys.RESPONSE),
+						new TraceFieldExtractor(o(TridentTraceKeys.TARGET),
+								o(TridentTraceKeys.TYPE),
+								o(TridentTraceKeys.RESPONSE)),
 						new Fields(TridentTraceKeys.TARGET,
 								TridentTraceKeys.TYPE,
 								TridentTraceKeys.RESPONSE))
@@ -141,8 +144,7 @@ public class TopologyBuilder implements
 						new Fields(PROPERTY_KEY, VALUE_KEY))
 				.peek(new LogConsumer("5"))
 				.groupBy(
-						new Fields(SESSION_ID_KEY,
-								TridentTraceKeys.GAMEPLAY_ID,
+						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID,
 								TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
 								TridentTraceKeys.TARGET,
 								TridentTraceKeys.RESPONSE))
@@ -166,8 +168,8 @@ public class TopologyBuilder implements
 								TraceEventTypes.INTERACTED,
 								TraceEventTypes.USED))
 				.each(new Fields(TRACE_KEY),
-						new TraceFieldExtractor(TridentTraceKeys.TARGET,
-								TridentTraceKeys.TYPE),
+						new TraceFieldExtractor(o(TridentTraceKeys.TARGET),
+								o(TridentTraceKeys.TYPE)),
 						new Fields(TridentTraceKeys.TARGET,
 								TridentTraceKeys.TYPE))
 				.peek(new LogConsumer("initialized 1"))
@@ -178,8 +180,7 @@ public class TopologyBuilder implements
 						new Fields(PROPERTY_KEY, VALUE_KEY))
 				.peek(new LogConsumer("initialized 2"))
 				.groupBy(
-						new Fields(SESSION_ID_KEY,
-								TridentTraceKeys.GAMEPLAY_ID,
+						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID,
 								TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
 								TridentTraceKeys.TARGET))
 				.persistentAggregate(persistentAggregateFactory, new Count(),
@@ -193,12 +194,13 @@ public class TopologyBuilder implements
 						new FieldValueFilter(TridentTraceKeys.EVENT,
 								TraceEventTypes.PROGRESSED))
 				.each(new Fields(TRACE_KEY),
-						new TraceFieldExtractor(TridentTraceKeys.TARGET,
-								TridentTraceKeys.TYPE),
+						new TraceFieldExtractor(o(TridentTraceKeys.TARGET),
+								o(TridentTraceKeys.TYPE)),
 						new Fields(TridentTraceKeys.TARGET,
 								TridentTraceKeys.TYPE))
 				.each(new Fields(TRACE_KEY),
-						new ExtensionsFieldExtractor(TridentTraceKeys.PROGRESS),
+						new TraceFieldExtractor(o(EXTENSIONS_KEY + "."
+								+ TridentTraceKeys.PROGRESS)),
 						new Fields(TridentTraceKeys.PROGRESS))
 				.each(new Fields(TridentTraceKeys.PROGRESS,
 						TridentTraceKeys.TYPE, TridentTraceKeys.EVENT,
@@ -211,8 +213,7 @@ public class TopologyBuilder implements
 				.peek(new LogConsumer("6"))
 				.partitionPersist(
 						partitionPersistFactory,
-						new Fields(SESSION_ID_KEY,
-								TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
+						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID, PROPERTY_KEY,
 								VALUE_KEY), gameplayStateUpdater);
 
 		// Completable (Completed) processing for field TridentTraceKeys.SUCCESS
@@ -223,8 +224,9 @@ public class TopologyBuilder implements
 						new FieldValueFilter(TridentTraceKeys.EVENT,
 								TraceEventTypes.COMPLETED))
 				.each(new Fields(TRACE_KEY),
-						new TraceFieldExtractor(TridentTraceKeys.TARGET,
-								TridentTraceKeys.TYPE, TridentTraceKeys.SUCCESS),
+						new TraceFieldExtractor(o(TridentTraceKeys.TARGET),
+								o(TridentTraceKeys.TYPE),
+								o(TridentTraceKeys.SUCCESS)),
 						new Fields(TridentTraceKeys.TARGET,
 								TridentTraceKeys.TYPE, TridentTraceKeys.SUCCESS))
 				.each(new Fields(TridentTraceKeys.SUCCESS,
@@ -237,8 +239,7 @@ public class TopologyBuilder implements
 						new Fields(PROPERTY_KEY, VALUE_KEY))
 				.partitionPersist(
 						partitionPersistFactory,
-						new Fields(SESSION_ID_KEY,
-								TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
+						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID, PROPERTY_KEY,
 								VALUE_KEY), gameplayStateUpdater);
 
 		// Completable (Completed) processing for field TridentTraceKeys.SCORE
@@ -249,8 +250,9 @@ public class TopologyBuilder implements
 						new FieldValueFilter(TridentTraceKeys.EVENT,
 								TraceEventTypes.COMPLETED))
 				.each(new Fields(TRACE_KEY),
-						new TraceFieldExtractor(TridentTraceKeys.TARGET,
-								TridentTraceKeys.TYPE, TridentTraceKeys.SCORE),
+						new TraceFieldExtractor(o(TridentTraceKeys.TARGET),
+								o(TridentTraceKeys.TYPE),
+								o(TridentTraceKeys.SCORE)),
 						new Fields(TridentTraceKeys.TARGET,
 								TridentTraceKeys.TYPE, TridentTraceKeys.SCORE))
 				.each(new Fields(TridentTraceKeys.SCORE, TridentTraceKeys.TYPE,
@@ -261,8 +263,7 @@ public class TopologyBuilder implements
 						new Fields(PROPERTY_KEY, VALUE_KEY))
 				.partitionPersist(
 						partitionPersistFactory,
-						new Fields(SESSION_ID_KEY,
-								TridentTraceKeys.GAMEPLAY_ID, PROPERTY_KEY,
+						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID, PROPERTY_KEY,
 								VALUE_KEY), gameplayStateUpdater);
 
 		/*

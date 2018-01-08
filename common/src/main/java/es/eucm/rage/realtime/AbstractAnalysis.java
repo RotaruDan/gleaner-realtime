@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
+ * Copyright © 2016 e-UCM (http://www.e-ucm.es/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,7 +39,7 @@ public abstract class AbstractAnalysis {
 
 	public static final String ELASTICSEARCH_URL_FLUX_PARAM = "elasticsearchUrl";
 	public static final String ZOOKEEPER_URL_FLUX_PARAM = "zookeeperUrl";
-	public static final String SESSION_ID_FLUX_PARAM = "sessionId";
+	public static final String TOPIC_NAME_FLUX_PARAM = "topicName";
 	public static final String INPUT_SPOUT_TX_ID = "input";
 
 	/**
@@ -68,9 +68,9 @@ public abstract class AbstractAnalysis {
 		 */
 		// Metrics for EsMapState
 		conf.put(Config.TOPOLOGY_BUILTIN_METRICS_BUCKET_SIZE_SECS, 60);
-		String sessionId = conf.get(SESSION_ID_FLUX_PARAM).toString();
+		String topicName = conf.get(TOPIC_NAME_FLUX_PARAM).toString();
 		String zookeeperUrl = conf.get(ZOOKEEPER_URL_FLUX_PARAM).toString();
-		return buildTopology(sessionId, zookeeperUrl);
+		return buildTopology(topicName, zookeeperUrl);
 	}
 
 	/**
@@ -79,7 +79,7 @@ public abstract class AbstractAnalysis {
 	 * @param conf
 	 *            Map object with the 'flux.yml' contents (contains sessionId,
 	 *            zookeeperUrl, elasticsearchUrl)
-	 * @param sessionId
+	 * @param topicName
 	 *            Used for the creation of ElasticSearch indices:
 	 *            {@link ESUtils#getTracesIndex(String)} and
 	 *            {@link ESUtils#getResultsIndex(String)}
@@ -89,7 +89,7 @@ public abstract class AbstractAnalysis {
 	 * @return a topology that connects to kafka and performs the realtime
 	 *         analysis
 	 */
-	private StormTopology buildTopology(String sessionId, String zookeeperUrl) {
+	private StormTopology buildTopology(String topicName, String zookeeperUrl) {
 
 		// Create a connection to ES
 		StateFactory persistentAggregateFactory = EsMapState.opaque();
@@ -97,14 +97,14 @@ public abstract class AbstractAnalysis {
 
 		// Create the transactional kafka spout
 		OpaqueTridentKafkaSpout spout = new KafkaSpoutBuilder()
-				.zookeeper(zookeeperUrl).topic(sessionId).build();
+				.zookeeper(zookeeperUrl).topic(topicName).build();
 
 		// Create a base topology
 		TridentTopology tridentTopology = new TridentTopology();
 
 		// Create and enhance the input kafka stream
 		Stream stream = tridentTopology.newStream(INPUT_SPOUT_TX_ID, spout);
-		stream = enhanceTracesStream(stream, sessionId);
+		stream = enhanceTracesStream(stream);
 
 		// Build the actual analysis topology
 		TopologyBuilder topologyBuilder = getTopologyBuilder();
@@ -129,16 +129,12 @@ public abstract class AbstractAnalysis {
 	 * 
 	 * @param stream
 	 *            Default kafka input stream
-	 * @param sessionId
-	 *            gameplay session identifier
 	 * 
 	 * @return An enhanced {@link Stream}
 	 */
-	private Stream enhanceTracesStream(Stream stream, String sessionId) {
+	private Stream enhanceTracesStream(Stream stream) {
 		return stream.each(new Fields(StringScheme.STRING_SCHEME_KEY),
-				new JsonToTrace(sessionId), new Fields(
-						TopologyBuilder.SESSION_ID_KEY,
-						TopologyBuilder.TRACE_KEY));
+				new JsonToTrace(), new Fields(TopologyBuilder.TRACE_KEY));
 	}
 
 	protected abstract TopologyBuilder getTopologyBuilder();

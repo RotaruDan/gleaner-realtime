@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
+ * Copyright © 2016 e-UCM (http://www.e-ucm.es/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,6 +28,10 @@ import org.apache.storm.trident.state.StateFactory;
 public interface TopologyBuilder {
 
 	/**
+	 * TODO ..
+	 */
+	String OUT_KEY = "out";
+	/**
 	 * Used to wrap {@link es.eucm.rage.realtime.utils.Document} inside the
 	 * {@link org.apache.storm.trident.TridentTopology} to persist inside an
 	 * ElasticSearch index
@@ -39,7 +43,8 @@ public interface TopologyBuilder {
 	 * https://github.com/e-ucm/rage-analytics/wiki/Understanding
 	 * -RAGE-Analytics-Traces-Flow#storm-flux-configuration-files
 	 */
-	String SESSION_ID_KEY = "sessionId";
+	String ACTIVITY_ID_KEY = "activityId";
+	String UUIDV4 = "uuidv4";
 	/**
 	 * Identifies the trace object {@link java.util.Map}
 	 */
@@ -61,13 +66,17 @@ public interface TopologyBuilder {
 	String VALUE_KEY = "v";
 
 	/**
+	 * TODO ..
+	 */
+	String GAMEPLAY_ID = "gameplayId";
+
+	/**
 	 * Field keys available inside the trace object. Check out the detailed
 	 * description of the trace fields:
 	 * https://github.com/e-ucm/rage-analytics/wiki
 	 * /Understanding-RAGE-Analytics-Traces-Flow#step-2---collector-to-realtime
 	 */
 	interface TridentTraceKeys {
-		String GAMEPLAY_ID = "gameplayId";
 		String EVENT = "event";
 		String TIMESTAMP = "timestamp";
 		String NAME = "name";

@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
+ * Copyright © 2016 e-UCM (http://www.e-ucm.es/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,9 +55,6 @@ public class EsMapState<T> implements IBackingMap<T> {
 
 		public int localCacheSize = 1000;
 		public String globalKey = "$GLOBAL$";
-
-		public String opaqueIndex;
-		public String resultsIndex;
 	}
 
 	public static StateFactory opaque() {
@@ -85,16 +82,11 @@ public class EsMapState<T> implements IBackingMap<T> {
 
 			String esHost = (String) conf
 					.get(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM);
-			String sessionId = (String) conf
-					.get(AbstractAnalysis.SESSION_ID_FLUX_PARAM);
-			_opts.opaqueIndex = ESUtils.getOpaqueValuesIndex(sessionId);
-			_opts.resultsIndex = ESUtils.getResultsIndex(sessionId);
 			RestClient client = makeElasticsearchClient(new HttpHost(esHost,
 					9200));
 			EsMapState s = new EsMapState(client, new RestHighLevelClient(
 					client), _opts);
 
-			s.registerMetrics(conf, context);
 			CachedMap c = new CachedMap(s, _opts.localCacheSize);
 			MapState ms = OpaqueMap.build(c);
 
@@ -139,32 +131,31 @@ public class EsMapState<T> implements IBackingMap<T> {
 
 		String mgetJson = "";
 		try {
-			LinkedList<String> singleKeys = new LinkedList();
-			for (List<Object> key : keys) {
-				singleKeys.add(toSingleKey(key));
-			}
-			List<T> ret = new ArrayList(singleKeys.size());
 
 			Map<String, List> body = new HashMap<>();
 			List<Map> query = new ArrayList<>();
 			body.put("docs", query);
 
-			while (!singleKeys.isEmpty()) {
+			for (List<Object> key : keys) {
+
+				String index = key.get(0).toString();
+				String type = ESUtils.getOpaqueValuesType();
+				String id = toSingleKey(key);
 
 				Map<String, String> doc = new HashMap<>();
 				query.add(doc);
 
-				doc.put("_type", ESUtils.getOpaqueValuesType());
-				doc.put("_id", singleKeys.removeFirst());
+				doc.put("_index", index);
+				doc.put("_type", type);
+				doc.put("_id", id);
 			}
+			List<T> ret = new ArrayList(keys.size());
 
 			mgetJson = gson.toJson(body, Map.class);
 			HttpEntity entity = new NStringEntity(mgetJson,
 					ContentType.APPLICATION_JSON);
-
-			Response response = _client.performRequest("GET", "/"
-					+ _opts.opaqueIndex + "/_mget", Collections.emptyMap(),
-					entity);
+			Response response = _client.performRequest("GET", "_mget",
+					Collections.emptyMap(), entity);
 
 			int status = response.getStatusLine().getStatusCode();
 			if (status > HttpStatus.SC_ACCEPTED) {
@@ -174,7 +165,6 @@ public class EsMapState<T> implements IBackingMap<T> {
 			}
 
 			String responseString = EntityUtils.toString(response.getEntity());
-			System.out.println("responseString multiGet = " + responseString);
 			Map<String, Object> responseDocs = gson.fromJson(responseString,
 					Map.class);
 
@@ -210,14 +200,15 @@ public class EsMapState<T> implements IBackingMap<T> {
 				List<Object> key = keys.get(i);
 				OpaqueValue val = (OpaqueValue) vals.get(i);
 
+				String activityId = (String) key.get(0);
 				String gameplayId = (String) key.get(1);
-				setProperty(gameplayId, key.subList(2, key.size()),
+				setProperty(activityId, gameplayId, key.subList(2, key.size()),
 						val.getCurr());
 
 				String keyId = toSingleKey(keys.get(i));
 				String serialized = ser.serialize(val);
 
-				String index = _opts.opaqueIndex;
+				String index = ESUtils.getOpaqueValuesIndex(activityId);
 				String type = ESUtils.getOpaqueValuesType();
 				String id = keyId;
 				String source = serialized;
@@ -244,7 +235,8 @@ public class EsMapState<T> implements IBackingMap<T> {
 		}
 	}
 
-	public void setProperty(String gameplayId, List<Object> keys, Object value) {
+	private void setProperty(String activityId, String gameplayId,
+			List<Object> keys, Object value) {
 
 		try {
 
@@ -258,33 +250,14 @@ public class EsMapState<T> implements IBackingMap<T> {
 			}
 			map.put(keys.get(keys.size() - 1).toString(), value);
 
-			hClient.update(new UpdateRequest(_opts.resultsIndex, ESUtils
-					.getResultsType(), gameplayId).docAsUpsert(true).doc(doc)
-					.retryOnConflict(50));
+			hClient.update(new UpdateRequest(ESUtils
+					.getResultsIndex(activityId), ESUtils.getResultsType(),
+					gameplayId).docAsUpsert(true).doc(doc).retryOnConflict(50));
 
 		} catch (Exception e) {
 			LOG.error("Set Property has failures : {}", e);
 		}
 
-	}
-
-	private void registerMetrics(Map conf, IMetricsContext context) {
-
-		Long longBucketSize = (Long) (conf
-				.get(Config.TOPOLOGY_BUILTIN_METRICS_BUCKET_SIZE_SECS));
-		String uniqueId = (String) conf
-				.get(AbstractAnalysis.SESSION_ID_FLUX_PARAM);
-		int bucketSize = longBucketSize.intValue();
-		String stateUniqueId = this.toString();
-		_mreads = context.registerMetric(stateUniqueId
-				+ "/elasticsearch/readCount/" + uniqueId, new CountMetric(),
-				bucketSize);
-		_mwrites = context.registerMetric(stateUniqueId
-				+ "/elasticsearch/writeCount/ " + uniqueId, new CountMetric(),
-				bucketSize);
-		_mexceptions = context.registerMetric(stateUniqueId
-				+ "/elasticsearch/exceptionCount/" + uniqueId,
-				new CountMetric(), bucketSize);
 	}
 
 	private String toSingleKey(List<Object> key) {

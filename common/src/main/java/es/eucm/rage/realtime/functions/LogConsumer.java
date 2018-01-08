@@ -1,11 +1,11 @@
 /**
- * Copyright (C) 2016 e-UCM (http://www.e-ucm.es/)
+ * Copyright © 2016 e-UCM (http://www.e-ucm.es/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,27 +22,31 @@ import org.slf4j.LoggerFactory;
 
 public class LogConsumer implements Consumer {
 
-	public static boolean LOG_ENABLED = false;
+    public static boolean LOG_ENABLED = false;
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(LogConsumer.class);
+    private static final Logger LOG = LoggerFactory
+            .getLogger(LogConsumer.class);
 
-	private String prefix = "";
-	private boolean log = false;
+    private String prefix = "";
+    private boolean log = false;
 
-	public LogConsumer(String prefix) {
-		this(prefix, false);
-	}
+    public LogConsumer(String prefix) {
+        this(prefix, false);
+    }
 
-	public LogConsumer(String prefix, boolean log) {
-		this.prefix = prefix;
-		this.log = log;
-	}
+    public LogConsumer(String prefix, boolean log) {
+        this.prefix = prefix;
+        this.log = log;
+    }
 
-	@Override
-	public void accept(TridentTuple tridentTuple) {
-		if (LOG_ENABLED || log) {
-			LOG.info(prefix + " - " + tridentTuple.toString());
-		}
-	}
+    @Override
+    public void accept(TridentTuple tridentTuple) {
+        try {
+            if (LOG_ENABLED || log) {
+                LOG.info(prefix + " - " + tridentTuple.toString());
+            }
+        } catch (Exception ex) {
+            LOG.info("Error unexpected exception, discarding" + ex.toString());
+        }
+    }
 }
