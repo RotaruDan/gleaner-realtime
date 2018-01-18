@@ -59,7 +59,8 @@ public class TraceFieldExtractor implements Function {
 			}
 			collector.emit(object);
 		} catch (Exception ex) {
-			System.out.print("Error unexpected exception, discarding" + ex.toString());
+			System.out.print("Error unexpected exception, discarding"
+					+ ex.toString());
 		}
 	}
 

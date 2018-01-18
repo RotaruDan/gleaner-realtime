@@ -34,6 +34,10 @@ import java.util.logging.Logger;
 public class ThomasKilmannDocumentBuilder implements Function {
 	private static final Logger LOG = Logger
 			.getLogger(ThomasKilmannDocumentBuilder.class.getName());
+	public static final String[] THOMAS_KILMANN_CLASSIFICATION = { "avoiding",
+			"competing", "accomodating", "compromising", "collaborating" };
+	public static final String[] THOMAS_KILMANN_BIAS_CLASSIFICATION = {
+			"gender", "race", "ability", "occupation", "fashion", "otherSocial" };
 
 	private final String defaultTraceKey;
 
@@ -51,45 +55,117 @@ public class ThomasKilmannDocumentBuilder implements Function {
 	@Override
 	public void execute(TridentTuple tuple, TridentCollector collector) {
 
-		Map trace = (Map) tuple.getValueByField(defaultTraceKey);
+		try {
+			Map trace = (Map) tuple.getValueByField(defaultTraceKey);
 
-		Map resultTracee = buildTrace(trace);
+			Map resultTracee = buildTrace(trace);
 
-		Object biasExtObject = ((Map) ((Map) (resultTracee
-				.get(TopologyBuilder.OUT_KEY)))
-				.get(TopologyBuilder.EXTENSIONS_KEY))
-				.get(ThomasKilmannTopologyBuilder.BIASES_KEY);
+			Map<String, Object> extensions = (Map) ((Map) (resultTracee
+					.get(TopologyBuilder.OUT_KEY)))
+					.get(TopologyBuilder.EXTENSIONS_KEY);
 
-		if (!(biasExtObject instanceof Map)) {
-			LOG.info(ThomasKilmannTopologyBuilder.BIASES_KEY
-					+ " extension is not a Map, found: " + biasExtObject);
-			return;
-		}
+			Object biasExtObject = extensions
+					.get(ThomasKilmannTopologyBuilder.BIASES_KEY);
 
-		Map<String, Boolean> biases = (Map<String, Boolean>) biasExtObject;
-
-		for (Map.Entry<String, Boolean> entry : biases.entrySet()) {
-			Map newTrace = new HashMap<>(resultTracee);
-			newTrace.put(ThomasKilmannTopologyBuilder.UUIDV4, null);
-			newTrace.put(ThomasKilmannTopologyBuilder.BIAS_TYPE_KEY,
-					entry.getKey());
-			if (entry.getValue()) {
-				newTrace.put(ThomasKilmannTopologyBuilder.BIAS_VALUE_TRUE_KEY,
-						1);
-			} else {
-				newTrace.put(ThomasKilmannTopologyBuilder.BIAS_VALUE_FALSE_KEY,
-						1);
+			if (!(biasExtObject instanceof Map)) {
+				LOG.info(ThomasKilmannTopologyBuilder.BIASES_KEY
+						+ " extension is not a Map, found: " + biasExtObject);
+				return;
 			}
 
-			Document<Map> doc = new Document(newTrace, null,
-					ThomasKilmannTopologyBuilder.THOMAS_KILMANN_KEY,
-					ThomasKilmannTopologyBuilder.THOMAS_KILMAN_INDEX_PREFIX,
-					newTrace.get(TopologyBuilder.ACTIVITY_ID_KEY).toString());
+			Object tkClassification = extensions
+					.get(ThomasKilmannTopologyBuilder.THOMAS_KILMANN_KEY);
 
-			ArrayList<Object> object = new ArrayList<Object>(1);
-			object.add(doc);
+			if (tkClassification == null) {
+				LOG.info(ThomasKilmannTopologyBuilder.THOMAS_KILMANN_KEY
+						+ " extension is null.");
+				return;
+			}
 
-			collector.emit(object);
+			if (!(tkClassification instanceof String)) {
+				LOG.info(ThomasKilmannTopologyBuilder.THOMAS_KILMANN_KEY
+						+ " extension is not a String, found: "
+						+ tkClassification);
+				return;
+			}
+
+			String tkClassif = tkClassification.toString();
+
+			boolean foundClassif = false;
+			for (int i = 0; i < THOMAS_KILMANN_CLASSIFICATION.length; ++i) {
+				String defaultClassif = THOMAS_KILMANN_CLASSIFICATION[i];
+				if (tkClassif.toLowerCase().contains(
+						defaultClassif.toLowerCase())) {
+					extensions.put(
+							ThomasKilmannTopologyBuilder.THOMAS_KILMANN_KEY,
+							defaultClassif);
+					extensions.put(
+							ThomasKilmannTopologyBuilder.THOMAS_KILMANN_KEY
+									+ "_raw", tkClassif);
+					foundClassif = true;
+					break;
+				}
+			}
+
+			if (!foundClassif) {
+				extensions.put(ThomasKilmannTopologyBuilder.THOMAS_KILMANN_KEY,
+						tkClassif);
+
+			}
+
+			Map<String, Boolean> biases = (Map<String, Boolean>) biasExtObject;
+
+			for (Map.Entry<String, Boolean> entry : biases.entrySet()) {
+				String biasKey = entry.getKey();
+
+				Map newTrace = new HashMap<>(resultTracee);
+				newTrace.put(ThomasKilmannTopologyBuilder.UUIDV4, null);
+
+				boolean foundBias = false;
+				for (int j = 0; j < THOMAS_KILMANN_BIAS_CLASSIFICATION.length; ++j) {
+					String defaultBiasKey = THOMAS_KILMANN_BIAS_CLASSIFICATION[j];
+					if (biasKey.toLowerCase().contains(
+							defaultBiasKey.toLowerCase())) {
+						newTrace.put(
+								ThomasKilmannTopologyBuilder.BIAS_TYPE_KEY,
+								defaultBiasKey);
+						newTrace.put(ThomasKilmannTopologyBuilder.BIAS_TYPE_KEY
+								+ "_raw", biasKey);
+						foundBias = true;
+						break;
+					}
+				}
+
+				if (!foundBias) {
+					newTrace.put(ThomasKilmannTopologyBuilder.BIAS_TYPE_KEY,
+							biasKey);
+				}
+
+				if (entry.getValue()) {
+					newTrace.put(
+							ThomasKilmannTopologyBuilder.BIAS_VALUE_TRUE_KEY, 1);
+				} else {
+					newTrace.put(
+							ThomasKilmannTopologyBuilder.BIAS_VALUE_FALSE_KEY,
+							1);
+				}
+
+				Document<Map> doc = new Document(
+						newTrace,
+						null,
+						ThomasKilmannTopologyBuilder.THOMAS_KILMANN_KEY,
+						ThomasKilmannTopologyBuilder.THOMAS_KILMAN_INDEX_PREFIX,
+						newTrace.get(TopologyBuilder.ACTIVITY_ID_KEY)
+								.toString());
+
+				ArrayList<Object> object = new ArrayList<Object>(1);
+				object.add(doc);
+
+				collector.emit(object);
+			}
+		} catch (Exception ex) {
+			LOG.info("ThomasKilmannDocumentBuilder - Error unexpected exception, discarding"
+					+ ex.toString());
 		}
 	}
 

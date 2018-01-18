@@ -24,10 +24,11 @@ public class ToDouble extends BaseFunction {
 	@Override
 	public void execute(TridentTuple tuple, TridentCollector collector) {
 		try {
-		Double n1 = Double.valueOf(tuple.get(0).toString());
-		collector.emit(new Values(n1));
+			Double n1 = Double.valueOf(tuple.get(0).toString());
+			collector.emit(new Values(n1));
 		} catch (Exception ex) {
-			System.out.println("Error unexpected exception, discarding" + ex.toString());
+			System.out.println("Error unexpected exception, discarding"
+					+ ex.toString());
 		}
 	}
 }

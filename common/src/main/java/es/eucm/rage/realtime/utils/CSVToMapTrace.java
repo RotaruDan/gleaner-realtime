@@ -113,7 +113,7 @@ public class CSVToMapTrace {
 							Map<String, Object> biasesObject = new HashMap<>(
 									biases.length);
 
-							if(parts[1].equalsIgnoreCase("selected")) {
+							if (parts[1].equalsIgnoreCase("selected")) {
 								biasesCount += biases.length;
 							}
 							for (int k = 0; k < biases.length; ++k) {
