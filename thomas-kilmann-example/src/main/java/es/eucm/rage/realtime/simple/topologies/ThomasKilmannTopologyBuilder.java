@@ -24,11 +24,14 @@ import es.eucm.rage.realtime.states.GameplayStateUpdater;
 import es.eucm.rage.realtime.states.TraceStateUpdater;
 import es.eucm.rage.realtime.states.elasticsearch.EsState;
 import es.eucm.rage.realtime.topologies.*;
+import org.apache.storm.kafka.trident.OpaqueTridentKafkaSpout;
 import org.apache.storm.trident.Stream;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.operation.builtin.Count;
 import org.apache.storm.trident.state.StateFactory;
 import org.apache.storm.tuple.Fields;
+
+import java.util.Map;
 
 /**
  * RAGE Analytics implementation of
@@ -55,9 +58,10 @@ public class ThomasKilmannTopologyBuilder implements
 	}
 
 	@Override
-	public void build(TridentTopology tridentTopology, Stream tracesStream,
+	public void build(TridentTopology tridentTopology,
+			OpaqueTridentKafkaSpout spout, Stream tracesStream,
 			StateFactory partitionPersistFactory,
-			StateFactory persistentAggregateFactory) {
+			StateFactory persistentAggregateFactory, Map<String, Object> conf) {
 
 		/** ---> AbstractAnalysis definition <--- **/
 		/* DEFAULT TOPOLOGY ANALYSIS */

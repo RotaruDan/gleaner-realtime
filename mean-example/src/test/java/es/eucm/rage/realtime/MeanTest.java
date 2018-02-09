@@ -64,9 +64,9 @@ public class MeanTest {
 		EsState.Factory partitionPersist = new EsState.Factory();
 
 		// Test topology Builder configuration
-		new MeanTopologyBuilder().build(topology,
+		new MeanTopologyBuilder().build(topology, null,
 				topology.newStream("testFileStream", tracesSpout),
-				partitionPersist, null);
+				partitionPersist, null, null);
 
 		Config conf = new Config();
 		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);

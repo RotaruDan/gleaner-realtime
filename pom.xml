@@ -149,6 +149,7 @@
     <modules>
         <module>common</module>
         <module>default</module>
+        <module>glp-example</module>
         <module>mean-example</module>
         <module>thomas-kilmann-example</module>
     </modules>
@@ -276,6 +277,9 @@
                             </coberturaReport>
                             <coberturaReport>
                                 ${basedir}/mean-example/target/coverage.xml
+                            </coberturaReport>
+                            <coberturaReport>
+                                ${basedir}/glp-example/target/coverage.xml
                             </coberturaReport>
                             <coberturaReport>
                                 ${basedir}/default/target/coverage.xml

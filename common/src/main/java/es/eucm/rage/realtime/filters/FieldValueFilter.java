@@ -15,49 +15,54 @@
  */
 package es.eucm.rage.realtime.filters;
 
+import es.eucm.rage.realtime.states.TraceStateUpdater;
 import org.apache.storm.trident.operation.Filter;
 import org.apache.storm.trident.operation.TridentOperationContext;
 import org.apache.storm.trident.tuple.TridentTuple;
 
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class FieldValueFilter implements Filter {
+	private static final Logger LOGGER = Logger
+			.getLogger(FieldValueFilter.class.getName());
 
-    private String field;
+	private String field;
 
-    private Object value;
+	private Object value;
 
-    /**
-     * Filters a TridentTuple depending on the value of a given field
-     *
-     * @param field
-     *            field key to extract from the {@link TridentTuple}
-     * @param value
-     *            value that must be matched with the value from the field from
-     *            the {@link TridentTuple}
-     */
-    public FieldValueFilter(String field, Object value) {
-        this.field = field;
-        this.value = value;
-    }
+	/**
+	 * Filters a TridentTuple depending on the value of a given field
+	 * 
+	 * @param field
+	 *            field key to extract from the {@link TridentTuple}
+	 * @param value
+	 *            value that must be matched with the value from the field from
+	 *            the {@link TridentTuple}
+	 */
+	public FieldValueFilter(String field, Object value) {
+		this.field = field;
+		this.value = value;
+	}
 
-    @Override
-    public boolean isKeep(TridentTuple objects) {
-        try {
-            return value.equals(objects.getValueByField(field));
-        } catch (Exception ex) {
-            System.out.println("Error unexpected exception, discarding" + ex.toString());
-            return false;
-        }
-    }
+	@Override
+	public boolean isKeep(TridentTuple objects) {
+		try {
+			return value.equals(objects.getValueByField(field));
+		} catch (Exception ex) {
+			LOGGER.info("Error unexpected exception, discarding "
+					+ ex.toString());
+			return false;
+		}
+	}
 
-    @Override
-    public void prepare(Map map, TridentOperationContext tridentOperationContext) {
+	@Override
+	public void prepare(Map map, TridentOperationContext tridentOperationContext) {
 
-    }
+	}
 
-    @Override
-    public void cleanup() {
+	@Override
+	public void cleanup() {
 
-    }
+	}
 }

@@ -56,6 +56,34 @@ public class ESUtils {
 	}
 
 	/**
+	 * Returns the name if the ElasticSearch index used to store all the
+	 * Analytics for the current GLP
+	 * 
+	 * @param rootGlpId
+	 *            is the id of the root element of the GLP
+	 * @return
+	 */
+	public static String getAnalyticsGLPIndex(String rootGlpId) {
+		return "analytics-" + rootGlpId;
+	}
+
+	/**
+	 * Returns the ID of the root object in the glpIndex (does the opposite of
+	 * ESUtils#getAnalyticsGLPIndex
+	 * 
+	 * @param glpIndex
+	 *            is the id of the index where the analyticks tree is stored
+	 * @return
+	 */
+	public static String getRootGLPId(String glpIndex) {
+		String ret = glpIndex;
+		if (ret.startsWith("analytics-")) {
+			ret = ret.substring("analytics-".length());
+		}
+		return ret;
+	}
+
+	/**
 	 * Returns the name of the ElasticSearch index used to store the "sanitized"
 	 * traces used to display Kibana visualizations.
 	 * 

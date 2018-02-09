@@ -15,9 +15,12 @@
  */
 package es.eucm.rage.realtime.topologies;
 
+import org.apache.storm.kafka.trident.OpaqueTridentKafkaSpout;
 import org.apache.storm.trident.Stream;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.state.StateFactory;
+
+import java.util.Map;
 
 /**
  * Configures a {@link org.apache.storm.trident.TridentTopology} when invoking
@@ -44,6 +47,17 @@ public interface TopologyBuilder {
 	 * -RAGE-Analytics-Traces-Flow#storm-flux-configuration-files
 	 */
 	String ACTIVITY_ID_KEY = "activityId";
+	/**
+	 * The ID this trace comes from, if not available, is a leaf
+	 */
+	String CHILD_ACTIVITY_ID_KEY = "childActivityId";
+	/**
+	 * Used to know to which GLP the trace belongs to.
+	 */
+	String GLP_ID_KEY = "glpId";
+	String ANALYTICS_KEY = "analytics";
+	String ANALYTICS_PARENT_ID_KEY = "parentId";
+
 	String UUIDV4 = "uuidv4";
 	/**
 	 * Identifies the trace object {@link java.util.Map}
@@ -117,7 +131,7 @@ public interface TopologyBuilder {
 	 *            Incoming traces {@link Stream}.
 	 * 
 	 */
-	void build(TridentTopology tridentTopology, Stream tracesStream,
-			StateFactory partitionPersistFactory,
-			StateFactory persistentAggregateFactory);
+	void build(TridentTopology tridentTopology, OpaqueTridentKafkaSpout spout,
+			Stream tracesStream, StateFactory partitionPersistFactory,
+			StateFactory persistentAggregateFactory, Map<String, Object> conf);
 }
