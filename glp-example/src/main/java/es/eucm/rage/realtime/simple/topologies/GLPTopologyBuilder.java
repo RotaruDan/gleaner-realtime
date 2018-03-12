@@ -282,7 +282,7 @@ public class GLPTopologyBuilder implements
                 .toString();
         // set producer properties.
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kzk");
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, zookeeperUrl);
         props.put(ProducerConfig.ACKS_CONFIG, "1");
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "kafka-producer-glp-"
                 + AbstractAnalysis.INPUT_SPOUT_TX_ID);
