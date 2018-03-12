@@ -187,7 +187,7 @@ public class GLPTopologyBuilder implements
         /** PARENT PROGRESSED ANALYSIS **/
         // 1 - Extract "glpId" and "activityId" from trace
         Stream parentProgressedStream = AbstractAnalysis.enhanceTracesStream(
-                tridentTopology.newStream(PARENT_PROGRESSED_STREAM_ID, spout))
+                tridentTopology.newStream(PARENT_PROGRESSED_STREAM_ID + Math.random() * 100000, spout))
                 // Filter all traces that are not bubbled
                 .each(new Fields(TRACE_KEY),
                         new IsBubbledTrace(TRACE_KEY))
@@ -240,7 +240,7 @@ public class GLPTopologyBuilder implements
         /** BUBBLE TRACES UPWARDS TO PARENT **/
         // 1 - Extract "glpId" and "activityId" from trace
         Stream parentStream = AbstractAnalysis.enhanceTracesStream(
-                tridentTopology.newStream(GLP_STREAM_ID, spout)).each(
+                tridentTopology.newStream(GLP_STREAM_ID + Math.random() * 100000, spout)).each(
                 new Fields(TRACE_KEY),
                 new TraceFieldExtractor(GLP_ID_KEY,
                         ACTIVITY_ID_KEY),
