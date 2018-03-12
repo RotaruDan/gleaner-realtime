@@ -269,10 +269,10 @@ public class GLPTopologyBuilder implements
                 .peek(new LogConsumer("Built trace to Parent"));
 
         // 4 - Send the PARENT_TRACE data to Kafka
-        /*
+
         toParent.partitionPersist(toParentKafkaFactory(conf), new Fields(
                 PARENT_TRACE), new TridentKafkaUpdater());
-*/
+
     }
 
     public static TridentKafkaStateFactory toParentKafkaFactory(
