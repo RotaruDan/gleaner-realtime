@@ -229,7 +229,7 @@ public class GLPTopologyBuilder implements
                 // Filter that it has not been completed before the PARENT analytics (parent branch)
                 .each(new Fields(ANALYTICS_KEY, GAMEPLAY_ID),
                         new IsCompletedAnalytics(ANALYTICS_KEY,
-                                GAMEPLAY_ID,false))
+                                GAMEPLAY_ID, false))
                 .peek(new LogConsumer("Analytics is not completed, proceeding",
                         true))
                 // Extract
@@ -282,10 +282,10 @@ public class GLPTopologyBuilder implements
                 .toString();
         // set producer properties.
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, zookeeperUrl);
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kzk:9092");
         props.put(ProducerConfig.ACKS_CONFIG, "1");
         props.put(ProducerConfig.CLIENT_ID_CONFIG, "kafka-producer-glp-"
-                + AbstractAnalysis.INPUT_SPOUT_TX_ID);
+                + AbstractAnalysis.INPUT_SPOUT_TX_ID + Math.random() * 100000);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
                 StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,

@@ -58,7 +58,7 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 			(new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date())))
 			.toLowerCase();
 	private static final String ES_HOST = "localhost";
-	private static final String ZOOKEEPER_URL = "localhost:9092";
+	private static final String ZOOKEEPER_URL = "localhost";
 	private static final String BOOTSTRAP_SERVERS = "0.0.0.0:9092";
 	private static final String TOPIC = "glp-test-topic-default-kibana-analysis-"
 			+ NOW_DATE;

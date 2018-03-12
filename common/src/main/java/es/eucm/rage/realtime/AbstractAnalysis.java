@@ -109,7 +109,7 @@ public abstract class AbstractAnalysis {
 		TridentTopology tridentTopology = new TridentTopology();
 
 		// Create and enhance the input kafka stream
-		Stream stream = tridentTopology.newStream(INPUT_SPOUT_TX_ID, spout);
+		Stream stream = tridentTopology.newStream(INPUT_SPOUT_TX_ID + Math.random() * 100000, spout);
 		stream = enhanceTracesStream(stream);
 
 		// Build the actual analysis topology
