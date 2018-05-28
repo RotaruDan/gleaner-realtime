@@ -17,6 +17,7 @@ package es.eucm.rage.realtime.functions;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import es.eucm.rage.realtime.filters.FieldValuesOrFilter;
 import org.apache.storm.kafka.StringScheme;
 import org.apache.storm.trident.operation.Function;
 import org.apache.storm.trident.operation.TridentCollector;
@@ -26,43 +27,48 @@ import org.apache.storm.trident.tuple.TridentTuple;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class JsonToTrace implements Function {
+	private static final Logger LOGGER = Logger.getLogger(JsonToTrace.class
+			.getName());
 
-    private Gson gson;
+	private Gson gson;
 
-    private Type type;
+	private Type type;
 
-    /**
-     * Given a JSON Trace ({@link StringScheme#STRING_SCHEME_KEY} key, from
-     * Kafka) string returns a
-     * {@link es.eucm.rage.realtime.topologies.TopologyBuilder#TRACE_KEY} ->
-     * Map<String, Object>
-     *
-     */
-    public JsonToTrace() {
-    }
+	/**
+	 * Given a JSON Trace ({@link StringScheme#STRING_SCHEME_KEY} key, from
+	 * Kafka) string returns a
+	 * {@link es.eucm.rage.realtime.topologies.TopologyBuilder#TRACE_KEY} ->
+	 * Map<String, Object>
+	 * 
+	 */
+	public JsonToTrace() {
+	}
 
-    @Override
-    public void execute(TridentTuple tuple, TridentCollector collector) {
-        try {
-            Object trace = gson.fromJson(
-                    tuple.getStringByField(StringScheme.STRING_SCHEME_KEY), type);
-            collector.emit(Arrays.asList(trace));
-        } catch (Exception ex) {
-            System.out.println("Error unexpected exception, discarding" + ex.toString());
-        }
-    }
+	@Override
+	public void execute(TridentTuple tuple, TridentCollector collector) {
+		try {
+			Object trace = gson.fromJson(
+					tuple.getStringByField(StringScheme.STRING_SCHEME_KEY),
+					type);
+			collector.emit(Arrays.asList(trace));
+		} catch (Exception ex) {
+			LOGGER.info("Error unexpected exception, discarding "
+					+ ex.toString());
+		}
+	}
 
-    @Override
-    public void prepare(Map conf, TridentOperationContext context) {
-        gson = new Gson();
-        type = new TypeToken<Map<String, Object>>() {
-        }.getType();
-    }
+	@Override
+	public void prepare(Map conf, TridentOperationContext context) {
+		gson = new Gson();
+		type = new TypeToken<Map<String, Object>>() {
+		}.getType();
+	}
 
-    @Override
-    public void cleanup() {
+	@Override
+	public void cleanup() {
 
-    }
+	}
 }

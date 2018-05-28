@@ -68,9 +68,9 @@ public class VerbsTest {
 		StateFactory persistentAggregateFactory = new EsMapState.Factory();
 
 		// Test topology Builder configuration
-		new TopologyBuilder().build(topology,
+		new TopologyBuilder().build(topology, null,
 				topology.newStream("testFileStream", tracesSpout),
-				partitionPersist, persistentAggregateFactory);
+				partitionPersist, persistentAggregateFactory, null);
 
 		Config conf = new Config();
 		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, NOW_DATE);
@@ -181,7 +181,13 @@ public class VerbsTest {
 								Double.valueOf(value.toString()),
 								Double.valueOf(keyValue[1]));
 					} catch (Exception ex) {
-						assertEquals(flatObjectKey, value, keyValue[1]);
+						try {
+							assertEquals(flatObjectKey, Boolean.valueOf(value
+									.toString().toLowerCase()),
+									Boolean.valueOf(keyValue[1].toLowerCase()));
+						} catch (Exception ex2) {
+							assertEquals(flatObjectKey, value, keyValue[1]);
+						}
 					}
 				} else {
 					assertEquals(flatObjectKey, value,

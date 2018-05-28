@@ -30,6 +30,8 @@ import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.state.StateFactory;
 import org.apache.storm.tuple.Fields;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -40,11 +42,17 @@ public abstract class AbstractAnalysis {
 	public static final String ELASTICSEARCH_URL_FLUX_PARAM = "elasticsearchUrl";
 	public static final String ZOOKEEPER_URL_FLUX_PARAM = "zookeeperUrl";
 	public static final String TOPIC_NAME_FLUX_PARAM = "topicName";
-	public static final String INPUT_SPOUT_TX_ID = "input";
+	private static final String NOW_DATE = String.valueOf(
+			(new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date())))
+			.toLowerCase();
+	public static final String INPUT_SPOUT_TX_ID = "input_" + NOW_DATE;
 
 	/**
 	 * Storm Flux Start-up function
 	 * 
+	 * @param conf
+	 *            Map object with the 'flux.yml' contents (contains sessionId,
+	 *            zookeeperUrl, elasticsearchUrl)
 	 * @see <a
 	 *      href="https://github.com/apache/storm/tree/master/external/flux#existing-topologies">Creating
 	 *      a Storm topology</a>
@@ -70,15 +78,12 @@ public abstract class AbstractAnalysis {
 		conf.put(Config.TOPOLOGY_BUILTIN_METRICS_BUCKET_SIZE_SECS, 60);
 		String topicName = conf.get(TOPIC_NAME_FLUX_PARAM).toString();
 		String zookeeperUrl = conf.get(ZOOKEEPER_URL_FLUX_PARAM).toString();
-		return buildTopology(topicName, zookeeperUrl);
+		return buildTopology(topicName, zookeeperUrl, conf);
 	}
 
 	/**
 	 * Builds a KafkaTopology
 	 * 
-	 * @param conf
-	 *            Map object with the 'flux.yml' contents (contains sessionId,
-	 *            zookeeperUrl, elasticsearchUrl)
 	 * @param topicName
 	 *            Used for the creation of ElasticSearch indices:
 	 *            {@link ESUtils#getTracesIndex(String)} and
@@ -89,7 +94,8 @@ public abstract class AbstractAnalysis {
 	 * @return a topology that connects to kafka and performs the realtime
 	 *         analysis
 	 */
-	private StormTopology buildTopology(String topicName, String zookeeperUrl) {
+	private StormTopology buildTopology(String topicName, String zookeeperUrl,
+			Map<String, Object> conf) {
 
 		// Create a connection to ES
 		StateFactory persistentAggregateFactory = EsMapState.opaque();
@@ -103,13 +109,13 @@ public abstract class AbstractAnalysis {
 		TridentTopology tridentTopology = new TridentTopology();
 
 		// Create and enhance the input kafka stream
-		Stream stream = tridentTopology.newStream(INPUT_SPOUT_TX_ID, spout);
+		Stream stream = tridentTopology.newStream(INPUT_SPOUT_TX_ID + Math.random() * 100000, spout);
 		stream = enhanceTracesStream(stream);
 
 		// Build the actual analysis topology
 		TopologyBuilder topologyBuilder = getTopologyBuilder();
-		topologyBuilder.build(tridentTopology, stream, partitionPersistFactory,
-				persistentAggregateFactory);
+		topologyBuilder.build(tridentTopology, spout, stream,
+				partitionPersistFactory, persistentAggregateFactory, conf);
 
 		return tridentTopology.build();
 	}
@@ -132,7 +138,7 @@ public abstract class AbstractAnalysis {
 	 * 
 	 * @return An enhanced {@link Stream}
 	 */
-	private Stream enhanceTracesStream(Stream stream) {
+	public static Stream enhanceTracesStream(Stream stream) {
 		return stream.each(new Fields(StringScheme.STRING_SCHEME_KEY),
 				new JsonToTrace(), new Fields(TopologyBuilder.TRACE_KEY));
 	}

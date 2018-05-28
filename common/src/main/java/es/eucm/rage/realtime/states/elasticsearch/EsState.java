@@ -1,12 +1,12 @@
 /**
  * Copyright © 2016 e-UCM (http://www.e-ucm.es/)
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,20 +43,20 @@ import org.elasticsearch.action.support.single.instance.InstanceShardOperationRe
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.script.Script;
+import org.elasticsearch.script.ScriptType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static org.elasticsearch.script.Script.DEFAULT_SCRIPT_TYPE;
 
 public class EsState implements State {
 
     private static final Logger LOG = LoggerFactory.getLogger(EsState.class);
 
     private final RestHighLevelClient hClient;
-
-    private Gson gson = new Gson();
 
     @Override
     public void beginCommit(Long aLong) {
@@ -107,7 +107,6 @@ public class EsState implements State {
                 request.add(req);
             }
 
-
             BulkResponse bulkResponse = hClient.bulk(request);
 
             if (bulkResponse.hasFailures()) {
@@ -117,8 +116,7 @@ public class EsState implements State {
                         BulkItemResponse.Failure failure = bulkItemResponse
                                 .getFailure();
                         LOG.error("Failure " + failure.getCause()
-                                + ", response: "
-                                + gson.toJson(bulkItemResponse));
+                                + ", response: " + bulkItemResponse);
 
                         BulkResponse bulkResponse2 = hClient.bulk(request);
                         if (bulkResponse2.hasFailures()) {
@@ -129,9 +127,8 @@ public class EsState implements State {
                                             .getFailure();
                                     LOG.error("Failure " + failure2.getCause()
                                             + ", response: "
-                                            + gson.toJson(bulkItemResponse2));
+                                            + bulkItemResponse2);
                                 }
-
                             }
                         }
                     }
@@ -165,6 +162,28 @@ public class EsState implements State {
 
         } catch (Exception e) {
             LOG.error("Set Property has failures : {}", e);
+        }
+    }
+
+    public void updateUniqueArray(String glpId, String activityId, String key, String gameplayId) {
+        try {
+            UpdateRequest update = new UpdateRequest(glpId, "analytics",
+                    activityId);
+            Map params = new HashMap(1);
+            params.put("gameplay", gameplayId);
+
+            update.script(new Script(ScriptType.INLINE, "painless",
+                    "if (ctx._source.containsKey(\"" + key + "\")) {" +
+                            "(ctx._source." + key + ".contains(params.gameplay) ? " +
+                            "(ctx.op = \"none\") : " +
+                            "(ctx._source." + key + ".add(params.gameplay)))" +
+                            "} else {" +
+                            "ctx._source." + key + " = [params.gameplay];" +
+                            "}", params));
+            hClient.update(update);
+
+        } catch (Exception e) {
+            LOG.error("updateUniqueArray has failures : {}", e);
         }
     }
 
@@ -224,7 +243,7 @@ public class EsState implements State {
          * Constructs a java elasticsearch 5 client for the host..
          *
          * @return {@link RestClient} to read/write to the hash ring of the
-         *         servers..
+         * servers..
          */
         public RestClient makeElasticsearchClient(HttpHost... endpoints) {
             return RestClient.builder(endpoints).build();

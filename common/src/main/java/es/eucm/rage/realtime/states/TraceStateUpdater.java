@@ -23,19 +23,23 @@ import org.apache.storm.trident.tuple.TridentTuple;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Invokes {@link EsState#bulkUpdateIndices(List)} with the input tuples
  */
 public class TraceStateUpdater extends BaseStateUpdater<EsState> {
+	private static final Logger LOGGER = Logger
+			.getLogger(TraceStateUpdater.class.getName());
 
 	@Override
 	public void updateState(EsState state, List<TridentTuple> tuples,
 			TridentCollector collector) {
 		try {
-		state.bulkUpdateIndices(tuples);
+			state.bulkUpdateIndices(tuples);
 		} catch (Exception ex) {
-			System.out.println("Error unexpected exception, discarding" + ex.toString());
+			LOGGER.info("Error unexpected exception, discarding "
+					+ ex.toString());
 		}
 	}
 
