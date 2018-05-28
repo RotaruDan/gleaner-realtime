@@ -24,92 +24,107 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 public class ExtensionTypeFilter implements Filter {
-    private static final Logger LOGGER = Logger
-            .getLogger(ExtensionTypeFilter.class.getName());
-    public static final boolean LOG = false;
+	private static final Logger LOGGER = Logger
+			.getLogger(ExtensionTypeFilter.class.getName());
+	public static final boolean LOG = false;
 
-    private final Class clazz;
-    private String extensionKey;
+	private final Class clazz;
+	private String extensionKey;
 
-    /**
-     * Filters a Trace TridentTuple depending if it has an extension 'extKey' if
-     * type 'clazz'
-     */
-    public ExtensionTypeFilter(String extKey, Class clazz) {
-        this.extensionKey = extKey;
-        this.clazz = clazz;
-    }
+	/**
+	 * Filters a Trace TridentTuple depending if it has an extension 'extKey' if
+	 * type 'clazz'
+	 */
+	public ExtensionTypeFilter(String extKey, Class clazz) {
+		this.extensionKey = extKey;
+		this.clazz = clazz;
+	}
 
-    @Override
-    public boolean isKeep(TridentTuple objects) {
-        try {
-            Object traceObject = objects.getValueByField(TopologyBuilder.TRACE_KEY);
+	@Override
+	public boolean isKeep(TridentTuple objects) {
+		try {
+			Object traceObject = objects
+					.getValueByField(TopologyBuilder.TRACE_KEY);
 
-            if (!(traceObject instanceof Map)) {
-                if (LOG) {
-                    LOGGER.info(TopologyBuilder.TRACE_KEY + " field of tuple "
-                            + objects + " is not a map, found: " + traceObject);
-                }
-                return false;
-            }
+			if (!(traceObject instanceof Map)) {
+				if (LOG) {
+					LOGGER.info(TopologyBuilder.TRACE_KEY + " field of tuple "
+							+ objects + " is not a map, found: " + traceObject);
+				}
+				return false;
+			}
 
-            Object outObject = ((Map) traceObject).get(TopologyBuilder.OUT_KEY);
+			Object outObject = ((Map) traceObject).get(TopologyBuilder.OUT_KEY);
 
-            if (!(outObject instanceof Map)) {
-                if (LOG) {
-                    LOGGER.info(TopologyBuilder.OUT_KEY + " field of tuple "
-                            + objects + " is not a map, found: " + traceObject);
-                }
-                return false;
-            }
+			if (!(outObject instanceof Map)) {
+				if (LOG) {
+					LOGGER.info(TopologyBuilder.OUT_KEY + " field of tuple "
+							+ objects + " is not a map, found: " + traceObject);
+				}
+				return false;
+			}
 
-            Map trace = (Map) outObject;
+			Map trace = (Map) outObject;
 
-            Object extObject = trace.get(TopologyBuilder.EXTENSIONS_KEY);
+			Object extObject = trace.get(TopologyBuilder.EXTENSIONS_KEY);
 
-            if (!(extObject instanceof Map)) {
-                if (LOG) {
-                    LOGGER.info(TopologyBuilder.EXTENSIONS_KEY + " field of trace "
-                            + trace + " is not a map, found: " + extObject);
-                }
-                return false;
-            }
+			if (!(extObject instanceof Map)) {
+				if (LOG) {
+					LOGGER.info(TopologyBuilder.EXTENSIONS_KEY
+							+ " field of trace " + trace
+							+ " is not a map, found: " + extObject);
+				}
+				return false;
+			}
 
-            Map ext = (Map) extObject;
+			Map<String, Object> ext = (Map) extObject;
 
-            Object extKeyObject = ext.get(extensionKey);
+			Object extKeyObject = ext.get(extensionKey);
 
-            if (extKeyObject == null) {
-                if (LOG) {
-                    LOGGER.info(extensionKey + " extension of extensions " + ext
-                            + " is null");
-                }
-                return false;
-            }
+			if (extKeyObject == null) {
 
-            if (!(clazz.isAssignableFrom(extKeyObject.getClass()))) {
-                if (LOG) {
-                    LOGGER.info(extensionKey + " extension of extensions " + ext
-                            + " is not a " + clazz + ", found: "
-                            + extKeyObject.getClass());
-                }
-                return false;
-            }
+				for (String key : ext.keySet()) {
+					if (key.toLowerCase().contains(extensionKey.toLowerCase())) {
+						extKeyObject = ext.get(key);
+						break;
+					}
+				}
 
-        } catch (Exception ex) {
-            LOGGER.info("Error unexpected exception, discarding" + ex.toString());
-            return false;
-        }
-        return true;
-    }
+				if (extKeyObject == null) {
+					if (LOG) {
+						LOGGER.info(extensionKey + " extension of extensions "
+								+ ext + " is null");
+					}
+					return false;
+				}
 
-    @Override
-    public void prepare(Map map, TridentOperationContext tridentOperationContext) {
+				ext.put(extensionKey, extKeyObject);
+			}
 
-    }
+			if (!(clazz.isAssignableFrom(extKeyObject.getClass()))) {
+				if (LOG) {
+					LOGGER.info(extensionKey + " extension of extensions "
+							+ ext + " is not a " + clazz + ", found: "
+							+ extKeyObject.getClass());
+				}
+				return false;
+			}
 
-    @Override
-    public void cleanup() {
+		} catch (Exception ex) {
+			LOGGER.info("Error unexpected exception, discarding"
+					+ ex.toString());
+			return false;
+		}
+		return true;
+	}
 
-    }
+	@Override
+	public void prepare(Map map, TridentOperationContext tridentOperationContext) {
+
+	}
+
+	@Override
+	public void cleanup() {
+
+	}
 }

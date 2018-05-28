@@ -29,40 +29,42 @@ import java.util.Map;
 
 public class JsonToTrace implements Function {
 
-    private Gson gson;
+	private Gson gson;
 
-    private Type type;
+	private Type type;
 
-    /**
-     * Given a JSON Trace ({@link StringScheme#STRING_SCHEME_KEY} key, from
-     * Kafka) string returns a
-     * {@link es.eucm.rage.realtime.topologies.TopologyBuilder#TRACE_KEY} ->
-     * Map<String, Object>
-     *
-     */
-    public JsonToTrace() {
-    }
+	/**
+	 * Given a JSON Trace ({@link StringScheme#STRING_SCHEME_KEY} key, from
+	 * Kafka) string returns a
+	 * {@link es.eucm.rage.realtime.topologies.TopologyBuilder#TRACE_KEY} ->
+	 * Map<String, Object>
+	 * 
+	 */
+	public JsonToTrace() {
+	}
 
-    @Override
-    public void execute(TridentTuple tuple, TridentCollector collector) {
-        try {
-            Object trace = gson.fromJson(
-                    tuple.getStringByField(StringScheme.STRING_SCHEME_KEY), type);
-            collector.emit(Arrays.asList(trace));
-        } catch (Exception ex) {
-            System.out.println("Error unexpected exception, discarding" + ex.toString());
-        }
-    }
+	@Override
+	public void execute(TridentTuple tuple, TridentCollector collector) {
+		try {
+			Object trace = gson.fromJson(
+					tuple.getStringByField(StringScheme.STRING_SCHEME_KEY),
+					type);
+			collector.emit(Arrays.asList(trace));
+		} catch (Exception ex) {
+			System.out.println("Error unexpected exception, discarding"
+					+ ex.toString());
+		}
+	}
 
-    @Override
-    public void prepare(Map conf, TridentOperationContext context) {
-        gson = new Gson();
-        type = new TypeToken<Map<String, Object>>() {
-        }.getType();
-    }
+	@Override
+	public void prepare(Map conf, TridentOperationContext context) {
+		gson = new Gson();
+		type = new TypeToken<Map<String, Object>>() {
+		}.getType();
+	}
 
-    @Override
-    public void cleanup() {
+	@Override
+	public void cleanup() {
 
-    }
+	}
 }

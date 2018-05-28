@@ -85,9 +85,14 @@ public class ThomasKilmannTopologyBuilder implements
 		/* THOMAS KILMANN TOPOLOGY ANALYSIS */
 
 		gameplayIdStream
-				.each(new Fields(TridentTraceKeys.EVENT),
-						new FieldValueFilter(TridentTraceKeys.EVENT,
-								TraceEventTypes.SELECTED))
+				/*
+				 * // Removed the necessity to be a "selected" event // Avoiding
+				 * further lack of data in case of sending the // ThomasKilmann
+				 * extension with other events .each(new
+				 * Fields(TridentTraceKeys.EVENT), new
+				 * FieldValueFilter(TridentTraceKeys.EVENT,
+				 * TraceEventTypes.SELECTED))
+				 */
 				// Filter only traces with ext.thomasKilmann
 				.peek(new LogConsumer("ThomasKilmannTopologyBuilder 1"))
 				.each(new Fields(TRACE_KEY),
