@@ -22,61 +22,65 @@ import org.apache.storm.trident.tuple.TridentTuple;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class SuffixPropertyCreator implements Function {
+	private static final Logger LOGGER = Logger
+			.getLogger(SuffixPropertyCreator.class.getName());
 
-    private final String suffix;
-    private String valueField;
+	private final String suffix;
+	private String valueField;
 
-    private String[] keysField;
+	private String[] keysField;
 
-    /**
-     * Creates a new {@link TridentTuple} depending on the value of the
-     * valueField and the keysField provided (concatenated)
-     *
-     * @param valueField
-     *            Extracts the value of this field from the {@link TridentTuple}
-     *            . Emitted as the second parameter of the result
-     *            {@link TridentTuple}.
-     * @param suffix
-     *            Value appended at the end of the resulting key build using the
-     *            keysField parameter.
-     * @param keysField
-     *            builds the resulting keys by concatenating the resulting
-     *            String of this keys from the {@link TridentTuple} see
-     *            {@link PropertyCreator#toPropertyKey(TridentTuple)}. Emitted
-     *            as the first parameter of the result {@link TridentTuple}.
-     */
-    public SuffixPropertyCreator(String valueField, String suffix,
-                                 String... keysField) {
-        this.valueField = valueField;
-        this.keysField = keysField;
-        this.suffix = suffix;
-    }
+	/**
+	 * Creates a new {@link TridentTuple} depending on the value of the
+	 * valueField and the keysField provided (concatenated)
+	 * 
+	 * @param valueField
+	 *            Extracts the value of this field from the {@link TridentTuple}
+	 *            . Emitted as the second parameter of the result
+	 *            {@link TridentTuple}.
+	 * @param suffix
+	 *            Value appended at the end of the resulting key build using the
+	 *            keysField parameter.
+	 * @param keysField
+	 *            builds the resulting keys by concatenating the resulting
+	 *            String of this keys from the {@link TridentTuple} see
+	 *            {@link PropertyCreator#toPropertyKey(TridentTuple)}. Emitted
+	 *            as the first parameter of the result {@link TridentTuple}.
+	 */
+	public SuffixPropertyCreator(String valueField, String suffix,
+			String... keysField) {
+		this.valueField = valueField;
+		this.keysField = keysField;
+		this.suffix = suffix;
+	}
 
-    @Override
-    public void execute(TridentTuple tuple, TridentCollector collector) {
-        try {
-            collector.emit(Arrays.asList(toPropertyKey(tuple),
-                    tuple.getValueByField(valueField)));
-        } catch (Exception ex) {
-            System.out.println("Error unexpected exception, discarding" + ex.toString());
-        }
-    }
+	@Override
+	public void execute(TridentTuple tuple, TridentCollector collector) {
+		try {
+			collector.emit(Arrays.asList(toPropertyKey(tuple),
+					tuple.getValueByField(valueField)));
+		} catch (Exception ex) {
+			LOGGER.info("Error unexpected exception, discarding "
+					+ ex.toString());
+		}
+	}
 
-    public String toPropertyKey(TridentTuple tuple) {
-        String result = "";
-        for (String key : keysField) {
-            result += tuple.getStringByField(key) + ".";
-        }
-        return result + suffix;
-    }
+	public String toPropertyKey(TridentTuple tuple) {
+		String result = "";
+		for (String key : keysField) {
+			result += tuple.getStringByField(key) + ".";
+		}
+		return result + suffix;
+	}
 
-    @Override
-    public void prepare(Map conf, TridentOperationContext context) {
-    }
+	@Override
+	public void prepare(Map conf, TridentOperationContext context) {
+	}
 
-    @Override
-    public void cleanup() {
-    }
+	@Override
+	public void cleanup() {
+	}
 }
