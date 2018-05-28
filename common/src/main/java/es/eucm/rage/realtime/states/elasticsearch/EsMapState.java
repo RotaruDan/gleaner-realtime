@@ -129,6 +129,7 @@ public class EsMapState<T> implements IBackingMap<T> {
 	@Override
 	public List<T> multiGet(List<List<Object>> keys) {
 
+		List<T> ret = new ArrayList(keys.size());
 		String mgetJson = "";
 		try {
 
@@ -149,7 +150,6 @@ public class EsMapState<T> implements IBackingMap<T> {
 				doc.put("_type", type);
 				doc.put("_id", id);
 			}
-			List<T> ret = new ArrayList(keys.size());
 
 			mgetJson = gson.toJson(body, Map.class);
 			HttpEntity entity = new NStringEntity(mgetJson,
@@ -185,7 +185,7 @@ public class EsMapState<T> implements IBackingMap<T> {
 			LOG.error("Exception while mget", e);
 		}
 
-		return null;
+		return ret;
 	}
 
 	@Override
@@ -256,6 +256,7 @@ public class EsMapState<T> implements IBackingMap<T> {
 
 		} catch (Exception e) {
 			LOG.error("Set Property has failures : {}", e);
+			e.printStackTrace();
 		}
 
 	}
