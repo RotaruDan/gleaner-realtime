@@ -20,18 +20,31 @@ import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class CSVToMapTrace {
 
 	int biasesCount = 0;
+	int completedSuccessfully = 0;
+	String glpId = null;
 
 	public CSVToMapTrace() {
 	}
 
+	public CSVToMapTrace(String glpId) {
+		this.glpId = glpId;
+	}
+
 	public List<List<Object>> getTuples(String csvTracesFile,
 			String activityId, int i) {
+		return getTuples(csvTracesFile, activityId, i, null);
+	}
+
+	public List<List<Object>> getTuples(String csvTracesFile,
+			String activityId, int i, String name) {
 		biasesCount = 0;
+		completedSuccessfully = 0;
 		List<List<Object>> ret = new ArrayList<List<Object>>();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				ClassLoader.getSystemResourceAsStream(csvTracesFile)));
@@ -40,13 +53,22 @@ public class CSVToMapTrace {
 		try {
 			while ((line = reader.readLine()) != null) {
 				if (!line.startsWith("--") && line.length() > 10) {
-					Map outTrace = CreateStatement(line);
+					Map outTrace = CreateStatement(line, name);
 					if (outTrace != null) {
 
+						outTrace.put(TopologyBuilder.GAMEPLAY_ID, "gameplayid"
+								+ i);
+						outTrace.put(TopologyBuilder.ACTIVITY_ID_KEY,
+								activityId);
+						outTrace.put(TopologyBuilder.UUIDV4, UUID.randomUUID()
+								.toString());
+
 						Map trace = new HashMap<String, Object>();
-						trace.put(TopologyBuilder.GAMEPLAY_ID, "gameplayid" + i);
 						trace.put(TopologyBuilder.OUT_KEY, outTrace);
+						trace.put(TopologyBuilder.GAMEPLAY_ID, "gameplayid" + i);
 						trace.put(TopologyBuilder.ACTIVITY_ID_KEY, activityId);
+						trace.put(TopologyBuilder.GLP_ID_KEY, glpId);
+						trace.put(TopologyBuilder.CLASS_ID, "testClass");
 						trace.put(TopologyBuilder.UUIDV4, UUID.randomUUID()
 								.toString());
 						ret.add(Arrays.asList(trace));
@@ -60,7 +82,7 @@ public class CSVToMapTrace {
 		return ret;
 	}
 
-	private Map<String, Object> CreateStatement(String trace) {
+	private Map<String, Object> CreateStatement(String trace, String name) {
 
 		String[] parts = trace.split(",");
 		String timestamp = parts[0];
@@ -68,7 +90,8 @@ public class CSVToMapTrace {
 		Map<String, Object> ret = new HashMap<String, Object>();
 
 		ret.put(TopologyBuilder.TridentTraceKeys.TIMESTAMP,
-				new Date(Long.valueOf(timestamp)));
+				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS")
+						.format(new Date(Long.valueOf(timestamp))));
 
 		ret.put(TopologyBuilder.TridentTraceKeys.EVENT, parts[1]);
 
@@ -83,6 +106,10 @@ public class CSVToMapTrace {
 				// Extensions come in <key, value> pairs
 
 				Map<String, Object> extensions = new HashMap<String, Object>();
+
+				if (parts[1].equalsIgnoreCase("completed")) {
+					extensions.put("time", (float) Math.random() * 100);
+				}
 				for (int i = 4; i < parts.length; i += 2) {
 					String key = parts[i];
 					String value = parts[i + 1];
@@ -91,11 +118,25 @@ public class CSVToMapTrace {
 					}
 					value = value.toString();
 					if (key.equalsIgnoreCase(TopologyBuilder.TridentTraceKeys.SCORE)) {
-						ret.put(key, value);
-
+						try {
+							ret.put(key, Float.parseFloat(value));
+						} catch (NumberFormatException nfe) {
+							nfe.printStackTrace();
+						}
 					} else if (key
 							.equalsIgnoreCase(TopologyBuilder.TridentTraceKeys.SUCCESS)) {
-						ret.put(key, value);
+						if (value.equalsIgnoreCase("true")) {
+							if (parts[1].equalsIgnoreCase("completed")) {
+								completedSuccessfully++;
+							}
+						}
+
+						try {
+							ret.put(key, Boolean.valueOf(value.toLowerCase()));
+						} catch (Exception ex) {
+							ret.put(key, false);
+						}
+
 					} else if (key.equalsIgnoreCase("completion")) {
 						ret.put(key, value);
 					} else if (key
@@ -103,7 +144,11 @@ public class CSVToMapTrace {
 						ret.put(key, value);
 					} else if (key
 							.equalsIgnoreCase(TopologyBuilder.TridentTraceKeys.NAME)) {
-						ret.put(key, value);
+						if (name == null) {
+							ret.put(key, value);
+						} else {
+							ret.put(key, name);
+						}
 					} else if (key.equalsIgnoreCase("biases")) {
 						if (ret.get(TopologyBuilder.TridentTraceKeys.EVENT)
 								.equals(TopologyBuilder.TraceEventTypes.SELECTED)) {
@@ -113,7 +158,7 @@ public class CSVToMapTrace {
 							Map<String, Object> biasesObject = new HashMap<>(
 									biases.length);
 
-							if(parts[1].equalsIgnoreCase("selected")) {
+							if (parts[1].equalsIgnoreCase("selected")) {
 								biasesCount += biases.length;
 							}
 							for (int k = 0; k < biases.length; ++k) {
@@ -163,7 +208,6 @@ public class CSVToMapTrace {
 						}
 					}
 				}
-
 				ret.put("ext", extensions);
 			}
 		}
@@ -191,5 +235,9 @@ public class CSVToMapTrace {
 
 	public int getBiasesCount() {
 		return biasesCount;
+	}
+
+	public int getCompletedSuccessfully() {
+		return completedSuccessfully;
 	}
 }

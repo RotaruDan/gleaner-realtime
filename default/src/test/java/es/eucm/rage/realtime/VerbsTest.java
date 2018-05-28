@@ -68,9 +68,9 @@ public class VerbsTest {
 		StateFactory persistentAggregateFactory = new EsMapState.Factory();
 
 		// Test topology Builder configuration
-		new TopologyBuilder().build(topology,
+		new TopologyBuilder().build(topology, null,
 				topology.newStream("testFileStream", tracesSpout),
-				partitionPersist, persistentAggregateFactory);
+				partitionPersist, persistentAggregateFactory, null);
 
 		Config conf = new Config();
 		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, NOW_DATE);
@@ -92,7 +92,7 @@ public class VerbsTest {
 				idx = secondIndex;
 			}
 			List tuples = parser.getTuples("verbs/" + VERBS_FILES[i] + ".csv",
-					idx, i);
+					idx, i, "name");
 			tracesSpout.feed(tuples);
 
 			Integer current = res.get(idx);
@@ -148,8 +148,7 @@ public class VerbsTest {
 			String resultsIndex = ESUtils.getResultsIndex(idx);
 
 			Response resultResponse = client.performRequest("GET", "/"
-					+ resultsIndex + "/" + ESUtils.getResultsType()
-					+ "/gameplayid" + i);
+					+ resultsIndex + "/" + ESUtils.getResultsType() + "/name");
 			int resultStatus = resultResponse.getStatusLine().getStatusCode();
 			assertEquals("TEST GET result error, status is" + resultStatus,
 					resultStatus, HttpStatus.SC_OK);
@@ -181,7 +180,13 @@ public class VerbsTest {
 								Double.valueOf(value.toString()),
 								Double.valueOf(keyValue[1]));
 					} catch (Exception ex) {
-						assertEquals(flatObjectKey, value, keyValue[1]);
+						try {
+							assertEquals(flatObjectKey, Boolean.valueOf(value
+									.toString().toLowerCase()),
+									Boolean.valueOf(keyValue[1].toLowerCase()));
+						} catch (Exception ex2) {
+							assertEquals(flatObjectKey, value, keyValue[1]);
+						}
 					}
 				} else {
 					assertEquals(flatObjectKey, value,

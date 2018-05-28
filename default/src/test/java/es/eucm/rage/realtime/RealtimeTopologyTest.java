@@ -63,9 +63,9 @@ public class RealtimeTopologyTest {
 		StateFactory persistentAggregateFactory = new EsMapState.Factory();
 
 		// Test topology Builder configuration
-		new TopologyBuilder().build(topology,
+		new TopologyBuilder().build(topology, null,
 				topology.newStream("testFileStream", tracesSpout),
-				partitionPersist, persistentAggregateFactory);
+				partitionPersist, persistentAggregateFactory, null);
 
 		Config conf = new Config();
 		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);
@@ -144,8 +144,8 @@ public class RealtimeTopologyTest {
 			String resultsIndex = ESUtils.getResultsIndex(idx);
 
 			Response resultResponse = client.performRequest("GET", "/"
-					+ resultsIndex + "/" + ESUtils.getResultsType()
-					+ "/gameplayid" + i);
+					+ resultsIndex + "/" + ESUtils.getResultsType() + "/"
+					+ TRACES_FILES[i] + ";");
 			int resultStatus = resultResponse.getStatusLine().getStatusCode();
 			assertEquals("TEST GET result error, status is" + resultStatus,
 					resultStatus, HttpStatus.SC_OK);
