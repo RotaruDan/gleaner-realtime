@@ -25,13 +25,22 @@ FROM eucm/maven
 ENV USER_NAME="user" \
     WORK_DIR="/app" \
     OUTPUT_VOL="/app/output" \
+    OUTPUT_GLP_VOL="/app/output/glp/" \
+    OUTPUT_OVERALL_VOL="/app/output/overall/" \
+    OUTPUT_PERFORMANCE_VOL="/app/output/performance/" \
     OUTPUT_JAR="realtime/default/target/realtime-jar-with-dependencies.jar" \
+    OUTPUT_GLP_JAR="realtime/glp-example/target/realtime-jar-with-dependencies.jar" \
+    OUTPUT_OVERALL_JAR="realtime/overall-example/target/realtime-jar-with-dependencies.jar" \
+    OUTPUT_PERFORMANCE_JAR="realtime/performance-example/target/realtime-jar-with-dependencies.jar" \
     OUTPUT_INDICES_JSON="realtime/default/indices.json"
 
 # setup sources, user, group and workdir
 COPY ./ ${WORK_DIR}/realtime
 RUN groupadd -r ${USER_NAME} \
     && mkdir ${OUTPUT_VOL}\
+    && mkdir ${OUTPUT_GLP_VOL}\
+    && mkdir ${OUTPUT_OVERALL_VOL}\
+    && mkdir ${OUTPUT_PERFORMANCE_VOL}\
     && useradd -r -d ${WORK_DIR} -g ${USER_NAME} ${USER_NAME} \
     && chown -R ${USER_NAME}:${USER_NAME} ${WORK_DIR}
 ENV HOME=${WORK_DIR}
@@ -45,5 +54,10 @@ RUN cd realtime && mvn license:format && mvn install -DskipTests=true -Dmaven.ja
 VOLUME ${OUTPUT_VOL}
 
 RUN cp ${OUTPUT_INDICES_JSON} ${OUTPUT_VOL}
+RUN cp ${OUTPUT_INDICES_JSON} ${OUTPUT_GLP_VOL}
 
-CMD cp ${OUTPUT_JAR} ${OUTPUT_VOL}
+CMD \
+cp ${OUTPUT_JAR} ${OUTPUT_VOL} && \
+cp ${OUTPUT_GLP_JAR} ${OUTPUT_GLP_VOL} && \
+cp ${OUTPUT_OVERALL_JAR} ${OUTPUT_OVERALL_VOL} && \
+cp ${OUTPUT_PERFORMANCE_JAR} ${OUTPUT_PERFORMANCE_VOL}
