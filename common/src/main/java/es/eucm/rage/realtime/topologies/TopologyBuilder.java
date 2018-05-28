@@ -15,9 +15,12 @@
  */
 package es.eucm.rage.realtime.topologies;
 
+import org.apache.storm.kafka.trident.OpaqueTridentKafkaSpout;
 import org.apache.storm.trident.Stream;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.state.StateFactory;
+
+import java.util.Map;
 
 /**
  * Configures a {@link org.apache.storm.trident.TridentTopology} when invoking
@@ -44,6 +47,22 @@ public interface TopologyBuilder {
 	 * -RAGE-Analytics-Traces-Flow#storm-flux-configuration-files
 	 */
 	String ACTIVITY_ID_KEY = "activityId";
+	/**
+	 * The ID this trace comes from, if not available, is a leaf
+	 */
+	String CHILD_ACTIVITY_ID_KEY = "childActivityId";
+	/**
+	 * The ID this trace comes from, if not available, is a leaf
+	 */
+	String ORIGINAL_ID = "orginalId";
+	/**
+	 * Used to know to which GLP the trace belongs to.
+	 */
+	String GLP_ID_KEY = "glpId";
+	String ANALYTICS_KEY = "analytics";
+	String ROOT_ANALYTICS_KEY = "rootAnalytics";
+	String ANALYTICS_PARENT_ID_KEY = "parentId";
+
 	String UUIDV4 = "uuidv4";
 	/**
 	 * Identifies the trace object {@link java.util.Map}
@@ -64,11 +83,23 @@ public interface TopologyBuilder {
 	 * set up the correct value inside the game-play state
 	 */
 	String VALUE_KEY = "v";
+	/**
+	 * Analytics Name
+	 */
+	String ANALYTICS_NAME = "name";
+	/**
+	 * Analytics Name
+	 */
+	String TRACE_ANALYTICS_ORIGINAL_NAME = "originalName";
 
 	/**
 	 * TODO ..
 	 */
 	String GAMEPLAY_ID = "gameplayId";
+	/**
+	 * TODO ..
+	 */
+	String CLASS_ID = "classId";
 
 	/**
 	 * Field keys available inside the trace object. Check out the detailed
@@ -87,6 +118,7 @@ public interface TopologyBuilder {
 		String SUCCESS = "success";
 		String SCORE = "score";
 		String STORED = "stored";
+		String TIME = "time";
 	}
 
 	/**
@@ -117,7 +149,7 @@ public interface TopologyBuilder {
 	 *            Incoming traces {@link Stream}.
 	 * 
 	 */
-	void build(TridentTopology tridentTopology, Stream tracesStream,
-			StateFactory partitionPersistFactory,
-			StateFactory persistentAggregateFactory);
+	void build(TridentTopology tridentTopology, OpaqueTridentKafkaSpout spout,
+			Stream tracesStream, StateFactory partitionPersistFactory,
+			StateFactory persistentAggregateFactory, Map<String, Object> conf);
 }

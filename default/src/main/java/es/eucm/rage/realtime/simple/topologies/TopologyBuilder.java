@@ -15,18 +15,21 @@
  */
 package es.eucm.rage.realtime.simple.topologies;
 
-import es.eucm.rage.realtime.filters.FieldValueFilter;
-import es.eucm.rage.realtime.filters.FieldValuesOrFilter;
+import es.eucm.rage.realtime.simple.filters.FieldValueFilter;
+import es.eucm.rage.realtime.simple.filters.FieldValuesOrFilter;
 import es.eucm.rage.realtime.functions.*;
 import es.eucm.rage.realtime.functions.DocumentBuilder;
 import es.eucm.rage.realtime.states.GameplayStateUpdater;
 import es.eucm.rage.realtime.states.TraceStateUpdater;
 
+import org.apache.storm.kafka.trident.OpaqueTridentKafkaSpout;
 import org.apache.storm.trident.Stream;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.operation.builtin.Count;
 import org.apache.storm.trident.state.StateFactory;
 import org.apache.storm.tuple.Fields;
+
+import java.util.Map;
 
 /**
  * RAGE Analytics implementation of
@@ -43,9 +46,10 @@ public class TopologyBuilder implements
 	}
 
 	@Override
-	public void build(TridentTopology tridentTopology, Stream tracesStream,
+	public void build(TridentTopology tridentTopology,
+			OpaqueTridentKafkaSpout spout, Stream tracesStream,
 			StateFactory partitionPersistFactory,
-			StateFactory persistentAggregateFactory) {
+			StateFactory persistentAggregateFactory, Map<String, Object> conf) {
 
 		GameplayStateUpdater gameplayStateUpdater = new GameplayStateUpdater();
 
@@ -65,7 +69,7 @@ public class TopologyBuilder implements
 		tracesStream
 				.each(new Fields(TRACE_KEY), new DocumentBuilder(TRACE_KEY),
 						new Fields(DOCUMENT_KEY))
-				.peek(new LogConsumer("0"))
+				.peek(new LogConsumer("Directly to Kibana!"))
 				.partitionPersist(partitionPersistFactory,
 						new Fields(DOCUMENT_KEY), new TraceStateUpdater());
 
@@ -79,13 +83,12 @@ public class TopologyBuilder implements
 		// TridentTraceKeys.EVENT so that we can play
 		// with it below
 
-		Stream gameplayIdStream = tracesStream
-				.each(new Fields(TRACE_KEY),
-						new TraceFieldExtractor(ACTIVITY_ID_KEY, GAMEPLAY_ID,
-								o(TridentTraceKeys.EVENT)),
-						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID,
-								TridentTraceKeys.EVENT)).peek(
-						new LogConsumer("1"));
+		Stream gameplayIdStream = tracesStream.each(
+				new Fields(TRACE_KEY),
+				new TraceFieldExtractor(ACTIVITY_ID_KEY, GAMEPLAY_ID,
+						o(TridentTraceKeys.NAME), o(TridentTraceKeys.EVENT)),
+				new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID, TridentTraceKeys.NAME,
+						TridentTraceKeys.EVENT)).peek(new LogConsumer("1"));
 
 		// 3 - For each TRACE_KEY (from Kibana) that we receive
 		// 4 - Extract the field 'timestamp' and add it to the document per
@@ -101,14 +104,11 @@ public class TopologyBuilder implements
 				.peek(new LogConsumer("3"))
 				.partitionPersist(
 						partitionPersistFactory,
-						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID, PROPERTY_KEY,
-								VALUE_KEY), gameplayStateUpdater);
+						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
+								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
 
 		// 5 - Add the name of the given player to the document ('gameplayId')
 		gameplayIdStream
-				.each(new Fields(TRACE_KEY),
-						new TraceFieldExtractor(o(TridentTraceKeys.NAME)),
-						new Fields(TridentTraceKeys.NAME))
 				.each(new Fields(TridentTraceKeys.NAME),
 						new SimplePropertyCreator(TridentTraceKeys.NAME,
 								TridentTraceKeys.NAME),
@@ -116,8 +116,8 @@ public class TopologyBuilder implements
 				.peek(new LogConsumer("4"))
 				.partitionPersist(
 						partitionPersistFactory,
-						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID, PROPERTY_KEY,
-								VALUE_KEY), gameplayStateUpdater);
+						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
+								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
 
 		// Alternatives (selected & unlocked) processing
 		// 6 - For each TraceEventTypes.SELECTED or TraceEventTypes.UNLOCKED
@@ -144,7 +144,7 @@ public class TopologyBuilder implements
 						new Fields(PROPERTY_KEY, VALUE_KEY))
 				.peek(new LogConsumer("5"))
 				.groupBy(
-						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID,
+						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
 								TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
 								TridentTraceKeys.TARGET,
 								TridentTraceKeys.RESPONSE))
@@ -180,7 +180,7 @@ public class TopologyBuilder implements
 						new Fields(PROPERTY_KEY, VALUE_KEY))
 				.peek(new LogConsumer("initialized 2"))
 				.groupBy(
-						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID,
+						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
 								TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
 								TridentTraceKeys.TARGET))
 				.persistentAggregate(persistentAggregateFactory, new Count(),
@@ -213,8 +213,8 @@ public class TopologyBuilder implements
 				.peek(new LogConsumer("6"))
 				.partitionPersist(
 						partitionPersistFactory,
-						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID, PROPERTY_KEY,
-								VALUE_KEY), gameplayStateUpdater);
+						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
+								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
 
 		// Completable (Completed) processing for field TridentTraceKeys.SUCCESS
 		// 11 - For each TraceEventTypes.COMPLETED (Completable) trace
@@ -239,8 +239,8 @@ public class TopologyBuilder implements
 						new Fields(PROPERTY_KEY, VALUE_KEY))
 				.partitionPersist(
 						partitionPersistFactory,
-						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID, PROPERTY_KEY,
-								VALUE_KEY), gameplayStateUpdater);
+						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
+								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
 
 		// Completable (Completed) processing for field TridentTraceKeys.SCORE
 		// 13 - For each TraceEventTypes.COMPLETED (Completable) trace
@@ -263,8 +263,8 @@ public class TopologyBuilder implements
 						new Fields(PROPERTY_KEY, VALUE_KEY))
 				.partitionPersist(
 						partitionPersistFactory,
-						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID, PROPERTY_KEY,
-								VALUE_KEY), gameplayStateUpdater);
+						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
+								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
 
 		/*
 		 * --> Additional/custom analysis needed can be added here or changing

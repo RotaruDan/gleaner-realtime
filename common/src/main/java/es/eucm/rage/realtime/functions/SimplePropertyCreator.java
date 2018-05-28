@@ -25,42 +25,46 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 public class SimplePropertyCreator implements Function {
+	private static final Logger LOGGER = Logger
+			.getLogger(SimplePropertyCreator.class.getName());
 
-    private String valueField;
+	private String valueField;
 
-    private String key;
+	private String key;
 
-    /**
-     * Creates a new {@link TridentTuple} depending on the value of the
-     * valueField and the keysField provided (concatenated)
-     *
-     * @param valueField
-     *            Extracts the value of this field from the {@link TridentTuple}
-     *            . Emitted as the second parameter of the result
-     *            {@link TridentTuple}.
-     * @param key
-     *            the key emitted as the first parameter of the result
-     *            {@link TridentTuple}.
-     */
-    public SimplePropertyCreator(String valueField, String key) {
-        this.valueField = valueField;
-        this.key = key;
-    }
+	/**
+	 * Creates a new {@link TridentTuple} depending on the value of the
+	 * valueField and the keysField provided (concatenated)
+	 * 
+	 * @param valueField
+	 *            Extracts the value of this field from the {@link TridentTuple}
+	 *            . Emitted as the second parameter of the result
+	 *            {@link TridentTuple}.
+	 * @param key
+	 *            the key emitted as the first parameter of the result
+	 *            {@link TridentTuple}.
+	 */
+	public SimplePropertyCreator(String valueField, String key) {
+		this.valueField = valueField;
+		this.key = key;
+	}
 
-    @Override
-    public void execute(TridentTuple tuple, TridentCollector collector) {
-        try {
-            collector.emit(Arrays.asList(key, tuple.getValueByField(valueField)));
-        } catch (Exception ex) {
-            System.out.println("Error unexpected exception, discarding" + ex.toString());
-        }
-    }
+	@Override
+	public void execute(TridentTuple tuple, TridentCollector collector) {
+		try {
+			collector
+					.emit(Arrays.asList(key, tuple.getValueByField(valueField)));
+		} catch (Exception ex) {
+			LOGGER.info("Error unexpected exception, discarding "
+					+ ex.toString());
+		}
+	}
 
-    @Override
-    public void prepare(Map conf, TridentOperationContext context) {
-    }
+	@Override
+	public void prepare(Map conf, TridentOperationContext context) {
+	}
 
-    @Override
-    public void cleanup() {
-    }
+	@Override
+	public void cleanup() {
+	}
 }

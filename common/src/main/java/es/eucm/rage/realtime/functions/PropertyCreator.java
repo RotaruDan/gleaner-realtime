@@ -22,55 +22,73 @@ import org.apache.storm.trident.tuple.TridentTuple;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public class PropertyCreator implements Function {
+	private static final Logger LOGGER = Logger.getLogger(PropertyCreator.class
+			.getName());
 
-    private String valueField;
+	private String valueField;
 
-    private String[] keysField;
+	private String[] keysField;
 
-    /**
-     * Creates a new {@link TridentTuple} depending on the value of the
-     * valueField and the keysField provided (concatenated)
-     *
-     * @param valueField
-     *            Extracts the value of this field from the {@link TridentTuple}
-     *            . Emitted as the second parameter of the result
-     *            {@link TridentTuple}.
-     * @param keysField
-     *            builds the resulting keys by concatenating the resulting
-     *            String of this keys from the {@link TridentTuple} see
-     *            {@link PropertyCreator#toPropertyKey(TridentTuple)}. Emitted
-     *            as the first parameter of the result {@link TridentTuple}.
-     */
-    public PropertyCreator(String valueField, String... keysField) {
-        this.valueField = valueField;
-        this.keysField = keysField;
-    }
+	/**
+	 * Creates a new {@link TridentTuple} depending on the value of the
+	 * valueField and the keysField provided (concatenated)
+	 * 
+	 * @param valueField
+	 *            Extracts the value of this field from the {@link TridentTuple}
+	 *            . Emitted as the second parameter of the result
+	 *            {@link TridentTuple}.
+	 * @param keysField
+	 *            builds the resulting keys by concatenating the resulting
+	 *            String of this keys from the {@link TridentTuple} see
+	 *            {@link PropertyCreator#toPropertyKey(TridentTuple)}. Emitted
+	 *            as the first parameter of the result {@link TridentTuple}.
+	 */
+	public PropertyCreator(String valueField, String... keysField) {
+		this.valueField = valueField;
+		this.keysField = keysField;
+	}
 
-    @Override
-    public void execute(TridentTuple tuple, TridentCollector collector) {
-        try {
-            collector.emit(Arrays.asList(toPropertyKey(tuple),
-                    tuple.getValueByField(valueField)));
-        } catch (Exception ex) {
-            System.out.println("Error unexpected exception, discarding" + ex.toString());
-        }
-    }
+	@Override
+	public void execute(TridentTuple tuple, TridentCollector collector) {
+		try {
+			collector.emit(Arrays.asList(toPropertyKey(tuple),
+					tuple.getValueByField(valueField)));
+		} catch (Exception ex) {
+			LOGGER.info("Error unexpected exception, discarding "
+					+ ex.toString());
+			ex.printStackTrace();
+		}
+	}
 
-    private String toPropertyKey(TridentTuple tuple) {
-        String result = "";
-        for (String key : keysField) {
-            result += tuple.getStringByField(key) + ".";
-        }
-        return result.substring(0, result.length() - 1);
-    }
+	private String toPropertyKey(TridentTuple tuple) {
+		String result = "";
+		for (String key : keysField) {
+			String prop;
+			try {
+				prop = tuple.getStringByField(key);
+			} catch (RuntimeException re) {
+				System.err.print(re);
+				Object val = tuple.getValueByField(key);
+				if (val == null) {
+					prop = "null";
+				} else {
+					prop = val.toString();
+				}
+			}
 
-    @Override
-    public void prepare(Map conf, TridentOperationContext context) {
-    }
+			result += prop + ".";
+		}
+		return result.substring(0, result.length() - 1);
+	}
 
-    @Override
-    public void cleanup() {
-    }
+	@Override
+	public void prepare(Map conf, TridentOperationContext context) {
+	}
+
+	@Override
+	public void cleanup() {
+	}
 }
