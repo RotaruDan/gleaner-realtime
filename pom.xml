@@ -147,6 +147,7 @@
     </dependencyManagement>
 
     <modules>
+        <module>build-helper</module>
         <module>common</module>
         <module>default</module>
         <module>mean-example</module>
