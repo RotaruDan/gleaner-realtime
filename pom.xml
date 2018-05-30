@@ -55,6 +55,11 @@
                 <artifactId>elasticsearch-rest-high-level-client</artifactId>
                 <version>5.6.2</version>
             </dependency>
+            <dependency>
+                <groupId>uk.com.robust-it</groupId>
+                <artifactId>cloning</artifactId>
+                <version>1.9.10</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.storm</groupId>
@@ -149,7 +154,11 @@
     <modules>
         <module>common</module>
         <module>default</module>
+        <module>glp-example</module>
+        <module>beaconing-bundle-example</module>
         <module>mean-example</module>
+        <module>overall-example</module>
+        <module>performance-example</module>
         <module>thomas-kilmann-example</module>
     </modules>
 
@@ -173,7 +182,7 @@
                         </descriptors>
                         <archive>
                             <manifest>
-                                <mainClass>es.eucm.rage.realtime.simple.Analysis</mainClass>
+                                <mainClass>es.eucm.rage.realtime.simple.PAnalysis</mainClass>
                             </manifest>
                         </archive>
                         <finalName>realtime</finalName>
@@ -276,6 +285,18 @@
                             </coberturaReport>
                             <coberturaReport>
                                 ${basedir}/mean-example/target/coverage.xml
+                            </coberturaReport>
+                            <coberturaReport>
+                                ${basedir}/glp-example/target/coverage.xml
+                            </coberturaReport>
+                            <coberturaReport>
+                                ${basedir}/beaconning-bundle-example/target/coverage.xml
+                            </coberturaReport>
+                            <coberturaReport>
+                                ${basedir}/overall-example/target/coverage.xml
+                            </coberturaReport>
+                            <coberturaReport>
+                                ${basedir}/performance-example/target/coverage.xml
                             </coberturaReport>
                             <coberturaReport>
                                 ${basedir}/default/target/coverage.xml

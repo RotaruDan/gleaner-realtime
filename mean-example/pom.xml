@@ -75,7 +75,7 @@
                     </descriptors>
                     <archive>
                         <manifest>
-                            <mainClass>es.eucm.firstaidgame.realtime.example.Analysis</mainClass>
+                            <mainClass>es.eucm.rage.realtime.example.Analysis</mainClass>
                         </manifest>
                     </archive>
                     <finalName>realtime</finalName>

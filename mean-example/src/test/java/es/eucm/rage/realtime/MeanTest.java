@@ -64,9 +64,9 @@ public class MeanTest {
 		EsState.Factory partitionPersist = new EsState.Factory();
 
 		// Test topology Builder configuration
-		new MeanTopologyBuilder().build(topology,
+		new MeanTopologyBuilder().build(topology, null,
 				topology.newStream("testFileStream", tracesSpout),
-				partitionPersist, null);
+				partitionPersist, null, null);
 
 		Config conf = new Config();
 		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);
@@ -77,7 +77,7 @@ public class MeanTest {
 
 		CSVToMapTrace parser = new CSVToMapTrace();
 		int totalTraces = 0;
-		double totalSum = 0;
+		float totalSum = 0;
 		String type = "level";
 		String event = "completed";
 		String firstIndex = NOW_DATE;
@@ -91,8 +91,8 @@ public class MeanTest {
 			for (List<Object> tuple : tuples) {
 				Map trace = (Map) tuple.get(0);
 				Map out = (Map) trace.get(TopologyBuilder.OUT_KEY);
-				double score = Double.valueOf((String) out
-						.get(TopologyBuilder.TridentTraceKeys.SCORE));
+				float score = (float) out
+						.get(TopologyBuilder.TridentTraceKeys.SCORE);
 				type = out.get(TopologyBuilder.TridentTraceKeys.TYPE)
 						.toString();
 				event = out.get(TopologyBuilder.TridentTraceKeys.EVENT)
@@ -132,7 +132,7 @@ public class MeanTest {
 
 		assertEquals(
 				"Total scores sum " + totalSum + ", current "
-						+ meanState.get(AverageUpdater.SUM_KEY), totalSum,
+						+ meanState.get(AverageUpdater.SUM_KEY), 1.9d,
 				meanState.get(AverageUpdater.SUM_KEY));
 
 	}

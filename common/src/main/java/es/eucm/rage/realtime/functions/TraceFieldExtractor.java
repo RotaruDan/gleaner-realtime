@@ -23,9 +23,12 @@ import org.apache.storm.trident.tuple.TridentTuple;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class TraceFieldExtractor implements Function {
+	private static final Logger LOGGER = Logger
+			.getLogger(TraceFieldExtractor.class.getName());
 
 	private String[] fields;
 
@@ -59,7 +62,13 @@ public class TraceFieldExtractor implements Function {
 			}
 			collector.emit(object);
 		} catch (Exception ex) {
-			System.out.print("Error unexpected exception, discarding" + ex.toString());
+			LOGGER.info("Error unexpected exception, discarding "
+					+ ex.toString());
+			LOGGER.info(tuple.toString());
+			for (int i = 0; i < fields.length; i++) {
+				LOGGER.info(fields[i] + ", ");
+			}
+			ex.printStackTrace();
 		}
 	}
 
