@@ -18,7 +18,6 @@ package es.eucm.rage.realtime;
 import com.google.gson.Gson;
 import es.eucm.rage.realtime.simple.Analysis;
 import es.eucm.rage.realtime.simple.DAnalysis;
-import es.eucm.rage.realtime.simple.GAnalysis;
 import es.eucm.rage.realtime.simple.topologies.GLPTopologyBuilder;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.CSVToMapTrace;
@@ -26,12 +25,10 @@ import es.eucm.rage.realtime.utils.ESUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.*;
-import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.generated.StormTopology;
@@ -99,6 +96,9 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 	@Test
 	public void test() throws Exception {
 
+		RestClient client = RestClient.builder(new HttpHost(ES_HOST, 9200))
+				.build();
+		client.performRequest("DELETE", "*");
 		/**
 		 * Simple GLP: PARENT: "parent-" + NOW_DATE -> GLP_ID
 		 * 
@@ -111,8 +111,6 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 		String parentIndex = "parent-" + NOW_DATE; // GLP_ID
 		String analyticsGLPId = ESUtils.getAnalyticsGLPIndex(parentIndex);
 
-		RestClient client = RestClient.builder(new HttpHost(ES_HOST, 9200))
-				.build();
 		RestHighLevelClient hClient = new RestHighLevelClient(client);
 
 		Map parentAnalytics = new HashMap();
@@ -258,7 +256,7 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);
 		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
 
-		StormTopology topology = new GAnalysis().getTopology(conf);
+		StormTopology topology = new Analysis().getTopology(conf);
 		StormTopology defaultTopology = new DAnalysis().getTopology(conf);
 
 		LocalCluster cluster = new LocalCluster();

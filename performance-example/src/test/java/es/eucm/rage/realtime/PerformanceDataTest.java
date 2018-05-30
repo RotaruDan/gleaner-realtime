@@ -16,7 +16,7 @@
 package es.eucm.rage.realtime;
 
 import com.google.gson.Gson;
-import es.eucm.rage.realtime.simple.Analysis;
+import es.eucm.rage.realtime.simple.PAnalysis;
 import es.eucm.rage.realtime.simple.topologies.PerformanceTopologyBuilder;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.CSVToMapTrace;
@@ -24,12 +24,7 @@ import es.eucm.rage.realtime.utils.ESUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.*;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.generated.StormTopology;
@@ -132,7 +127,7 @@ public class PerformanceDataTest {
 		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);
 		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
 
-		StormTopology topology = new Analysis().getTopology(conf);
+		StormTopology topology = new PAnalysis().getTopology(conf);
 
 		LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology("realtime-" + NOW_DATE, conf, topology);

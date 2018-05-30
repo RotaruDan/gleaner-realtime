@@ -16,22 +16,22 @@
 package es.eucm.rage.realtime.simple;
 
 import es.eucm.rage.realtime.AbstractAnalysis;
-import es.eucm.rage.realtime.simple.topologies.GLPTopologyBuilder;
+import es.eucm.rage.realtime.simple.topologies.PerformanceTopologyBuilder;
 
 import java.util.Map;
 
 /**
  * Main RAGE Analytics {@link AbstractAnalysis} implementation that builds a
- * {@link GLPTopologyBuilder} with the analysis configuration from
+ * {@link PerformanceTopologyBuilder} with the analysis configuration from
  * {@link org.apache.storm.kafka.trident.OpaqueTridentKafkaSpout}. Invoked by
  * Flux using the method {@link AbstractAnalysis#getTopology(Map)}. See:
  * https://
  * github.com/e-ucm/rage-analytics/wiki/Understanding-RAGE-Analytics-Traces
  * -Flow#storm-flux-configuration-files
  */
-public class Analysis extends AbstractAnalysis {
+public class PAnalysis extends AbstractAnalysis {
 
-	private GLPTopologyBuilder topologyBuilder = new GLPTopologyBuilder();
+	private PerformanceTopologyBuilder topologyBuilder = new PerformanceTopologyBuilder();
 
 	@Override
 	protected es.eucm.rage.realtime.topologies.TopologyBuilder getTopologyBuilder() {

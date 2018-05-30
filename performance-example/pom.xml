@@ -75,7 +75,7 @@
                     </descriptors>
                     <archive>
                         <manifest>
-                            <mainClass>es.eucm.rage.realtime.simple.Analysis</mainClass>
+                            <mainClass>es.eucm.rage.realtime.simple.PAnalysis</mainClass>
                         </manifest>
                     </archive>
                     <finalName>realtime</finalName>

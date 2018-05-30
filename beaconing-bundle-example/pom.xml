@@ -29,11 +29,11 @@
     	<version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>real-time-overall-example</artifactId>
+    <artifactId>real-time-beaconing-bundle-example</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>RAGE Real Time Overall Example</name>
+    <name>RAGE Real Time beaconing-bundle Example</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -42,13 +42,28 @@
     <dependencies>
         <dependency>
             <groupId>es.eucm.rage.realtime</groupId>
-            <artifactId>real-time-glp-example</artifactId>
+            <artifactId>real-time-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>es.eucm.rage.realtime</groupId>
+            <artifactId>real-time-default</artifactId>
             <version>0.0.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>es.eucm.rage.realtime</groupId>
-            <artifactId>real-time-common</artifactId>
+            <artifactId>real-time-glp-example</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>es.eucm.rage.realtime</groupId>
+            <artifactId>real-time-overall-example</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>es.eucm.rage.realtime</groupId>
+            <artifactId>real-time-performance-example</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>

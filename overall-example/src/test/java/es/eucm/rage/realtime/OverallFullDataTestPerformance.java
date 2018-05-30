@@ -16,8 +16,8 @@
 package es.eucm.rage.realtime;
 
 import com.google.gson.Gson;
-import es.eucm.rage.realtime.simple.Analysis;
 import es.eucm.rage.realtime.simple.GAnalysis;
+import es.eucm.rage.realtime.simple.OAnalysis;
 import es.eucm.rage.realtime.simple.topologies.GLPTopologyBuilder;
 import es.eucm.rage.realtime.simple.topologies.OverallTopologyBuilder;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
@@ -219,7 +219,7 @@ public class OverallFullDataTestPerformance {
 
 		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
 
-		StormTopology topology = new Analysis().getTopology(conf);
+		StormTopology topology = new OAnalysis().getTopology(conf);
 		StormTopology glpTopology = new GAnalysis().getTopology(conf);
 
 		LocalCluster cluster2 = new LocalCluster();

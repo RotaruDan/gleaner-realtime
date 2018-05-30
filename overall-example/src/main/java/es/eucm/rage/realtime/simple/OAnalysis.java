@@ -29,7 +29,7 @@ import java.util.Map;
  * github.com/e-ucm/rage-analytics/wiki/Understanding-RAGE-Analytics-Traces
  * -Flow#storm-flux-configuration-files
  */
-public class Analysis extends AbstractAnalysis {
+public class OAnalysis extends AbstractAnalysis {
 
 	private OverallTopologyBuilder topologyBuilder = new OverallTopologyBuilder();
 

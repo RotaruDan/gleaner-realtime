@@ -16,13 +16,13 @@
 package es.eucm.rage.realtime.simple;
 
 import es.eucm.rage.realtime.AbstractAnalysis;
-import es.eucm.rage.realtime.simple.topologies.PerformanceTopologyBuilder;
+import es.eucm.rage.realtime.simple.topologies.BeaconingBundleTopologyBuilder;
 
 import java.util.Map;
 
 /**
  * Main RAGE Analytics {@link AbstractAnalysis} implementation that builds a
- * {@link PerformanceTopologyBuilder} with the analysis configuration from
+ * {@link BeaconingBundleTopologyBuilder} with the analysis configuration from
  * {@link org.apache.storm.kafka.trident.OpaqueTridentKafkaSpout}. Invoked by
  * Flux using the method {@link AbstractAnalysis#getTopology(Map)}. See:
  * https://
@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class Analysis extends AbstractAnalysis {
 
-	private PerformanceTopologyBuilder topologyBuilder = new PerformanceTopologyBuilder();
+	private BeaconingBundleTopologyBuilder topologyBuilder = new BeaconingBundleTopologyBuilder();
 
 	@Override
 	protected es.eucm.rage.realtime.topologies.TopologyBuilder getTopologyBuilder() {

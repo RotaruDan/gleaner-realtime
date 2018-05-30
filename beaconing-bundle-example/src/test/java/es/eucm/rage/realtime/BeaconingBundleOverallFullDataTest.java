@@ -17,62 +17,59 @@ package es.eucm.rage.realtime;
 
 import com.google.gson.Gson;
 import es.eucm.rage.realtime.simple.Analysis;
-import es.eucm.rage.realtime.simple.DAnalysis;
-import es.eucm.rage.realtime.simple.GAnalysis;
+import es.eucm.rage.realtime.simple.PAnalysis;
 import es.eucm.rage.realtime.simple.topologies.GLPTopologyBuilder;
+import es.eucm.rage.realtime.simple.topologies.OverallTopologyBuilder;
+import es.eucm.rage.realtime.simple.topologies.PerformanceTopologyBuilder;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.CSVToMapTrace;
 import es.eucm.rage.realtime.utils.ESUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.*;
-import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.generated.StormTopology;
-import org.apache.storm.shade.org.apache.commons.collections.map.HashedMap;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.Test;
 
-import java.text.SimpleDateFormat;
+import java.io.IOException;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Tests the {@link TopologyBuilder} executed on a local cluster and receiving
- * data from a local files TRACES_FILES
+ * Tests the {@link OverallTopologyBuilder} executed on a local cluster and
+ * receiving data from a local files VERBS_FILES
  */
-public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopologyKafkaElasticTest {
+public class BeaconingBundleOverallFullDataTest {
 
-	private static final String[] TRACES_FILES = { "1" };
-	private static final String NOW_DATE = String.valueOf(
-			(new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date())))
-			.toLowerCase();
+	private static final String[] VERBS_FILES = { "DSIR", "KXIH", "SSYP",
+			"TQBG", "ZEHU" };
+
+	private static final String NOW_DATE = String.valueOf(new Date().getTime());
 	private static final String ES_HOST = "localhost";
 	private static final String ZOOKEEPER_URL = "localhost";
 	private static final String BOOTSTRAP_SERVERS = "0.0.0.0:9092";
-	private static final String TOPIC = "glp-test-topic-default-kibana-analysis-"
+	private static final String TOPIC = "overall-test-topic-default-kibana-analysis-"
 			+ NOW_DATE;
-	private static final Producer<String, String> producer = createProducer();
-
 	private static final Gson gson = new Gson();
 
-	private static Producer<String, String> createProducer() {
+	private static final Producer<Long, String> producer = createProducer();
+
+	private static Producer<Long, String> createProducer() {
 		Properties props = new Properties();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
 		props.put(ProducerConfig.CLIENT_ID_CONFIG, "KafkaExampleProducer");
 		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-				StringSerializer.class.getName());
+				LongSerializer.class.getName());
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
 				StringSerializer.class.getName());
 		return new KafkaProducer<>(props);
@@ -82,8 +79,8 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 
 		try {
 			String msg = gson.toJson(trace, Map.class);
-			String index = "test";
-			final ProducerRecord<String, String> record = new ProducerRecord<>(
+			long index = (long) 0.4;
+			final ProducerRecord<Long, String> record = new ProducerRecord<>(
 					TOPIC, index, msg);
 
 			producer.send(record).get();
@@ -93,12 +90,16 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 					+ e.getCause(), false);
 		} finally {
 			producer.flush();
+			// producer.close();
 		}
 	}
 
 	@Test
-	public void test() throws Exception {
+	public void xAPIVerbsTest() throws IOException {
 
+		RestClient client = RestClient.builder(new HttpHost(ES_HOST, 9200))
+				.build();
+		client.performRequest("DELETE", "*");
 		/**
 		 * Simple GLP: PARENT: "parent-" + NOW_DATE -> GLP_ID
 		 * 
@@ -111,8 +112,6 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 		String parentIndex = "parent-" + NOW_DATE; // GLP_ID
 		String analyticsGLPId = ESUtils.getAnalyticsGLPIndex(parentIndex);
 
-		RestClient client = RestClient.builder(new HttpHost(ES_HOST, 9200))
-				.build();
 		RestHighLevelClient hClient = new RestHighLevelClient(client);
 
 		Map parentAnalytics = new HashMap();
@@ -125,6 +124,7 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 				"analytics", parentIndex).source(parentAnalytics);
 
 		// MIDDLE CHILD
+
 		Map middleAnalytics = new HashMap();
 		ArrayList middleArray = new ArrayList<>(2);
 		middleArray.add(firstIndex);
@@ -207,97 +207,151 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 		hClient.index(indexSecondChild);
 
 		CSVToMapTrace parser = new CSVToMapTrace(analyticsGLPId);
-		Map<String, Integer> res = new HashMap<>();
-		List<Map> firstChildTraces = new ArrayList<>();
-		List<Map> secondChildTraces = new ArrayList<>();
-		List<Map> parentChildTraces = new ArrayList<>();
-		List<List<Object>> tuples2 = null;
-		for (int i = 0; i < TRACES_FILES.length; ++i) {
+
+		Config conf = new Config();
+		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);
+		conf.put(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM, ES_HOST);
+		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
+		// Test topology Builder configuration
+		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
+
+		StormTopology topology = new Analysis().getTopology(conf);
+
+		LocalCluster cluster3 = new LocalCluster();
+		cluster3.submitTopology("realtime-" + NOW_DATE, conf, topology);
+
+		Map<String, Map> results = new HashMap<String, Map>();
+
+		for (int i = 0; i < VERBS_FILES.length; ++i) {
 			String idx;
 			if (i < 3) {
 				idx = firstIndex;
 			} else {
 				idx = secondIndex;
 			}
-			List<List<Object>> tuples = parser.getTuples("glp/"
-					+ TRACES_FILES[i] + ".csv", idx, i);
+			List<List<Object>> tuples = parser.getTuples("traces/"
+					+ VERBS_FILES[i] + ".csv", idx, i);
 			for (List tupleNestedList : tuples) {
 				for (Object trace : tupleNestedList) {
 					Map traceMap = (Map) trace;
-					runProducer(traceMap);
 
-					if (i < 3) {
-						firstChildTraces.add(traceMap);
-					} else {
-						secondChildTraces.add(traceMap);
+					Map out = (Map) ((Map) trace).get(TopologyBuilder.OUT_KEY);
+
+					Object score = out
+							.get(TopologyBuilder.TridentTraceKeys.SCORE);
+					if (score != null) {
+						float scoreNum = ((Number) score).floatValue();
+						String name = out.get(
+								TopologyBuilder.TridentTraceKeys.NAME)
+								.toString();
+						Map player = results.get(name);
+						if (player == null) {
+							player = new HashMap();
+							results.put(name, player);
+						}
+
+						Object minObj = player.get("min");
+						if (minObj != null) {
+							float min = (float) minObj;
+							if (scoreNum < min) {
+								player.put("min", scoreNum);
+							}
+						} else {
+							player.put("min", scoreNum);
+						}
+
 					}
-					parentChildTraces.add(traceMap);
+					runProducer(traceMap);
 				}
-			}
-			tuples2 = parser.getTuples("glp/" + TRACES_FILES[i] + ".csv",
-					secondIndex, 2);
-
-			Integer current = res.get(idx);
-			if (current == null) {
-				res.put(idx, parser.getCompletedSuccessfully());
-			} else {
-				res.put(idx, current + parser.getCompletedSuccessfully());
-			}
-
-			Integer currentParent = res.get(parentIndex);
-			if (currentParent == null) {
-				res.put(parentIndex, parser.getCompletedSuccessfully());
-			} else {
-				res.put(parentIndex,
-						currentParent + parser.getCompletedSuccessfully());
 			}
 		}
 
-		Map<String, Object> conf = new HashedMap();
-		conf.put(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM, ES_HOST);
-		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);
-		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
-
-		StormTopology topology = new GAnalysis().getTopology(conf);
-		StormTopology defaultTopology = new DAnalysis().getTopology(conf);
-
-		LocalCluster cluster = new LocalCluster();
-		cluster.submitTopology("realtime-" + NOW_DATE + "-default", conf,
-				defaultTopology);
-
-		LocalCluster cluster2 = new LocalCluster();
-		cluster2.submitTopology("realtime-" + NOW_DATE, conf, topology);
-
 		try {
-			Thread.sleep(20000);
-
-			for (List tupleNestedList : tuples2) {
-				for (Object trace : tupleNestedList) {
-					Map traceMap = (Map) trace;
-					runProducer(traceMap);
-				}
-			}
-			Thread.sleep(25000);
+			Thread.sleep(40000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
-		Response response = client.performRequest("GET", "/" + parentIndex
-				+ "/_search?size=5000&q=*:*");
-		int status = response.getStatusLine().getStatusCode();
+		List<Map<String, Object>> players = new ArrayList<Map<String, Object>>(
+				5);
+		Map<String, Object> player0 = new HashMap();
+		player0.put("name", "DSIR");
+		player0.put("selected", 65);
 
-		assertEquals("TEST GET error, status is" + status, status,
-				HttpStatus.SC_OK);
+		players.add(player0);
+		Map<String, Object> player1 = new HashMap();
+		player1.put("name", "KXIH");
+		player1.put("selected", 90);
 
-		String responseString = EntityUtils.toString(response.getEntity());
-		Map<String, Object> responseDocs = (Map) gson.fromJson(responseString,
-				Map.class);
+		players.add(player1);
+		Map<String, Object> player2 = new HashMap();
+		player2.put("name", "SSYP");
+		player2.put("selected", 50);
 
-		Map hits = (Map) responseDocs.get("hits");
+		players.add(player2);
+		Map<String, Object> player3 = new HashMap();
+		player3.put("name", "TQBG");
+		player3.put("selected", 107);
 
-		int total = ((Double) hits.get("total")).intValue();
+		players.add(player3);
+		Map<String, Object> player4 = new HashMap();
+		player4.put("name", "ZEHU");
+		player4.put("selected", 44);
 
-		assertEquals("Total traces " + parentIndex + ", current " + total, 7,
-				total);
+		players.add(player4);
+
+		String resultsIndex = OverallTopologyBuilder.OVERALL_INDEX;
+		for (int i = 0; i < players.size(); ++i) {
+
+			Map player = players.get(i);
+			String name = player.get("name").toString();
+			// Check responses
+
+			Response resultResponse = client.performRequest("GET", "/"
+					+ resultsIndex + "/" + ESUtils.getResultsType() + "/"
+					+ name);
+			int resultStatus = resultResponse.getStatusLine().getStatusCode();
+
+			assertEquals("TEST GET result error, status is" + resultStatus,
+					resultStatus, HttpStatus.SC_OK);
+
+			String responseResultString = EntityUtils.toString(resultResponse
+					.getEntity());
+			Map<String, Object> playerState = (Map) gson.fromJson(
+					responseResultString, Map.class).get("_source");
+
+			List<Map> answers = (List) playerState.get("answers");
+
+			assertEquals("Answers don't coincide", answers.size(),
+					player.get("selected"));
+		}
+
+		resultsIndex = PerformanceTopologyBuilder.PERFORMANCE_INDEX;
+		Response resultResponse = client.performRequest("GET", "/"
+				+ resultsIndex + "/" + ESUtils.getResultsType() + "/testClass");
+		int resultStatus = resultResponse.getStatusLine().getStatusCode();
+
+		assertEquals("TEST GET result error, status is" + resultStatus,
+				resultStatus, HttpStatus.SC_OK);
+
+		String responseResultString = EntityUtils.toString(resultResponse
+				.getEntity());
+		Map<String, Object> playerState = (Map) gson.fromJson(
+				responseResultString, Map.class).get("_source");
+
+		Map yearMap = (Map) playerState.get("2017");
+
+		Map months = (Map) yearMap.get("months");
+		Map first = (Map) months.get("1");
+		List firstMonthStudents = (List) first.get("students");
+
+		assertEquals("year doesn't coincide", firstMonthStudents.size(), 5);
+		Map weeks = (Map) yearMap.get("weeks");
+		Map week7 = (Map) weeks.get("7");
+		List week7Students = (List) week7.get("students");
+		assertEquals("year doesn't coincide", week7Students.size(), 5);
+
+		List students = (List) yearMap.get("students");
+		assertEquals("year doesn't coincide", students.size(), 5);
 	}
 }

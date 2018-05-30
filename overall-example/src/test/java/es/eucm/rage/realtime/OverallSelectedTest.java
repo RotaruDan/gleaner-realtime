@@ -16,13 +16,10 @@
 package es.eucm.rage.realtime;
 
 import com.google.gson.Gson;
-import es.eucm.rage.realtime.simple.Analysis;
+import es.eucm.rage.realtime.simple.OAnalysis;
 import es.eucm.rage.realtime.simple.topologies.OverallTopologyBuilder;
-import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.CSVToMapTrace;
 import es.eucm.rage.realtime.utils.ESUtils;
-import es.eucm.rage.realtime.states.elasticsearch.EsMapState;
-import es.eucm.rage.realtime.states.elasticsearch.EsState;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
@@ -146,7 +143,7 @@ public class OverallSelectedTest {
 		 */
 		// Test topology Builder configuration
 
-		StormTopology topology = new Analysis().getTopology(conf);
+		StormTopology topology = new OAnalysis().getTopology(conf);
 
 		LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology("realtime", conf, topology);

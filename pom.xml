@@ -155,6 +155,7 @@
         <module>common</module>
         <module>default</module>
         <module>glp-example</module>
+        <module>beaconing-bundle-example</module>
         <module>mean-example</module>
         <module>overall-example</module>
         <module>performance-example</module>
@@ -181,7 +182,7 @@
                         </descriptors>
                         <archive>
                             <manifest>
-                                <mainClass>es.eucm.rage.realtime.simple.Analysis</mainClass>
+                                <mainClass>es.eucm.rage.realtime.simple.PAnalysis</mainClass>
                             </manifest>
                         </archive>
                         <finalName>realtime</finalName>
@@ -287,6 +288,9 @@
                             </coberturaReport>
                             <coberturaReport>
                                 ${basedir}/glp-example/target/coverage.xml
+                            </coberturaReport>
+                            <coberturaReport>
+                                ${basedir}/beaconning-bundle-example/target/coverage.xml
                             </coberturaReport>
                             <coberturaReport>
                                 ${basedir}/overall-example/target/coverage.xml
