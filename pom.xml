@@ -150,7 +150,7 @@
         <module>build-helper</module>
         <module>common</module>
         <module>default</module>
-        <module>mean-example</module>
+<!--        <module>mean-example</module> -->
         <module>thomas-kilmann-example</module>
     </modules>
 
