@@ -56,7 +56,11 @@
                 <artifactId>elasticsearch-rest-high-level-client</artifactId>
                 <version>5.6.2</version>
             </dependency>
-
+            <dependency>
+                <groupId>uk.com.robust-it</groupId>
+                <artifactId>cloning</artifactId>
+                <version>1.9.10</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.storm</groupId>
                 <artifactId>storm-core</artifactId>
@@ -152,7 +156,11 @@
         <module>common</module>
         <module>default</module>
 <!--        <module>mean-example</module> -->
+        <module>glp-example</module>
+        <module>overall-example</module>
+        <module>performance-example</module>
         <module>thomas-kilmann-example</module>
+        <module>beaconing-bundle-example</module>
     </modules>
 
     <build>

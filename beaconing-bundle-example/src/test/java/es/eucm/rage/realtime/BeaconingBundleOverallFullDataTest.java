@@ -17,6 +17,7 @@ package es.eucm.rage.realtime;
 
 import com.google.gson.Gson;
 import es.eucm.rage.realtime.simple.Analysis;
+import es.eucm.rage.realtime.simple.DAnalysis;
 import es.eucm.rage.realtime.simple.PAnalysis;
 import es.eucm.rage.realtime.simple.topologies.GLPTopologyBuilder;
 import es.eucm.rage.realtime.simple.topologies.OverallTopologyBuilder;
@@ -51,8 +52,8 @@ import static org.junit.Assert.assertTrue;
  */
 public class BeaconingBundleOverallFullDataTest {
 
-	private static final String[] VERBS_FILES = { "DSIR", "KXIH", "SSYP",
-			"TQBG", "ZEHU" };
+	private static final String[] VERBS_FILES = { "DSIR" , "KXIH"/*, "SSYP",
+			"TQBG", "ZEHU" */};
 
 	private static final String NOW_DATE = String.valueOf(new Date().getTime());
 	private static final String ES_HOST = "localhost";
@@ -216,15 +217,19 @@ public class BeaconingBundleOverallFullDataTest {
 		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
 
 		StormTopology topology = new Analysis().getTopology(conf);
+        StormTopology dtopology = new DAnalysis().getTopology(conf);
 
 		LocalCluster cluster3 = new LocalCluster();
 		cluster3.submitTopology("realtime-" + NOW_DATE, conf, topology);
+
+        LocalCluster cluster = new LocalCluster();
+        cluster.submitTopology("realtime-default-" + NOW_DATE, conf, dtopology);
 
 		Map<String, Map> results = new HashMap<String, Map>();
 
 		for (int i = 0; i < VERBS_FILES.length; ++i) {
 			String idx;
-			if (i < 3) {
+			if (i < 1) {
 				idx = firstIndex;
 			} else {
 				idx = secondIndex;
@@ -267,7 +272,7 @@ public class BeaconingBundleOverallFullDataTest {
 		}
 
 		try {
-			Thread.sleep(40000);
+			Thread.sleep(60000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -282,7 +287,7 @@ public class BeaconingBundleOverallFullDataTest {
 		Map<String, Object> player1 = new HashMap();
 		player1.put("name", "KXIH");
 		player1.put("selected", 90);
-
+/*
 		players.add(player1);
 		Map<String, Object> player2 = new HashMap();
 		player2.put("name", "SSYP");
@@ -299,7 +304,7 @@ public class BeaconingBundleOverallFullDataTest {
 		player4.put("selected", 44);
 
 		players.add(player4);
-
+*/
 		String resultsIndex = OverallTopologyBuilder.OVERALL_INDEX;
 		for (int i = 0; i < players.size(); ++i) {
 
@@ -345,13 +350,62 @@ public class BeaconingBundleOverallFullDataTest {
 		Map first = (Map) months.get("1");
 		List firstMonthStudents = (List) first.get("students");
 
-		assertEquals("year doesn't coincide", firstMonthStudents.size(), 5);
+		assertEquals("year doesn't coincide", firstMonthStudents.size(), 2);
 		Map weeks = (Map) yearMap.get("weeks");
 		Map week7 = (Map) weeks.get("7");
 		List week7Students = (List) week7.get("students");
-		assertEquals("year doesn't coincide", week7Students.size(), 5);
+		assertEquals("year doesn't coincide", week7Students.size(), 2);
 
 		List students = (List) yearMap.get("students");
-		assertEquals("year doesn't coincide", students.size(), 5);
+		assertEquals("year doesn't coincide", students.size(), 2);
+
+		// Check parent has the sum of both children
+
+        Response responseParent = client.performRequest("GET", "/" + parentIndex
+                + "/_search?size=5000&q=*:*");
+        int status = responseParent.getStatusLine().getStatusCode();
+
+        assertEquals("TEST GET error, status is" + status, status,
+                HttpStatus.SC_OK);
+
+        String responseString = EntityUtils.toString(responseParent.getEntity());
+        Map<String, Object> responseDocs = (Map) gson.fromJson(responseString,
+                Map.class);
+
+        Map hits = (Map) responseDocs.get("hits");
+
+        int totalParent = ((Double) hits.get("total")).intValue();
+
+        Response responseChild1 = client.performRequest("GET", "/" + firstIndex
+                + "/_search?size=5000&q=*:*");
+
+        String responseStringChild1 = EntityUtils.toString(responseChild1.getEntity());
+        Map<String, Object> responseDocsChild1 = (Map) gson.fromJson(responseStringChild1,
+                Map.class);
+
+        Map hitsChild1 = (Map) responseDocsChild1.get("hits");
+
+        int totalChild1 = ((Double) hitsChild1.get("total")).intValue();
+
+
+        Response responseChild2 = client.performRequest("GET", "/" + secondIndex
+                + "/_search?size=5000&q=*:*");
+
+        String responseStringChild2 = EntityUtils.toString(responseChild2.getEntity());
+        Map<String, Object> responseDocsChild2 = (Map) gson.fromJson(responseStringChild2,
+                Map.class);
+
+        Map hitsChild2 = (Map) responseDocsChild2.get("hits");
+
+        int totalChild2 = ((Double) hitsChild2.get("total")).intValue();
+
+
+		assertEquals("Total traces " + parentIndex + ", current " + totalParent, totalChild1,
+				224);
+		assertEquals("Total traces " + parentIndex + ", current " + totalParent, totalChild2,
+				343);
+        assertEquals("Total traces " + parentIndex + ", current " + totalParent, totalParent,
+                605);
 	}
+
 }
