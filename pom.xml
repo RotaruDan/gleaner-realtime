@@ -32,6 +32,7 @@
     <properties>
         <storm.version>1.1.1</storm.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <topology.mainClass>es.eucm.rage.realtime.simple.Analysis</topology.mainClass>
     </properties>
     <pluginRepositories>
         <pluginRepository>
@@ -147,9 +148,10 @@
     </dependencyManagement>
 
     <modules>
+        <module>build-helper</module>
         <module>common</module>
         <module>default</module>
-        <module>mean-example</module>
+<!--        <module>mean-example</module> -->
         <module>thomas-kilmann-example</module>
     </modules>
 
@@ -166,17 +168,45 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <artifactId>maven-assembly-plugin</artifactId>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
                     <configuration>
-                        <descriptors>
-                            <descriptor>src/assembly/jar.xml</descriptor>
-                        </descriptors>
                         <archive>
                             <manifest>
-                                <mainClass>es.eucm.rage.realtime.simple.Analysis</mainClass>
+                                <mainClass>${topology.mainClass}</mainClass>
                             </manifest>
                         </archive>
-                        <finalName>realtime</finalName>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.1.1</version>
+                    <configuration>
+                      <!-- put your configurations here -->
+                    </configuration>
+                    <executions>
+                      <execution>
+                        <phase>package</phase>
+                        <goals>
+                          <goal>shade</goal>
+                        </goals>
+                      </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.1.0</version>
+                    <configuration>
+                        <descriptorRefs>
+                            <descriptorRef>topology</descriptorRef>
+                        </descriptorRefs>
+                        <finalName>${artifactId}</finalName>
+                        <transformers>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer" />
+                        </transformers>
                     </configuration>
                     <executions>
                         <execution>
@@ -187,6 +217,13 @@
                             </goals>
                         </execution>
                     </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>es.eucm.rage.realtime</groupId>
+                            <artifactId>build-helper</artifactId>
+                            <version>0.0.1-SNAPSHOT</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
 
                 <!-- Set up the LICENSE Header plugin -->
