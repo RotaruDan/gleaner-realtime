@@ -20,36 +20,37 @@
 #   mkdir output && chmod 0777 output \
 #   && docker run -v $(pwd)/output:/app/output eucm/rage-analytics-realtime
 #
-FROM eucm/maven
+FROM maven:3-jdk-8-slim AS build
 
-ENV USER_NAME="user" \
-    WORK_DIR="/app" \
-    OUTPUT_VOL="/app/output" \
-    OUTPUT_BB_VOL="/app/output/beaconing-bundle/" \
-    OUTPUT_JAR="realtime/default/target/realtime-jar-with-dependencies.jar" \
-    OUTPUT_BB_JAR="realtime/beaconing-bundle-example/target/realtime-jar-with-dependencies.jar" \
-    OUTPUT_INDICES_JSON="realtime/default/indices.json"
+ARG BUILD_DIR="/scratch"
 
 # setup sources, user, group and workdir
-COPY ./ ${WORK_DIR}/realtime
-RUN groupadd -r ${USER_NAME} \
-    && mkdir ${OUTPUT_VOL}\
-    && mkdir ${OUTPUT_BB_VOL}\
-    && useradd -r -d ${WORK_DIR} -g ${USER_NAME} ${USER_NAME} \
-    && chown -R ${USER_NAME}:${USER_NAME} ${WORK_DIR}
-ENV HOME=${WORK_DIR}
-USER ${USER_NAME}
-WORKDIR ${WORK_DIR}
+COPY ./ "${BUILD_DIR}"
 
 # build, remove downloaded/unneeded jars, and expose results
-RUN cd realtime && mvn license:format && mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V  \
-    && rm -rf ../.m2
+RUN cd $BUILD_DIR \
+    && mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B -V \
+    && mkdir "${BUILD_DIR}/output" \
+    && find "${BUILD_DIR}" -name '*.zip' -exec bash -c 'path={}; filename=$(basename "$path"); name="${filename%.*}"; unzip "$path" -d "${BUILD_DIR}/output/$name"' \;
+#RUN chown 1000:1000 -R "${BUILD_DIR}/output" \
+#    && find "${BUILD_DIR}/output" -type f -exec chmod 0444 {} \; \
+#    && find "${BUILD_DIR}/output" -type d -exec chmod 0777 {} \;
 
+# Build a no-op static executable so the container can be run
+FROM golang:1.8 AS build2
+RUN mkdir /scratch \
+  && echo 'package main\n\
+import "os"\n\
+\n\
+func main() {\n\
+  os.Exit(0);\n\
+}' > /scratch/nop.go
+WORKDIR /scratch
+RUN go build -o nop .
+
+FROM scratch
+ARG OUTPUT_VOL="/app/output"
 VOLUME ${OUTPUT_VOL}
-
-RUN cp ${OUTPUT_INDICES_JSON} ${OUTPUT_VOL}
-RUN cp ${OUTPUT_INDICES_JSON} ${OUTPUT_BB_VOL}
-
-CMD \
-cp ${OUTPUT_JAR} ${OUTPUT_VOL} && \
-cp ${OUTPUT_BB_JAR} ${OUTPUT_BB_VOL}
+COPY --from=build2 /scratch/nop /
+COPY --chown=999:999 --from=build /scratch/output ${OUTPUT_VOL}
+ENTRYPOINT ["/nop"]
