@@ -52,8 +52,11 @@ import static org.junit.Assert.assertTrue;
  */
 public class BeaconingBundleOverallFullDataTest {
 
-	private static final String[] VERBS_FILES = { "DSIR" , "KXIH"/*, "SSYP",
-			"TQBG", "ZEHU" */};
+	private static final String[] VERBS_FILES = { "DSIR", "KXIH"/*
+																 * , "SSYP",
+																 * "TQBG",
+																 * "ZEHU"
+																 */};
 
 	private static final String NOW_DATE = String.valueOf(new Date().getTime());
 	private static final String ES_HOST = "localhost";
@@ -217,13 +220,13 @@ public class BeaconingBundleOverallFullDataTest {
 		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
 
 		StormTopology topology = new Analysis().getTopology(conf);
-        StormTopology dtopology = new DAnalysis().getTopology(conf);
+		StormTopology dtopology = new DAnalysis().getTopology(conf);
 
 		LocalCluster cluster3 = new LocalCluster();
 		cluster3.submitTopology("realtime-" + NOW_DATE, conf, topology);
 
-        LocalCluster cluster = new LocalCluster();
-        cluster.submitTopology("realtime-default-" + NOW_DATE, conf, dtopology);
+		LocalCluster cluster = new LocalCluster();
+		cluster.submitTopology("realtime-default-" + NOW_DATE, conf, dtopology);
 
 		Map<String, Map> results = new HashMap<String, Map>();
 
@@ -287,24 +290,18 @@ public class BeaconingBundleOverallFullDataTest {
 		Map<String, Object> player1 = new HashMap();
 		player1.put("name", "KXIH");
 		player1.put("selected", 90);
-/*
-		players.add(player1);
-		Map<String, Object> player2 = new HashMap();
-		player2.put("name", "SSYP");
-		player2.put("selected", 50);
-
-		players.add(player2);
-		Map<String, Object> player3 = new HashMap();
-		player3.put("name", "TQBG");
-		player3.put("selected", 107);
-
-		players.add(player3);
-		Map<String, Object> player4 = new HashMap();
-		player4.put("name", "ZEHU");
-		player4.put("selected", 44);
-
-		players.add(player4);
-*/
+		/*
+		 * players.add(player1); Map<String, Object> player2 = new HashMap();
+		 * player2.put("name", "SSYP"); player2.put("selected", 50);
+		 * 
+		 * players.add(player2); Map<String, Object> player3 = new HashMap();
+		 * player3.put("name", "TQBG"); player3.put("selected", 107);
+		 * 
+		 * players.add(player3); Map<String, Object> player4 = new HashMap();
+		 * player4.put("name", "ZEHU"); player4.put("selected", 44);
+		 * 
+		 * players.add(player4);
+		 */
 		String resultsIndex = OverallTopologyBuilder.OVERALL_INDEX;
 		for (int i = 0; i < players.size(); ++i) {
 
@@ -361,51 +358,55 @@ public class BeaconingBundleOverallFullDataTest {
 
 		// Check parent has the sum of both children
 
-        Response responseParent = client.performRequest("GET", "/" + parentIndex
-                + "/_search?size=5000&q=*:*");
-        int status = responseParent.getStatusLine().getStatusCode();
+		Response responseParent = client.performRequest("GET", "/"
+				+ parentIndex + "/_search?size=5000&q=*:*");
+		int status = responseParent.getStatusLine().getStatusCode();
 
-        assertEquals("TEST GET error, status is" + status, status,
-                HttpStatus.SC_OK);
+		assertEquals("TEST GET error, status is" + status, status,
+				HttpStatus.SC_OK);
 
-        String responseString = EntityUtils.toString(responseParent.getEntity());
-        Map<String, Object> responseDocs = (Map) gson.fromJson(responseString,
-                Map.class);
+		String responseString = EntityUtils
+				.toString(responseParent.getEntity());
+		Map<String, Object> responseDocs = (Map) gson.fromJson(responseString,
+				Map.class);
 
-        Map hits = (Map) responseDocs.get("hits");
+		Map hits = (Map) responseDocs.get("hits");
 
-        int totalParent = ((Double) hits.get("total")).intValue();
+		int totalParent = ((Double) hits.get("total")).intValue();
 
-        Response responseChild1 = client.performRequest("GET", "/" + firstIndex
-                + "/_search?size=5000&q=*:*");
+		Response responseChild1 = client.performRequest("GET", "/" + firstIndex
+				+ "/_search?size=5000&q=*:*");
 
-        String responseStringChild1 = EntityUtils.toString(responseChild1.getEntity());
-        Map<String, Object> responseDocsChild1 = (Map) gson.fromJson(responseStringChild1,
-                Map.class);
+		String responseStringChild1 = EntityUtils.toString(responseChild1
+				.getEntity());
+		Map<String, Object> responseDocsChild1 = (Map) gson.fromJson(
+				responseStringChild1, Map.class);
 
-        Map hitsChild1 = (Map) responseDocsChild1.get("hits");
+		Map hitsChild1 = (Map) responseDocsChild1.get("hits");
 
-        int totalChild1 = ((Double) hitsChild1.get("total")).intValue();
+		int totalChild1 = ((Double) hitsChild1.get("total")).intValue();
 
+		Response responseChild2 = client.performRequest("GET", "/"
+				+ secondIndex + "/_search?size=5000&q=*:*");
 
-        Response responseChild2 = client.performRequest("GET", "/" + secondIndex
-                + "/_search?size=5000&q=*:*");
+		String responseStringChild2 = EntityUtils.toString(responseChild2
+				.getEntity());
+		Map<String, Object> responseDocsChild2 = (Map) gson.fromJson(
+				responseStringChild2, Map.class);
 
-        String responseStringChild2 = EntityUtils.toString(responseChild2.getEntity());
-        Map<String, Object> responseDocsChild2 = (Map) gson.fromJson(responseStringChild2,
-                Map.class);
+		Map hitsChild2 = (Map) responseDocsChild2.get("hits");
 
-        Map hitsChild2 = (Map) responseDocsChild2.get("hits");
+		int totalChild2 = ((Double) hitsChild2.get("total")).intValue();
 
-        int totalChild2 = ((Double) hitsChild2.get("total")).intValue();
-
-
-		assertEquals("Total traces " + parentIndex + ", current " + totalParent, totalChild1,
-				224);
-		assertEquals("Total traces " + parentIndex + ", current " + totalParent, totalChild2,
-				343);
-        assertEquals("Total traces " + parentIndex + ", current " + totalParent, totalParent,
-                605);
+		assertEquals(
+				"Total traces " + parentIndex + ", current " + totalParent,
+				totalChild1, 224);
+		assertEquals(
+				"Total traces " + parentIndex + ", current " + totalParent,
+				totalChild2, 343);
+		assertEquals(
+				"Total traces " + parentIndex + ", current " + totalParent,
+				totalParent, 605);
 	}
 
 }
