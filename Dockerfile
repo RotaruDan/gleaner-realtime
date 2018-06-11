@@ -37,20 +37,17 @@ RUN cd $BUILD_DIR \
 
 
 # Build a no-op static executable so the container can be run
-FROM golang:1.8 AS build2
-RUN mkdir /scratch \
-  && echo 'package main\n\
-import "os"\n\
-\n\
-func main() {\n\
-  os.Exit(0);\n\
-}' > /scratch/nop.go
+# Based on: https://bitbucket.org/rw_grim/docker-noop/
+FROM gcc:8 as build2
+RUN apt-get update && apt-get install -y --no-install-recommends nasm
+RUN mkdir /scratch
+COPY noop-binary /scratch
 WORKDIR /scratch
-RUN go build -o nop .
+RUN make
 
 FROM scratch
 ARG OUTPUT_VOL="/app/"
 VOLUME ${OUTPUT_VOL}
-COPY --from=build2 /scratch/nop /
+COPY --from=build2 /scratch/noop /
 COPY --from=build /scratch/volume ${OUTPUT_VOL}
-ENTRYPOINT ["/nop"]
+ENTRYPOINT ["/noop"]
