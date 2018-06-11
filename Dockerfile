@@ -30,11 +30,11 @@ COPY ./ "${BUILD_DIR}"
 # build, remove downloaded/unneeded jars, and expose results
 RUN cd $BUILD_DIR \
     && mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B -V \
-    && mkdir "${BUILD_DIR}/output" \
-    && find "${BUILD_DIR}" -name '*.zip' -exec bash -c 'path={}; filename=$(basename "$path"); name="${filename%.*}"; unzip "$path" -d "${BUILD_DIR}/output/$name"' \;
-#RUN chown 1000:1000 -R "${BUILD_DIR}/output" \
-#    && find "${BUILD_DIR}/output" -type f -exec chmod 0444 {} \; \
-#    && find "${BUILD_DIR}/output" -type d -exec chmod 0777 {} \;
+    && mkdir -p "${BUILD_DIR}/volume/output" \
+    && find "${BUILD_DIR}" -name '*.zip' -exec bash -c 'path={}; filename=$(basename "$path"); name="${filename%.*}"; unzip "$path" -d "${BUILD_DIR}/volume/output/$name"' \; \
+    && find "${BUILD_DIR}/volume" -type d -exec chmod 777 {} \; \
+    && find "${BUILD_DIR}/volume" -type f -exec chmod 666 {} \;
+
 
 # Build a no-op static executable so the container can be run
 FROM golang:1.8 AS build2
@@ -49,8 +49,8 @@ WORKDIR /scratch
 RUN go build -o nop .
 
 FROM scratch
-ARG OUTPUT_VOL="/app/output"
+ARG OUTPUT_VOL="/app/"
 VOLUME ${OUTPUT_VOL}
 COPY --from=build2 /scratch/nop /
-COPY --chown=999:999 --from=build /scratch/output ${OUTPUT_VOL}
+COPY --from=build /scratch/volume ${OUTPUT_VOL}
 ENTRYPOINT ["/nop"]
