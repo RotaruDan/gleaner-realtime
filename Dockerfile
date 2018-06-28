@@ -46,7 +46,7 @@ WORKDIR /scratch
 RUN make
 
 FROM scratch
-ARG OUTPUT_VOL="/app/"
+ARG OUTPUT_VOL="/analysis"
 VOLUME ${OUTPUT_VOL}
 COPY --from=build2 /scratch/noop /
 COPY --from=build /scratch/volume ${OUTPUT_VOL}
