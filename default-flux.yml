@@ -6,6 +6,7 @@ config:
   topology.workers: 1
   topology.max.spout.pending: 1
   zookeeperUrl: "{{zookeeperURL}}"             # Connects to Kafka (e.g. "localhost:2181")
+  kafkaUrl: "{{kafkaURL}}"             # Connects to Kafka (e.g. "localhost:2181")
   topicName: "{{kafkaTopicName}}"         # Value used  to connect to kafka topic
   elasticsearchUrl: "{{elasticsearchUrl}}"     # Connects ElasticSearch host (without the port e.g. "localhost", default port 9200)
 

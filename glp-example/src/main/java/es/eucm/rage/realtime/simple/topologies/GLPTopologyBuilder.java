@@ -293,19 +293,14 @@ public class GLPTopologyBuilder implements
 	public static TridentKafkaStateFactory toParentKafkaFactory(
 			final Map<String, Object> conf, final String key) {
 
-		final String zookeeperUrl = conf.get(
-				AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM).toString();
-		String bootstrapServers = "localhost";
-		int idx = zookeeperUrl.lastIndexOf(':');
-		if (idx != -1) {
-			bootstrapServers = zookeeperUrl.substring(0, idx);
-		}
+		final String kafkaUrl = conf.get(
+				AbstractAnalysis.KAFKA_URL_FLUX_PARAM).toString();
+		String bootstrapServers = kafkaUrl;
 		final String topic = conf.get(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM)
 				.toString();
 		// set producer properties.
 		Properties props = new Properties();
-		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers
-				+ ":9092");
+		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 		props.put(ProducerConfig.ACKS_CONFIG, "1");
 		props.put(ProducerConfig.CLIENT_ID_CONFIG, "kafka-producer-glp-"
 				+ AbstractAnalysis.INPUT_SPOUT_TX_ID + Math.random() * 100000);
