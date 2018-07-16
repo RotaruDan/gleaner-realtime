@@ -15,9 +15,9 @@
  */
 package es.eucm.rage.realtime;
 
+import org.apache.storm.shade.org.json.simple.JSONObject;
 import org.apache.storm.shade.org.json.simple.JSONValue;
 import org.apache.storm.trident.state.OpaqueValue;
-import org.json.simple.JSONObject;
 
 public class JSONOpaqueSerializerString {
 	private static final class MapOpaqueValue {

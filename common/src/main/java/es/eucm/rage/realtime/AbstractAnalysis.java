@@ -15,22 +15,22 @@
  */
 package es.eucm.rage.realtime;
 
-import es.eucm.rage.realtime.functions.JsonToTrace;
-import es.eucm.rage.realtime.topologies.KafkaSpoutBuilder;
-import es.eucm.rage.realtime.topologies.TopologyBuilder;
-import es.eucm.rage.realtime.utils.ESUtils;
-import es.eucm.rage.realtime.states.elasticsearch.EsMapState;
-import es.eucm.rage.realtime.states.elasticsearch.EsState;
+import java.util.Map;
+
 import org.apache.storm.Config;
 import org.apache.storm.generated.StormTopology;
-import org.apache.storm.kafka.StringScheme;
-import org.apache.storm.kafka.trident.OpaqueTridentKafkaSpout;
+import org.apache.storm.kafka.spout.trident.KafkaTridentSpoutOpaque;
 import org.apache.storm.trident.Stream;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.state.StateFactory;
 import org.apache.storm.tuple.Fields;
 
-import java.util.Map;
+import es.eucm.rage.realtime.functions.JsonToTrace;
+import es.eucm.rage.realtime.states.elasticsearch.EsMapState;
+import es.eucm.rage.realtime.states.elasticsearch.EsState;
+import es.eucm.rage.realtime.topologies.KafkaSpoutBuilder;
+import es.eucm.rage.realtime.topologies.TopologyBuilder;
+import es.eucm.rage.realtime.utils.ESUtils;
 
 /**
  * Base class for RAGE realtime analysis.
@@ -96,7 +96,7 @@ public abstract class AbstractAnalysis {
 		StateFactory partitionPersistFactory = EsState.opaque();
 
 		// Create the transactional kafka spout
-		OpaqueTridentKafkaSpout spout = new KafkaSpoutBuilder()
+		KafkaTridentSpoutOpaque<?, ?> spout =  new KafkaSpoutBuilder()
 				.zookeeper(zookeeperUrl).topic(topicName).build();
 
 		// Create a base topology
@@ -123,8 +123,8 @@ public abstract class AbstractAnalysis {
 	 *      ("str"=>"YYYYYYY"), ...]
 	 * 
 	 *   Enhanced Kafka Stream:
-	 *     [("sessionId" => sessionId, "trace" => toMap(JSON.parse(getValue("str") // "XXXXXXX")),
-	 *      ("sessionId" => sessionId, "trace" => toMap(JSON.parse(getValue("str") // "YYYYYYY")), ...]
+	 *     [("trace" => toMap(JSON.parse(getValue("str") // "XXXXXXX")),
+	 *      ("trace" => toMap(JSON.parse(getValue("str") // "YYYYYYY")), ...]
 	 * </pre>
 	 * 
 	 * @param stream
@@ -133,8 +133,8 @@ public abstract class AbstractAnalysis {
 	 * @return An enhanced {@link Stream}
 	 */
 	private Stream enhanceTracesStream(Stream stream) {
-		return stream.each(new Fields(StringScheme.STRING_SCHEME_KEY),
-				new JsonToTrace(), new Fields(TopologyBuilder.TRACE_KEY));
+		return stream.each(new Fields(KafkaSpoutBuilder.SCHEME_KEY),
+				new JsonToTrace(KafkaSpoutBuilder.SCHEME_KEY), new Fields(TopologyBuilder.TRACE_KEY));
 	}
 
 	protected abstract TopologyBuilder getTopologyBuilder();

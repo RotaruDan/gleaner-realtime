@@ -15,54 +15,62 @@
  */
 package es.eucm.rage.realtime.functions;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.apache.storm.kafka.StringScheme;
-import org.apache.storm.trident.operation.Function;
-import org.apache.storm.trident.operation.TridentCollector;
-import org.apache.storm.trident.operation.TridentOperationContext;
-import org.apache.storm.trident.tuple.TridentTuple;
-
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Map;
 
-public class JsonToTrace implements Function {
+import org.apache.storm.trident.operation.BaseFunction;
+import org.apache.storm.trident.operation.TridentCollector;
+import org.apache.storm.trident.operation.TridentOperationContext;
+import org.apache.storm.trident.tuple.TridentTuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    private Gson gson;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-    private Type type;
+public class JsonToTrace extends BaseFunction {
 
-    /**
-     * Given a JSON Trace ({@link StringScheme#STRING_SCHEME_KEY} key, from
-     * Kafka) string returns a
-     * {@link es.eucm.rage.realtime.topologies.TopologyBuilder#TRACE_KEY} ->
-     * Map<String, Object>
-     *
-     */
-    public JsonToTrace() {
-    }
+	/**
+	 * @see java.io.Serializable
+	 */
+	private static final long serialVersionUID = 6729521063923226601L;
 
-    @Override
-    public void execute(TridentTuple tuple, TridentCollector collector) {
-        try {
-            Object trace = gson.fromJson(
-                    tuple.getStringByField(StringScheme.STRING_SCHEME_KEY), type);
-            collector.emit(Arrays.asList(trace));
-        } catch (Exception ex) {
-            System.out.println("Error unexpected exception, discarding" + ex.toString());
-        }
-    }
+	private static final Logger LOGGER = LoggerFactory.getLogger(JsonToTrace.class.getName());
+	
+	private Gson gson;
 
-    @Override
-    public void prepare(Map conf, TridentOperationContext context) {
-        gson = new Gson();
-        type = new TypeToken<Map<String, Object>>() {
-        }.getType();
-    }
+	private Type type;
+	
+	private String field;
 
-    @Override
-    public void cleanup() {
+	/**
+	 * Given a JSON Trace in {@link JsonToTrace#field}}, from
+	 * Kafka) string returns a
+	 * {@link es.eucm.rage.realtime.topologies.TopologyBuilder#TRACE_KEY} ->
+	 * Map<String, Object>
+	 * 
+	 */
+	public JsonToTrace(String field) {
+		this.field = field;
+	}
 
-    }
+	@Override
+	public void execute(TridentTuple tuple, TridentCollector collector) {
+		try {
+			String jsonStr = tuple.getStringByField(this.field);
+			Object trace = gson.fromJson(
+					jsonStr,
+					this.type);
+			collector.emit(Arrays.asList(trace));
+		} catch (Exception ex) {
+			LOGGER.error("Error parsing string to JSON (data is lost!)", ex);
+		}
+	}
+
+	@Override
+	public void prepare(@SuppressWarnings("rawtypes") Map conf, TridentOperationContext context) {
+		this.gson = new Gson();
+		this.type = new TypeToken<Map<String, Object>>() {}.getType();
+	}
 }

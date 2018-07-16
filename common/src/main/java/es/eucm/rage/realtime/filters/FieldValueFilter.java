@@ -15,49 +15,45 @@
  */
 package es.eucm.rage.realtime.filters;
 
-import org.apache.storm.trident.operation.Filter;
-import org.apache.storm.trident.operation.TridentOperationContext;
+import org.apache.storm.trident.operation.BaseFilter;
 import org.apache.storm.trident.tuple.TridentTuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+public class FieldValueFilter extends BaseFilter {
 
-public class FieldValueFilter implements Filter {
+	/**
+	 * @see java.io.Serializable
+	 */
+	private static final long serialVersionUID = -5139354257713725085L;
 
-    private String field;
+	private static final Logger LOGGER = LoggerFactory.getLogger(FieldValueFilter.class);
 
-    private Object value;
+	private String field;
 
-    /**
-     * Filters a TridentTuple depending on the value of a given field
-     *
-     * @param field
-     *            field key to extract from the {@link TridentTuple}
-     * @param value
-     *            value that must be matched with the value from the field from
-     *            the {@link TridentTuple}
-     */
-    public FieldValueFilter(String field, Object value) {
-        this.field = field;
-        this.value = value;
-    }
+	private Object value;
 
-    @Override
-    public boolean isKeep(TridentTuple objects) {
-        try {
-            return value.equals(objects.getValueByField(field));
-        } catch (Exception ex) {
-            System.out.println("Error unexpected exception, discarding" + ex.toString());
-            return false;
-        }
-    }
+	/**
+	 * Filters a TridentTuple depending on the value of a given field
+	 * 
+	 * @param field
+	 *            field key to extract from the {@link TridentTuple}
+	 * @param value
+	 *            value that must be matched with the value from the field from
+	 *            the {@link TridentTuple}
+	 */
+	public FieldValueFilter(String field, Object value) {
+		this.field = field;
+		this.value = value;
+	}
 
-    @Override
-    public void prepare(Map map, TridentOperationContext tridentOperationContext) {
-
-    }
-
-    @Override
-    public void cleanup() {
-
-    }
+	@Override
+	public boolean isKeep(TridentTuple objects) {
+		try {
+			return value.equals(objects.getValueByField(field));
+		} catch (Exception ex) {
+			LOGGER.error("Error comparing values => tuple filtered", ex);
+			return false;
+		}
+	}
 }

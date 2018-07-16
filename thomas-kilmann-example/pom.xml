@@ -37,7 +37,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <topology.mainClass>es.eucm.rage.realtime.simple.Analysis</topology.mainClass>
     </properties>
 
     <dependencies>

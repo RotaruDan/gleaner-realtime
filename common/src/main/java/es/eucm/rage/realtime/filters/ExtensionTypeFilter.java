@@ -15,101 +15,97 @@
  */
 package es.eucm.rage.realtime.filters;
 
-import es.eucm.rage.realtime.topologies.TopologyBuilder;
-import org.apache.storm.trident.operation.Filter;
-import org.apache.storm.trident.operation.TridentOperationContext;
-import org.apache.storm.trident.tuple.TridentTuple;
-
 import java.util.Map;
-import java.util.logging.Logger;
 
-public class ExtensionTypeFilter implements Filter {
-    private static final Logger LOGGER = Logger
-            .getLogger(ExtensionTypeFilter.class.getName());
-    public static final boolean LOG = false;
+import org.apache.storm.trident.operation.BaseFilter;
+import org.apache.storm.trident.tuple.TridentTuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    private final Class clazz;
-    private String extensionKey;
+import es.eucm.rage.realtime.topologies.TopologyBuilder;
 
-    /**
-     * Filters a Trace TridentTuple depending if it has an extension 'extKey' if
-     * type 'clazz'
-     */
-    public ExtensionTypeFilter(String extKey, Class clazz) {
-        this.extensionKey = extKey;
-        this.clazz = clazz;
-    }
+public class ExtensionTypeFilter extends BaseFilter {
+	
+	/**
+	 * @see java.io.Serializable
+	 */
+	private static final long serialVersionUID = 1843150241877981640L;
 
-    @Override
-    public boolean isKeep(TridentTuple objects) {
-        try {
-            Object traceObject = objects.getValueByField(TopologyBuilder.TRACE_KEY);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionTypeFilter.class);
 
-            if (!(traceObject instanceof Map)) {
-                if (LOG) {
-                    LOGGER.info(TopologyBuilder.TRACE_KEY + " field of tuple "
-                            + objects + " is not a map, found: " + traceObject);
-                }
-                return false;
-            }
+	private final Class<?> clazz;
+	
+	private String extensionKey;
 
-            Object outObject = ((Map) traceObject).get(TopologyBuilder.OUT_KEY);
+	/**
+	 * Filters a Trace TridentTuple depending if it has an extension 'extKey' if
+	 * type 'clazz'
+	 */
+	public ExtensionTypeFilter(String extKey, Class<?> clazz) {
+		this.extensionKey = extKey;
+		this.clazz = clazz;
+	}
 
-            if (!(outObject instanceof Map)) {
-                if (LOG) {
-                    LOGGER.info(TopologyBuilder.OUT_KEY + " field of tuple "
-                            + objects + " is not a map, found: " + traceObject);
-                }
-                return false;
-            }
+	// XXX Review, too much checks
+	@Override
+	public boolean isKeep(TridentTuple objects) {
+		try {
+			Object traceObject = objects
+					.getValueByField(TopologyBuilder.TRACE_KEY);
 
-            Map trace = (Map) outObject;
+			if (!(traceObject instanceof Map)) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("{} field of tuple {} is not a map, found: {} => tuple filtered", TopologyBuilder.TRACE_KEY, objects, traceObject);
+				}
+				return false;
+			}
 
-            Object extObject = trace.get(TopologyBuilder.EXTENSIONS_KEY);
+			@SuppressWarnings("unchecked")
+			Object outObject = ((Map<String, Object>) traceObject).get(TopologyBuilder.OUT_KEY);
 
-            if (!(extObject instanceof Map)) {
-                if (LOG) {
-                    LOGGER.info(TopologyBuilder.EXTENSIONS_KEY + " field of trace "
-                            + trace + " is not a map, found: " + extObject);
-                }
-                return false;
-            }
+			if (!(outObject instanceof Map)) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("{} field of type {} is not a map, found: {} => tuple filtered",	TopologyBuilder.OUT_KEY, objects, traceObject);
+				}
+				return false;
+			}
 
-            Map ext = (Map) extObject;
+			@SuppressWarnings("unchecked")
+			Map<String, Object> trace = (Map<String, Object>) outObject;
 
-            Object extKeyObject = ext.get(extensionKey);
+			Object extObject = trace.get(TopologyBuilder.EXTENSIONS_KEY);
 
-            if (extKeyObject == null) {
-                if (LOG) {
-                    LOGGER.info(extensionKey + " extension of extensions " + ext
-                            + " is null");
-                }
-                return false;
-            }
+			if (!(extObject instanceof Map)) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("{} field of trace {} is not a map, found: {} => tuple filtered",	TopologyBuilder.EXTENSIONS_KEY, trace, extObject);
+				}
+				return false;
+			}
 
-            if (!(clazz.isAssignableFrom(extKeyObject.getClass()))) {
-                if (LOG) {
-                    LOGGER.info(extensionKey + " extension of extensions " + ext
-                            + " is not a " + clazz + ", found: "
-                            + extKeyObject.getClass());
-                }
-                return false;
-            }
+			@SuppressWarnings("unchecked")
+			Map<String, Object> ext = (Map<String, Object>) extObject;
 
-        } catch (Exception ex) {
-            LOGGER.info("Error unexpected exception, discarding" + ex.toString());
-            return false;
-        }
-        return true;
-    }
+			Object extKeyObject = ext.get(extensionKey);
 
-    @Override
-    public void prepare(Map map, TridentOperationContext tridentOperationContext) {
+			if (extKeyObject == null) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("{} extension of extensions {} is null => tuple filtered",	extensionKey, ext);
+				}
+				return false;
+			}
 
-    }
+			if (!(clazz.isAssignableFrom(extKeyObject.getClass()))) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("{} extension of extensions {} is not a {} => tuple filtered",	extensionKey, ext, clazz);
+				}
+				return false;
+			}
 
-    @Override
-    public void cleanup() {
+		} catch (Exception ex) {
+			LOGGER.error("Error comparing values => tuple filtered", ex);
+			return false;
+		}
+		return true;
+	}
 
-    }
 }

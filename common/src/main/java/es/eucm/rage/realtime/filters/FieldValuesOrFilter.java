@@ -15,57 +15,53 @@
  */
 package es.eucm.rage.realtime.filters;
 
-import org.apache.storm.trident.operation.Filter;
-import org.apache.storm.trident.operation.TridentOperationContext;
+import org.apache.storm.trident.operation.BaseFilter;
 import org.apache.storm.trident.tuple.TridentTuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+public class FieldValuesOrFilter extends BaseFilter {
 
-public class FieldValuesOrFilter implements Filter {
+	/**
+	 * @see java.io.Serializable
+	 */
+	private static final long serialVersionUID = 5988954600530258821L;
 
-    private String field;
+	private static final Logger LOGGER = LoggerFactory.getLogger(FieldValueFilter.class);
 
-    private Object[] values;
+	private String field;
 
-    /**
-     * Filters a TridentTuple depending on the value of multiple filters, if any
-     * of the given values the value from the provided field (OR)
-     *
-     * @param field
-     *            field key to extract from the {@link TridentTuple}
-     * @param values
-     *            values that must be matched with the value from the field from
-     *            the {@link TridentTuple}
-     */
-    public FieldValuesOrFilter(String field, Object... values) {
-        this.field = field;
-        this.values = values;
-    }
+	private Object[] values;
 
-    @Override
-    public boolean isKeep(TridentTuple objects) {
-        try {
-            Object valueField = objects.getValueByField(field);
-            for (int i = 0; i < values.length; ++i) {
-                if (values[i].equals(valueField)) {
-                    return true;
-                }
-            }
-        } catch (Exception ex) {
-            System.out.println("Error unexpected exception, discarding" + ex.toString());
-            return false;
-        }
+	/**
+	 * Filters a TridentTuple depending on the value of multiple filters, if any
+	 * of the given values the value from the provided field (OR)
+	 * 
+	 * @param field
+	 *            field key to extract from the {@link TridentTuple}
+	 * @param values
+	 *            values that must be matched with the value from the field from
+	 *            the {@link TridentTuple}
+	 */
+	public FieldValuesOrFilter(String field, Object... values) {
+		this.field = field;
+		this.values = values;
+	}
 
-        return false;
-    }
+	@Override
+	public boolean isKeep(TridentTuple objects) {
+		try {
+			Object valueField = objects.getValueByField(field);
+			for (int i = 0; i < values.length; ++i) {
+				if (values[i].equals(valueField)) {
+					return true;
+				}
+			}
+		} catch (Exception ex) {
+			LOGGER.error("Error comparing values => tuple filtered", ex);
+			return false;
+		}
 
-    @Override
-    public void prepare(Map map, TridentOperationContext tridentOperationContext) {
-
-    }
-
-    @Override
-    public void cleanup() {
-
-    }
+		return false;
+	}
 }

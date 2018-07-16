@@ -20,7 +20,6 @@ import es.eucm.rage.realtime.AbstractAnalysis;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.Document;
 import es.eucm.rage.realtime.utils.ESUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;

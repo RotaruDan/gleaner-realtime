@@ -15,24 +15,47 @@
  */
 package es.eucm.rage.realtime.topologies;
 
-import org.apache.storm.kafka.BrokerHosts;
-import org.apache.storm.kafka.StringScheme;
-import org.apache.storm.kafka.ZkHosts;
-import org.apache.storm.kafka.trident.OpaqueTridentKafkaSpout;
-import org.apache.storm.kafka.trident.TridentKafkaConfig;
-import org.apache.storm.spout.SchemeAsMultiScheme;
+import java.io.Serializable;
+import java.util.List;
+
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.storm.kafka.spout.Func;
+import org.apache.storm.kafka.spout.KafkaSpoutConfig;
+import org.apache.storm.kafka.spout.trident.KafkaTridentSpoutOpaque;
+import org.apache.storm.tuple.Fields;
+import org.apache.storm.tuple.Values;
 
 public class KafkaSpoutBuilder {
 
+	public static final String SCHEME_KEY = "str";
+	
+	private static Func<ConsumerRecord<String, String>, List<Object>> JUST_VALUE_FUNC = new JustValueFunc();
+	
+  /**
+   * Needs to be serializable
+   */
+  private static class JustValueFunc implements Func<ConsumerRecord<String, String>, List<Object>>, Serializable {
+    /**
+		 * @see java.io.Serializable 
+		 */
+		private static final long serialVersionUID = -1055394368828229747L;
+
+			@Override
+      public List<Object> apply(ConsumerRecord<String, String> record) {
+          return new Values(record.value());
+      }
+  }
+
+  
 	private String topic;
+	
 	private String zookeeperUrl;
 
 	/**
-	 * Builds an {@link OpaqueTridentKafkaSpout} when invoking the method
-	 * {@link KafkaSpoutBuilder#build()}.
+	 * Builds an {@link OpaqueTridentKafkaSpout} when invoking the method {@link KafkaSpoutBuilder#build()}.
 	 */
-	public KafkaSpoutBuilder() {
-	}
+	public KafkaSpoutBuilder() {}
 
 	public KafkaSpoutBuilder zookeeper(String zookeeperUrl) {
 		this.zookeeperUrl = zookeeperUrl;
@@ -44,20 +67,16 @@ public class KafkaSpoutBuilder {
 		return this;
 	}
 
-	public OpaqueTridentKafkaSpout build() {
+	public KafkaTridentSpoutOpaque<String, String> build() {
 
-		// ZooKeeper configuration for the TridentKafkaConfig
-		BrokerHosts zk = new ZkHosts(this.zookeeperUrl);
+		return new KafkaTridentSpoutOpaque<>(newKafkaSpoutConfig());
 
-		// Kafka configuration for the OpaqueTridentKafkaSpout
-		TridentKafkaConfig spoutConf = new TridentKafkaConfig(zk, topic, topic);
-		spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
-
-		// Spout pulling data from Kafka topic "sessionId" under the "str" field
-		// key
-		OpaqueTridentKafkaSpout spout = new OpaqueTridentKafkaSpout(spoutConf);
-
-		return spout;
 	}
 
+	protected KafkaSpoutConfig<String, String> newKafkaSpoutConfig() {
+		return KafkaSpoutConfig.builder(this.zookeeperUrl, this.topic)
+				.setProp(ConsumerConfig.GROUP_ID_CONFIG, this.topic + "_" + System.nanoTime())
+				.setRecordTranslator(JUST_VALUE_FUNC, new Fields(SCHEME_KEY))
+				.build();
+	}
 }

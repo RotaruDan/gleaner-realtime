@@ -54,7 +54,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.storm</groupId>
-            <artifactId>storm-kafka</artifactId>
+            <artifactId>storm-kafka-client</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
