@@ -52,3 +52,8 @@ atlassian-ide-plugin.xml
 com_crashlytics_export_strings.xml
 
 target/
+
+## Ignore project files created by Eclipse
+.settings
+.project
+.classpath
