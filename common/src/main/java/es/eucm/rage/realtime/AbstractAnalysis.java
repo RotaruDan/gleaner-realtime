@@ -41,6 +41,7 @@ public abstract class AbstractAnalysis {
 
 	public static final String ELASTICSEARCH_URL_FLUX_PARAM = "elasticsearchUrl";
 	public static final String ZOOKEEPER_URL_FLUX_PARAM = "zookeeperUrl";
+	public static final String KAFKA_URL_FLUX_PARAM = "kafkaUrl";
 	public static final String TOPIC_NAME_FLUX_PARAM = "topicName";
 	private static final String NOW_DATE = String.valueOf(
 			(new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date())))
