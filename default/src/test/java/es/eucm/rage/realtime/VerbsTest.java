@@ -92,7 +92,7 @@ public class VerbsTest {
 				idx = secondIndex;
 			}
 			List tuples = parser.getTuples("verbs/" + VERBS_FILES[i] + ".csv",
-					idx, i, "name");
+					idx, i, "name", "class_name_" + NOW_DATE);
 			tracesSpout.feed(tuples);
 
 			Integer current = res.get(idx);
