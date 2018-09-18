@@ -15,6 +15,7 @@
  */
 package es.eucm.rage.realtime.states;
 
+import es.eucm.rage.realtime.functions.MapFieldExtractor;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.states.elasticsearch.EsState;
 import org.apache.storm.trident.operation.TridentCollector;
@@ -24,6 +25,7 @@ import org.apache.storm.trident.tuple.TridentTuple;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Sets the property extracting the {@link TopologyBuilder#PROPERTY_KEY} and the
@@ -32,33 +34,37 @@ import java.util.Map;
  * {@link TopologyBuilder.TridentTraceKeys#GAMEPLAY_ID}.
  */
 public class GameplayStateUpdater implements StateUpdater<EsState> {
+	private static final Logger LOGGER = Logger
+			.getLogger(GameplayStateUpdater.class.getName());
 
-    @Override
-    public void updateState(EsState state, List<TridentTuple> tuples,
-                            TridentCollector collector) {
-        try {
-            for (TridentTuple tuple : tuples) {
-                String activityId = tuple
-                        .getStringByField(TopologyBuilder.ACTIVITY_ID_KEY);
-                String gameplayId = tuple
-                        .getStringByField(TopologyBuilder.GAMEPLAY_ID);
-                String property = tuple
-                        .getStringByField(TopologyBuilder.PROPERTY_KEY);
-                Object value = tuple.getValueByField(TopologyBuilder.VALUE_KEY);
-                state.setProperty(activityId, gameplayId, property, value);
-            }
-        } catch (Exception ex) {
-            System.out.println("Error unexpected exception, discarding" + ex.toString());
-        }
-    }
+	@Override
+	public void updateState(EsState state, List<TridentTuple> tuples,
+			TridentCollector collector) {
+		try {
+			for (TridentTuple tuple : tuples) {
+				String activityId = tuple
+						.getStringByField(TopologyBuilder.ACTIVITY_ID_KEY);
+				String name = tuple
+						.getStringByField(TopologyBuilder.TridentTraceKeys.NAME);
+				String property = tuple
+						.getStringByField(TopologyBuilder.PROPERTY_KEY);
+				Object value = tuple.getValueByField(TopologyBuilder.VALUE_KEY);
+				state.setProperty(activityId, name, property, value);
+			}
+		} catch (Exception ex) {
+			LOGGER.info("Error unexpected exception, discarding "
+					+ ex.toString());
+			ex.printStackTrace();
+		}
+	}
 
-    @Override
-    public void prepare(Map conf, TridentOperationContext context) {
+	@Override
+	public void prepare(Map conf, TridentOperationContext context) {
 
-    }
+	}
 
-    @Override
-    public void cleanup() {
+	@Override
+	public void cleanup() {
 
-    }
+	}
 }

@@ -64,9 +64,9 @@ public class ThomasKilmannTopologyTest {
 		StateFactory persistentAggregateFactory = new EsMapState.Factory();
 
 		// Test topology Builder configuration
-		new ThomasKilmannTopologyBuilder().build(topology,
+		new ThomasKilmannTopologyBuilder().build(topology, null,
 				topology.newStream("testFileStream", tracesSpout),
-				partitionPersist, persistentAggregateFactory);
+				partitionPersist, persistentAggregateFactory, null);
 
 		Config conf = new Config();
 		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);

@@ -16,18 +16,19 @@
 package es.eucm.rage.realtime.example.topologies;
 
 import es.eucm.rage.realtime.example.AverageUpdater;
-import es.eucm.rage.realtime.filters.FieldValueFilter;
+import es.eucm.rage.realtime.simple.filters.FieldValueFilter;
 import es.eucm.rage.realtime.functions.LogConsumer;
 import es.eucm.rage.realtime.functions.ToDouble;
 import es.eucm.rage.realtime.functions.TraceFieldExtractor;
-import es.eucm.rage.realtime.states.GameplayStateUpdater;
 
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
+import org.apache.storm.kafka.trident.OpaqueTridentKafkaSpout;
 import org.apache.storm.trident.Stream;
-import org.apache.storm.trident.TridentState;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.state.StateFactory;
 import org.apache.storm.tuple.Fields;
+
+import java.util.Map;
 
 /**
  * RAGE Analytics implementation of
@@ -44,9 +45,10 @@ public class MeanTopologyBuilder implements
 	}
 
 	@Override
-	public void build(TridentTopology tridentTopology, Stream tracesStream,
+	public void build(TridentTopology tridentTopology,
+			OpaqueTridentKafkaSpout spout, Stream tracesStream,
 			StateFactory partitionPersistFactory,
-			StateFactory persistentAggregateFactory) {
+			StateFactory persistentAggregateFactory, Map<String, Object> conf) {
 
 		/** ---> AbstractAnalysis definition <--- **/
 
