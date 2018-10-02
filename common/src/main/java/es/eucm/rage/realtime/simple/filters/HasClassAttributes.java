@@ -23,16 +23,16 @@ import org.apache.storm.trident.tuple.TridentTuple;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class HasActivityIdFilter implements Filter {
+public class HasClassAttributes implements Filter {
 	private static final Logger LOGGER = Logger
-			.getLogger(HasActivityIdFilter.class.getName());
+			.getLogger(HasClassAttributes.class.getName());
 	public static final boolean LOG = false;
 
 	/**
 	 * Filters a Trace TridentTuple depending if it has the "activityId",
 	 * "classId" and "activityName" fields
 	 */
-	public HasActivityIdFilter() {
+	public HasClassAttributes() {
 	}
 
 	@Override

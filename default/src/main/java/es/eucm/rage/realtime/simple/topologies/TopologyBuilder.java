@@ -19,6 +19,7 @@ import es.eucm.rage.realtime.simple.filters.FieldValueFilter;
 import es.eucm.rage.realtime.simple.filters.FieldValuesOrFilter;
 import es.eucm.rage.realtime.functions.*;
 import es.eucm.rage.realtime.functions.DocumentBuilder;
+import es.eucm.rage.realtime.simple.filters.HasClassAttributes;
 import es.eucm.rage.realtime.states.GameplayStateUpdater;
 import es.eucm.rage.realtime.states.TraceStateUpdater;
 
@@ -80,6 +81,7 @@ public class TopologyBuilder implements
 		// ElasticSearch
 		// index
 		tracesStream
+				.each(new Fields(TRACE_KEY), new HasClassAttributes())
 				.each(new Fields(TRACE_KEY),
 						new DocumentBuilder(TRACE_KEY, CLASS_ID),
 						new Fields(DOCUMENT_KEY))
