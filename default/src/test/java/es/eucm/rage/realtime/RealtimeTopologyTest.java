@@ -77,6 +77,7 @@ public class RealtimeTopologyTest {
 		CSVToMapTrace parser = new CSVToMapTrace();
 		String firstIndex = "1-" + NOW_DATE;
 		String secondIndex = "2-" + NOW_DATE;
+		String className = "class_name-" + NOW_DATE;
 		Map<String, Integer> res = new HashMap<>();
 		for (int i = 0; i < TRACES_FILES.length; ++i) {
 			String idx;
@@ -86,7 +87,8 @@ public class RealtimeTopologyTest {
 				idx = secondIndex;
 			}
 			List tuples = parser.getTuples(
-					"traces/" + TRACES_FILES[i] + ".csv", idx, i);
+					"traces/" + TRACES_FILES[i] + ".csv", idx, i, null,
+					className);
 			tracesSpout.feed(tuples);
 
 			Integer current = res.get(idx);
@@ -108,6 +110,7 @@ public class RealtimeTopologyTest {
 		RestClient client = RestClient.builder(new HttpHost(ES_HOST, 9200))
 				.build();
 
+		int totalClass = 0;
 		for (Map.Entry<String, Integer> entry : res.entrySet()) {
 
 			Response response = client.performRequest("GET",
@@ -124,11 +127,29 @@ public class RealtimeTopologyTest {
 			Map hits = (Map) responseDocs.get("hits");
 
 			int total = ((Double) hits.get("total")).intValue();
-
+			totalClass += total;
 			assertEquals("Total traces " + entry.getValue() + ", current "
 					+ total, Math.abs(total - entry.getValue().intValue()) < 5,
 					true);
 		}
+
+		// Check total class traces
+		Response response = client.performRequest("GET", "/" + className
+				+ "/_search?size=5000&q=*:*");
+		int status = response.getStatusLine().getStatusCode();
+
+		assertEquals("TEST GET error, status is" + status, status,
+				HttpStatus.SC_OK);
+
+		String responseString = EntityUtils.toString(response.getEntity());
+		Map<String, Object> responseDocs = (Map) gson.fromJson(responseString,
+				Map.class);
+
+		Map hits = (Map) responseDocs.get("hits");
+
+		int totalClassDB = ((Double) hits.get("total")).intValue();
+		assertEquals("Total traces " + className + ", current " + totalClassDB,
+				totalClassDB, totalClass);
 
 		for (int i = 0; i < TRACES_FILES.length; ++i) {
 			List<String> lines = parser.getLines("traces/results/"

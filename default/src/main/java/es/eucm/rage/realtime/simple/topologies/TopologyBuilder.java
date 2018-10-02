@@ -19,6 +19,7 @@ import es.eucm.rage.realtime.simple.filters.FieldValueFilter;
 import es.eucm.rage.realtime.simple.filters.FieldValuesOrFilter;
 import es.eucm.rage.realtime.functions.*;
 import es.eucm.rage.realtime.functions.DocumentBuilder;
+import es.eucm.rage.realtime.simple.filters.HasClassAttributes;
 import es.eucm.rage.realtime.states.GameplayStateUpdater;
 import es.eucm.rage.realtime.states.TraceStateUpdater;
 
@@ -68,6 +69,21 @@ public class TopologyBuilder implements
 		// index
 		tracesStream
 				.each(new Fields(TRACE_KEY), new DocumentBuilder(TRACE_KEY),
+						new Fields(DOCUMENT_KEY))
+				.peek(new LogConsumer("Directly to Kibana!"))
+				.partitionPersist(partitionPersistFactory,
+						new Fields(DOCUMENT_KEY), new TraceStateUpdater());
+
+		// 1 - For each TRACE_KEY (from Kibana) that we receive
+		// 2 - Create an ElasticSearch "sanitized" document identified as
+		// "document"
+		// 3 - Finally persist the "document" to the CLASS_ID
+		// ElasticSearch
+		// index
+		tracesStream
+				.each(new Fields(TRACE_KEY), new HasClassAttributes())
+				.each(new Fields(TRACE_KEY),
+						new DocumentBuilder(TRACE_KEY, CLASS_ID),
 						new Fields(DOCUMENT_KEY))
 				.peek(new LogConsumer("Directly to Kibana!"))
 				.partitionPersist(partitionPersistFactory,

@@ -38,11 +38,14 @@ public class CSVToMapTrace {
 
 	public List<List<Object>> getTuples(String csvTracesFile,
 			String activityId, int i) {
-		return getTuples(csvTracesFile, activityId, i, null);
+		return getTuples(csvTracesFile, activityId, i, null, null);
 	}
 
 	public List<List<Object>> getTuples(String csvTracesFile,
-			String activityId, int i, String name) {
+			String activityId, int i, String name, String classId) {
+		if (classId == null) {
+			classId = "testClass";
+		}
 		biasesCount = 0;
 		completedSuccessfully = 0;
 		List<List<Object>> ret = new ArrayList<List<Object>>();
@@ -67,8 +70,10 @@ public class CSVToMapTrace {
 						trace.put(TopologyBuilder.OUT_KEY, outTrace);
 						trace.put(TopologyBuilder.GAMEPLAY_ID, "gameplayid" + i);
 						trace.put(TopologyBuilder.ACTIVITY_ID_KEY, activityId);
+						trace.put(TopologyBuilder.ACTIVITY_NAME_KEY, activityId
+								+ "_name");
 						trace.put(TopologyBuilder.GLP_ID_KEY, glpId);
-						trace.put(TopologyBuilder.CLASS_ID, "testClass");
+						trace.put(TopologyBuilder.CLASS_ID, classId);
 						trace.put(TopologyBuilder.UUIDV4, UUID.randomUUID()
 								.toString());
 						ret.add(Arrays.asList(trace));

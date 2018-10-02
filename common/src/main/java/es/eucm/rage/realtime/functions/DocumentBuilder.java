@@ -37,6 +37,7 @@ public class DocumentBuilder implements Function {
 			.getName());
 
 	private final String defaultTraceKey;
+	private final String indexIdKey;
 
 	/**
 	 * Builds a {@link Document} from a TridentTouple. The trace is sanitized
@@ -46,6 +47,18 @@ public class DocumentBuilder implements Function {
 	 * @param defaultTraceKey
 	 */
 	public DocumentBuilder(String defaultTraceKey) {
+		this(defaultTraceKey, TopologyBuilder.ACTIVITY_ID_KEY);
+	}
+
+	/**
+	 * Builds a {@link Document} from a TridentTouple. The trace is sanitized
+	 * before being persisted. The {@link Document} is designed to be persisted
+	 * in ElasticSearch.
+	 * 
+	 * @param defaultTraceKey
+	 */
+	public DocumentBuilder(String defaultTraceKey, String indexIdKey) {
+		this.indexIdKey = indexIdKey;
 		this.defaultTraceKey = defaultTraceKey;
 	}
 
@@ -62,7 +75,7 @@ public class DocumentBuilder implements Function {
 
 			String index = null;
 
-			Object indexObj = trace.get(TopologyBuilder.ACTIVITY_ID_KEY);
+			Object indexObj = trace.get(indexIdKey);
 
 			if (indexObj != null && (indexObj instanceof String)) {
 				index = indexObj.toString();
