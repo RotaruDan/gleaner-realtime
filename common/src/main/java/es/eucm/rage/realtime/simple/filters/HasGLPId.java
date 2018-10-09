@@ -23,18 +23,18 @@ import org.apache.storm.trident.tuple.TridentTuple;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class IsLeafFilter implements Filter {
-	private static final Logger LOGGER = Logger.getLogger(IsLeafFilter.class
+public class HasGLPId implements Filter {
+	private static final Logger LOGGER = Logger.getLogger(HasGLPId.class
 			.getName());
 	public static final boolean LOG = true;
 
 	private String traceKey;
 
 	/**
-	 * Filters a Trace TridentTuple to se eif it's a leaf
+	 * Filters a Trace TridentTuple to se if it has GLP_ID field
 	 * 
 	 */
-	public IsLeafFilter(String traceKey) {
+	public HasGLPId(String traceKey) {
 		this.traceKey = traceKey;
 	}
 
@@ -53,18 +53,10 @@ public class IsLeafFilter implements Filter {
 
 			Map traceMap = (Map) traceObject;
 
-			Object childActivityObject = traceMap
-					.get(TopologyBuilder.CHILD_ACTIVITY_ID_KEY);
+			Object glpId = traceMap.get(TopologyBuilder.GLP_ID_KEY);
 
-			if (childActivityObject == null) {
-				// Is a leaf, it's not coming from a child
-
-				// ALso check that it has a GLP_ID key set
-
-				Object glpId = traceMap.get(TopologyBuilder.GLP_ID_KEY);
-
-				// Let it pass only if the glpId is not null
-				return glpId != null;
+			if (glpId != null) {
+				return true;
 			}
 
 			return false;
