@@ -1,0 +1,724 @@
+[
+  {
+    "statement": {
+      "actor": {
+        "account": {
+          "homePage": "http://a2:3000/",
+          "name": "Anonymous"
+        },
+        "name": "quasiextraterritorial-palaeozoological-kite"
+      },
+      "verb": {
+        "id": "https://beaconing.e-ucm.es/xapi/geolocated/verbs/moved"
+      },
+      "object": {
+        "id": "http://a2:3000/api/proxy/gleaner/games/5b165d4ac7171c007719bc61/5b165d4ac7171c007719bc62/urban-area/nextPOI",
+        "definition": {
+          "type": "https://beaconing.e-ucm.es/xapi/geolocated/activity-types/urban-area",
+          "extensions": {
+            "gameplayId": "5bbc771a5a2526008d425abb",
+            "versionId": "5b165d4ac7171c007719bc62",
+            "activityId": "5b165f9ec7171c007719bc66",
+            "session": 1,
+            "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+            "currentSessionStarted": "2018-10-09T09:38:34.345Z"
+          }
+        }
+      },
+      "timestamp": "2018-10-09T09:38:36.560Z",
+      "result": {
+        "extensions": {
+          "https://beaconing.e-ucm.es/xapi/geolocated/extensions/location": {
+            "lat": 1,
+            "lon": 2
+          }
+        }
+      }
+    },
+    "out": {
+      "name": "quasiextraterritorial-palaeozoological-kite",
+      "timestamp": "2018-10-09T09:38:36.560Z",
+      "event": "moved",
+      "target": "nextPOI",
+      "type": "urban-area",
+      "ext": {
+        "location": {
+          "lat": 1,
+          "lon": 2
+        }
+      },
+      "gameplayId": "5bbc771a5a2526008d425abb",
+      "versionId": "5b165d4ac7171c007719bc62",
+      "activityId": "5b165f9ec7171c007719bc66",
+      "session": 1,
+      "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+      "currentSessionStarted": "2018-10-09T09:38:34.345Z",
+      "uuidv4": "64ac49c2-1a55-45b5-9144-38fa14bd9a8d"
+    },
+    "playerId": "5bbc771a5a2526008d425aba",
+    "gameplayId": "5bbc771a5a2526008d425abb",
+    "versionId": "5b165d4ac7171c007719bc62",
+    "activityId": "5b165f9ec7171c007719bc66",
+    "classId": "5b165e8ec7171c007719bc63"
+  },
+  {
+    "statement": {
+      "actor": {
+        "account": {
+          "homePage": "http://a2:3000/",
+          "name": "Anonymous"
+        },
+        "name": "quasiextraterritorial-palaeozoological-kite"
+      },
+      "verb": {
+        "id": "https://beaconing.e-ucm.es/xapi/geolocated/verbs/moved"
+      },
+      "object": {
+        "id": "http://a2:3000/api/proxy/gleaner/games/5b165d4ac7171c007719bc61/5b165d4ac7171c007719bc62/point-of-interest/POI1",
+        "definition": {
+          "type": "https://beaconing.e-ucm.es/xapi/geolocated/activity-types/point-of-interest",
+          "extensions": {
+            "gameplayId": "5bbc771a5a2526008d425abb",
+            "versionId": "5b165d4ac7171c007719bc62",
+            "activityId": "5b165f9ec7171c007719bc66",
+            "session": 1,
+            "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+            "currentSessionStarted": "2018-10-09T09:38:34.345Z"
+          }
+        }
+      },
+      "timestamp": "2018-10-09T09:38:42.558Z",
+      "result": {
+        "extensions": {
+          "https://beaconing.e-ucm.es/xapi/geolocated/extensions/location": {
+            "lat": 52.4060874,
+            "lon": -1.5006635000000002
+          }
+        }
+      }
+    },
+    "out": {
+      "name": "quasiextraterritorial-palaeozoological-kite",
+      "timestamp": "2018-10-09T09:38:42.558Z",
+      "event": "moved",
+      "target": "POI1",
+      "type": "point-of-interest",
+      "ext": {
+        "location": {
+          "lat": 52.4060874,
+          "lon": -1.5006635000000002
+        }
+      },
+      "gameplayId": "5bbc771a5a2526008d425abb",
+      "versionId": "5b165d4ac7171c007719bc62",
+      "activityId": "5b165f9ec7171c007719bc66",
+      "session": 1,
+      "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+      "currentSessionStarted": "2018-10-09T09:38:34.345Z",
+      "uuidv4": "0055afe6-f412-4da5-bae0-90904848dafe"
+    },
+    "playerId": "5bbc771a5a2526008d425aba",
+    "gameplayId": "5bbc771a5a2526008d425abb",
+    "versionId": "5b165d4ac7171c007719bc62",
+    "activityId": "5b165f9ec7171c007719bc66",
+    "classId": "5b165e8ec7171c007719bc63"
+  },
+  {
+    "statement": {
+      "actor": {
+        "account": {
+          "homePage": "http://a2:3000/",
+          "name": "Anonymous"
+        },
+        "name": "quasiextraterritorial-palaeozoological-kite"
+      },
+      "verb": {
+        "id": "http://adlnet.gov/expapi/verbs/initialized"
+      },
+      "object": {
+        "id": "http://a2:3000/api/proxy/gleaner/games/5b165d4ac7171c007719bc61/5b165d4ac7171c007719bc62/game/LB_GAME_704",
+        "definition": {
+          "type": "https://w3id.org/xapi/seriousgames/activity-types/serious-game",
+          "extensions": {
+            "gameplayId": "5bbc771a5a2526008d425abb",
+            "versionId": "5b165d4ac7171c007719bc62",
+            "activityId": "5b165f9ec7171c007719bc66",
+            "session": 1,
+            "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+            "currentSessionStarted": "2018-10-09T09:38:34.345Z"
+          }
+        }
+      },
+      "timestamp": "2018-10-09T09:38:42.558Z"
+    },
+    "out": {
+      "name": "quasiextraterritorial-palaeozoological-kite",
+      "timestamp": "2018-10-09T09:38:42.558Z",
+      "event": "initialized",
+      "target": "LB_GAME_704",
+      "type": "serious-game",
+      "gameplayId": "5bbc771a5a2526008d425abb",
+      "versionId": "5b165d4ac7171c007719bc62",
+      "activityId": "5b165f9ec7171c007719bc66",
+      "session": 1,
+      "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+      "currentSessionStarted": "2018-10-09T09:38:34.345Z",
+      "uuidv4": "0f80cd70-adf3-4adf-b1d8-e9bee648c7da"
+    },
+    "playerId": "5bbc771a5a2526008d425aba",
+    "gameplayId": "5bbc771a5a2526008d425abb",
+    "versionId": "5b165d4ac7171c007719bc62",
+    "activityId": "5b165f9ec7171c007719bc66",
+    "classId": "5b165e8ec7171c007719bc63"
+  },
+  {
+    "statement": {
+      "actor": {
+        "account": {
+          "homePage": "http://a2:3000/",
+          "name": "Anonymous"
+        },
+        "name": "quasiextraterritorial-palaeozoological-kite"
+      },
+      "verb": {
+        "id": "https://beaconing.e-ucm.es/xapi/geolocated/verbs/moved"
+      },
+      "object": {
+        "id": "http://a2:3000/api/proxy/gleaner/games/5b165d4ac7171c007719bc61/5b165d4ac7171c007719bc62/point-of-interest/POI1",
+        "definition": {
+          "type": "https://beaconing.e-ucm.es/xapi/geolocated/activity-types/point-of-interest",
+          "extensions": {
+            "gameplayId": "5bbc771a5a2526008d425abb",
+            "versionId": "5b165d4ac7171c007719bc62",
+            "activityId": "5b165f9ec7171c007719bc66",
+            "session": 1,
+            "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+            "currentSessionStarted": "2018-10-09T09:38:34.345Z"
+          }
+        }
+      },
+      "timestamp": "2018-10-09T09:38:42.558Z",
+      "result": {
+        "extensions": {
+          "https://beaconing.e-ucm.es/xapi/geolocated/extensions/location": {
+            "lat": 52.4060874,
+            "lon": -1.5006635000000002
+          }
+        }
+      }
+    },
+    "out": {
+      "name": "quasiextraterritorial-palaeozoological-kite",
+      "timestamp": "2018-10-09T09:38:42.558Z",
+      "event": "moved",
+      "target": "POI1",
+      "type": "point-of-interest",
+      "ext": {
+        "location": {
+          "lat": 52.4060874,
+          "lon": -1.5006635000000002
+        }
+      },
+      "gameplayId": "5bbc771a5a2526008d425abb",
+      "versionId": "5b165d4ac7171c007719bc62",
+      "activityId": "5b165f9ec7171c007719bc66",
+      "session": 1,
+      "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+      "currentSessionStarted": "2018-10-09T09:38:34.345Z",
+      "uuidv4": "370f964f-3af3-4b51-b9db-b830e0c3948b"
+    },
+    "playerId": "5bbc771a5a2526008d425aba",
+    "gameplayId": "5bbc771a5a2526008d425abb",
+    "versionId": "5b165d4ac7171c007719bc62",
+    "activityId": "5b165f9ec7171c007719bc66",
+    "classId": "5b165e8ec7171c007719bc63"
+  },
+  {
+    "statement": {
+      "actor": {
+        "account": {
+          "homePage": "http://a2:3000/",
+          "name": "Anonymous"
+        },
+        "name": "quasiextraterritorial-palaeozoological-kite"
+      },
+      "verb": {
+        "id": "https://beaconing.e-ucm.es/xapi/geolocated/verbs/moved"
+      },
+      "object": {
+        "id": "http://a2:3000/api/proxy/gleaner/games/5b165d4ac7171c007719bc61/5b165d4ac7171c007719bc62/point-of-interest/POI1",
+        "definition": {
+          "type": "https://beaconing.e-ucm.es/xapi/geolocated/activity-types/point-of-interest",
+          "extensions": {
+            "gameplayId": "5bbc771a5a2526008d425abb",
+            "versionId": "5b165d4ac7171c007719bc62",
+            "activityId": "5b165f9ec7171c007719bc66",
+            "session": 1,
+            "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+            "currentSessionStarted": "2018-10-09T09:38:34.345Z"
+          }
+        }
+      },
+      "timestamp": "2018-10-09T09:38:45.558Z",
+      "result": {
+        "extensions": {
+          "https://beaconing.e-ucm.es/xapi/geolocated/extensions/location": {
+            "lat": 52.4060874,
+            "lon": -1.5006635000000002
+          }
+        }
+      }
+    },
+    "out": {
+      "name": "quasiextraterritorial-palaeozoological-kite",
+      "timestamp": "2018-10-09T09:38:45.558Z",
+      "event": "moved",
+      "target": "POI1",
+      "type": "point-of-interest",
+      "ext": {
+        "location": {
+          "lat": 52.4060874,
+          "lon": -1.5006635000000002
+        }
+      },
+      "gameplayId": "5bbc771a5a2526008d425abb",
+      "versionId": "5b165d4ac7171c007719bc62",
+      "activityId": "5b165f9ec7171c007719bc66",
+      "session": 1,
+      "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+      "currentSessionStarted": "2018-10-09T09:38:34.345Z",
+      "uuidv4": "4d4ecbd7-1b7e-43c0-8c7c-e7bf54d5c645"
+    },
+    "playerId": "5bbc771a5a2526008d425aba",
+    "gameplayId": "5bbc771a5a2526008d425abb",
+    "versionId": "5b165d4ac7171c007719bc62",
+    "activityId": "5b165f9ec7171c007719bc66",
+    "classId": "5b165e8ec7171c007719bc63"
+  },
+  {
+    "statement": {
+      "actor": {
+        "account": {
+          "homePage": "http://a2:3000/",
+          "name": "Anonymous"
+        },
+        "name": "quasiextraterritorial-palaeozoological-kite"
+      },
+      "verb": {
+        "id": "https://beaconing.e-ucm.es/xapi/geolocated/verbs/moved"
+      },
+      "object": {
+        "id": "http://a2:3000/api/proxy/gleaner/games/5b165d4ac7171c007719bc61/5b165d4ac7171c007719bc62/point-of-interest/POI1",
+        "definition": {
+          "type": "https://beaconing.e-ucm.es/xapi/geolocated/activity-types/point-of-interest",
+          "extensions": {
+            "gameplayId": "5bbc771a5a2526008d425abb",
+            "versionId": "5b165d4ac7171c007719bc62",
+            "activityId": "5b165f9ec7171c007719bc66",
+            "session": 1,
+            "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+            "currentSessionStarted": "2018-10-09T09:38:34.345Z"
+          }
+        }
+      },
+      "timestamp": "2018-10-09T09:38:48.558Z",
+      "result": {
+        "extensions": {
+          "https://beaconing.e-ucm.es/xapi/geolocated/extensions/location": {
+            "lat": 52.4060874,
+            "lon": -1.5006635000000002
+          }
+        }
+      }
+    },
+    "out": {
+      "name": "quasiextraterritorial-palaeozoological-kite",
+      "timestamp": "2018-10-09T09:38:48.558Z",
+      "event": "moved",
+      "target": "POI1",
+      "type": "point-of-interest",
+      "ext": {
+        "location": {
+          "lat": 52.4060874,
+          "lon": -1.5006635000000002
+        }
+      },
+      "gameplayId": "5bbc771a5a2526008d425abb",
+      "versionId": "5b165d4ac7171c007719bc62",
+      "activityId": "5b165f9ec7171c007719bc66",
+      "session": 1,
+      "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+      "currentSessionStarted": "2018-10-09T09:38:34.345Z",
+      "uuidv4": "e9190d9a-c0e8-4fb1-a293-7be79901ecc3"
+    },
+    "playerId": "5bbc771a5a2526008d425aba",
+    "gameplayId": "5bbc771a5a2526008d425abb",
+    "versionId": "5b165d4ac7171c007719bc62",
+    "activityId": "5b165f9ec7171c007719bc66",
+    "classId": "5b165e8ec7171c007719bc63"
+  },
+  {
+    "statement": {
+      "actor": {
+        "account": {
+          "homePage": "http://a2:3000/",
+          "name": "Anonymous"
+        },
+        "name": "quasiextraterritorial-palaeozoological-kite"
+      },
+      "verb": {
+        "id": "https://beaconing.e-ucm.es/xapi/geolocated/verbs/moved"
+      },
+      "object": {
+        "id": "http://a2:3000/api/proxy/gleaner/games/5b165d4ac7171c007719bc61/5b165d4ac7171c007719bc62/point-of-interest/POI1",
+        "definition": {
+          "type": "https://beaconing.e-ucm.es/xapi/geolocated/activity-types/point-of-interest",
+          "extensions": {
+            "gameplayId": "5bbc771a5a2526008d425abb",
+            "versionId": "5b165d4ac7171c007719bc62",
+            "activityId": "5b165f9ec7171c007719bc66",
+            "session": 1,
+            "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+            "currentSessionStarted": "2018-10-09T09:38:34.345Z"
+          }
+        }
+      },
+      "timestamp": "2018-10-09T09:38:51.558Z",
+      "result": {
+        "extensions": {
+          "https://beaconing.e-ucm.es/xapi/geolocated/extensions/location": {
+            "lat": 52.4060874,
+            "lon": -1.5006635000000002
+          }
+        }
+      }
+    },
+    "out": {
+      "name": "quasiextraterritorial-palaeozoological-kite",
+      "timestamp": "2018-10-09T09:38:51.558Z",
+      "event": "moved",
+      "target": "POI1",
+      "type": "point-of-interest",
+      "ext": {
+        "location": {
+          "lat": 52.4060874,
+          "lon": -1.5006635000000002
+        }
+      },
+      "gameplayId": "5bbc771a5a2526008d425abb",
+      "versionId": "5b165d4ac7171c007719bc62",
+      "activityId": "5b165f9ec7171c007719bc66",
+      "session": 1,
+      "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+      "currentSessionStarted": "2018-10-09T09:38:34.345Z",
+      "uuidv4": "4d520ac6-4595-4c09-adf4-0b1231878aa3"
+    },
+    "playerId": "5bbc771a5a2526008d425aba",
+    "gameplayId": "5bbc771a5a2526008d425abb",
+    "versionId": "5b165d4ac7171c007719bc62",
+    "activityId": "5b165f9ec7171c007719bc66",
+    "classId": "5b165e8ec7171c007719bc63"
+  },
+  {
+    "statement": {
+      "actor": {
+        "account": {
+          "homePage": "http://a2:3000/",
+          "name": "Anonymous"
+        },
+        "name": "quasiextraterritorial-palaeozoological-kite"
+      },
+      "verb": {
+        "id": "https://beaconing.e-ucm.es/xapi/geolocated/verbs/moved"
+      },
+      "object": {
+        "id": "http://a2:3000/api/proxy/gleaner/games/5b165d4ac7171c007719bc61/5b165d4ac7171c007719bc62/point-of-interest/POI1",
+        "definition": {
+          "type": "https://beaconing.e-ucm.es/xapi/geolocated/activity-types/point-of-interest",
+          "extensions": {
+            "gameplayId": "5bbc771a5a2526008d425abb",
+            "versionId": "5b165d4ac7171c007719bc62",
+            "activityId": "5b165f9ec7171c007719bc66",
+            "session": 1,
+            "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+            "currentSessionStarted": "2018-10-09T09:38:34.345Z"
+          }
+        }
+      },
+      "timestamp": "2018-10-09T09:38:54.558Z",
+      "result": {
+        "extensions": {
+          "https://beaconing.e-ucm.es/xapi/geolocated/extensions/location": {
+            "lat": 52.4060874,
+            "lon": -1.5006635000000002
+          }
+        }
+      }
+    },
+    "out": {
+      "name": "quasiextraterritorial-palaeozoological-kite",
+      "timestamp": "2018-10-09T09:38:54.558Z",
+      "event": "moved",
+      "target": "POI1",
+      "type": "point-of-interest",
+      "ext": {
+        "location": {
+          "lat": 52.4060874,
+          "lon": -1.5006635000000002
+        }
+      },
+      "gameplayId": "5bbc771a5a2526008d425abb",
+      "versionId": "5b165d4ac7171c007719bc62",
+      "activityId": "5b165f9ec7171c007719bc66",
+      "session": 1,
+      "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+      "currentSessionStarted": "2018-10-09T09:38:34.345Z",
+      "uuidv4": "feb51ed4-1867-4f4c-a6c0-fa9112b2ece5"
+    },
+    "playerId": "5bbc771a5a2526008d425aba",
+    "gameplayId": "5bbc771a5a2526008d425abb",
+    "versionId": "5b165d4ac7171c007719bc62",
+    "activityId": "5b165f9ec7171c007719bc66",
+    "classId": "5b165e8ec7171c007719bc63"
+  },
+  {
+    "statement": {
+      "actor": {
+        "account": {
+          "homePage": "http://a2:3000/",
+          "name": "Anonymous"
+        },
+        "name": "quasiextraterritorial-palaeozoological-kite"
+      },
+      "verb": {
+        "id": "https://beaconing.e-ucm.es/xapi/geolocated/verbs/moved"
+      },
+      "object": {
+        "id": "http://a2:3000/api/proxy/gleaner/games/5b165d4ac7171c007719bc61/5b165d4ac7171c007719bc62/point-of-interest/POI1",
+        "definition": {
+          "type": "https://beaconing.e-ucm.es/xapi/geolocated/activity-types/point-of-interest",
+          "extensions": {
+            "gameplayId": "5bbc771a5a2526008d425abb",
+            "versionId": "5b165d4ac7171c007719bc62",
+            "activityId": "5b165f9ec7171c007719bc66",
+            "session": 1,
+            "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+            "currentSessionStarted": "2018-10-09T09:38:34.345Z"
+          }
+        }
+      },
+      "timestamp": "2018-10-09T09:38:57.553Z",
+      "result": {
+        "extensions": {
+          "https://beaconing.e-ucm.es/xapi/geolocated/extensions/location": {
+            "lat": 52.4060874,
+            "lon": -1.5006635000000002
+          }
+        }
+      }
+    },
+    "out": {
+      "name": "quasiextraterritorial-palaeozoological-kite",
+      "timestamp": "2018-10-09T09:38:57.553Z",
+      "event": "moved",
+      "target": "POI1",
+      "type": "point-of-interest",
+      "ext": {
+        "location": {
+          "lat": 52.4060874,
+          "lon": -1.5006635000000002
+        }
+      },
+      "gameplayId": "5bbc771a5a2526008d425abb",
+      "versionId": "5b165d4ac7171c007719bc62",
+      "activityId": "5b165f9ec7171c007719bc66",
+      "session": 1,
+      "firstSessionStarted": "2018-10-09T09:38:34.345Z",
+      "currentSessionStarted": "2018-10-09T09:38:34.345Z",
+      "uuidv4": "ced63e3f-efe4-4a19-8cec-9e7ff9a93a04"
+    },
+    "playerId": "5bbc771a5a2526008d425aba",
+    "gameplayId": "5bbc771a5a2526008d425abb",
+    "versionId": "5b165d4ac7171c007719bc62",
+    "activityId": "5b165f9ec7171c007719bc66",
+    "classId": "5b165e8ec7171c007719bc63"
+  },
+  {
+    "statement": {
+      "actor": {
+        "account": {
+          "homePage": "http://a2:3000/",
+          "name": "Anonymous"
+        },
+        "name": "lead-deprecatory-sora"
+      },
+      "verb": {
+        "id": "https://w3id.org/xapi/seriousgames/verbs/accessed"
+      },
+      "object": {
+        "id": "http://a2:3000/api/proxy/gleaner/games/5b165d4ac7171c007719bc61/5b165d4ac7171c007719bc62/screen/game",
+        "definition": {
+          "type": "https://w3id.org/xapi/seriousgames/activity-types/screen",
+          "extensions": {
+            "gameplayId": "5bbc71483db22a0083711bfe",
+            "versionId": "5b165d4ac7171c007719bc62",
+            "activityId": "5b165f9ec7171c007719bc66",
+            "session": 3,
+            "firstSessionStarted": "2018-10-09T09:13:44.903Z",
+            "currentSessionStarted": "2018-10-09T09:26:12.597Z"
+          }
+        }
+      },
+      "timestamp": "2018-10-09T09:48:41.747Z",
+      "result": {
+        "extensions": {
+          "game_name": "GQ_GAME",
+          "session_id": "7186909519"
+        }
+      }
+    },
+    "out": {
+      "name": "lead-deprecatory-sora",
+      "timestamp": "2018-10-09T09:48:41.747Z",
+      "event": "accessed",
+      "target": "game",
+      "type": "screen",
+      "ext": {
+        "game_name": "GQ_GAME",
+        "session_id": "7186909519"
+      },
+      "gameplayId": "5bbc71483db22a0083711bfe",
+      "versionId": "5b165d4ac7171c007719bc62",
+      "activityId": "5b165f9ec7171c007719bc66",
+      "session": 3,
+      "firstSessionStarted": "2018-10-09T09:13:44.903Z",
+      "currentSessionStarted": "2018-10-09T09:26:12.597Z",
+      "uuidv4": "76281436-02fd-4710-b57b-73dc110b5748"
+    },
+    "playerId": "5bbc71483db22a0083711bfd",
+    "gameplayId": "5bbc71483db22a0083711bfe",
+    "versionId": "5b165d4ac7171c007719bc62",
+    "activityId": "5b165f9ec7171c007719bc66",
+    "classId": "5b165e8ec7171c007719bc63"
+  },
+  {
+    "statement": {
+      "actor": {
+        "account": {
+          "homePage": "http://a2:3000/",
+          "name": "Anonymous"
+        },
+        "name": "lead-deprecatory-sora"
+      },
+      "verb": {
+        "id": "https://w3id.org/xapi/adb/verbs/selected"
+      },
+      "object": {
+        "id": "http://a2:3000/api/proxy/gleaner/games/5b165d4ac7171c007719bc61/5b165d4ac7171c007719bc62/question/Drag the good word",
+        "definition": {
+          "type": "http://adlnet.gov/expapi/activities/question",
+          "extensions": {
+            "gameplayId": "5bbc71483db22a0083711bfe",
+            "versionId": "5b165d4ac7171c007719bc62",
+            "activityId": "5b165f9ec7171c007719bc66",
+            "session": 3,
+            "firstSessionStarted": "2018-10-09T09:13:44.903Z",
+            "currentSessionStarted": "2018-10-09T09:26:12.597Z"
+          }
+        }
+      },
+      "timestamp": "2018-10-09T09:48:51.121Z",
+      "result": {
+        "success": true,
+        "response": "1980",
+        "extensions": {
+          "game_name": "GQ_GAME",
+          "session_id": "7186909519",
+          "skipped": "false"
+        }
+      }
+    },
+    "out": {
+      "name": "lead-deprecatory-sora",
+      "timestamp": "2018-10-09T09:48:51.121Z",
+      "event": "selected",
+      "target": "Drag the good word",
+      "type": "question",
+      "success": true,
+      "response": "1980",
+      "ext": {
+        "game_name": "GQ_GAME",
+        "session_id": "7186909519",
+        "skipped": "false"
+      },
+      "gameplayId": "5bbc71483db22a0083711bfe",
+      "versionId": "5b165d4ac7171c007719bc62",
+      "activityId": "5b165f9ec7171c007719bc66",
+      "session": 3,
+      "firstSessionStarted": "2018-10-09T09:13:44.903Z",
+      "currentSessionStarted": "2018-10-09T09:26:12.597Z",
+      "uuidv4": "f0daf4ae-e124-4bfe-9cef-fd480bb0cdcd"
+    },
+    "playerId": "5bbc71483db22a0083711bfd",
+    "gameplayId": "5bbc71483db22a0083711bfe",
+    "versionId": "5b165d4ac7171c007719bc62",
+    "activityId": "5b165f9ec7171c007719bc66",
+    "classId": "5b165e8ec7171c007719bc63"
+  },
+  {
+    "statement": {
+      "actor": {
+        "account": {
+          "homePage": "http://a2:3000/",
+          "name": "Anonymous"
+        },
+        "name": "lead-deprecatory-sora"
+      },
+      "verb": {
+        "id": "http://adlnet.gov/expapi/verbs/progressed"
+      },
+      "object": {
+        "id": "http://a2:3000/api/proxy/gleaner/games/5b165d4ac7171c007719bc61/5b165d4ac7171c007719bc62/game/GQ_GAME_7186909519",
+        "definition": {
+          "type": "https://w3id.org/xapi/seriousgames/activity-types/serious-game",
+          "extensions": {
+            "gameplayId": "5bbc71483db22a0083711bfe",
+            "versionId": "5b165d4ac7171c007719bc62",
+            "activityId": "5b165f9ec7171c007719bc66",
+            "session": 3,
+            "firstSessionStarted": "2018-10-09T09:13:44.903Z",
+            "currentSessionStarted": "2018-10-09T09:26:12.597Z"
+          }
+        }
+      },
+      "timestamp": "2018-10-09T09:48:51.122Z",
+      "result": {
+        "extensions": {
+          "https://w3id.org/xapi/seriousgames/extensions/progress": 1
+        }
+      }
+    },
+    "out": {
+      "name": "lead-deprecatory-sora",
+      "timestamp": "2018-10-09T09:48:51.122Z",
+      "event": "progressed",
+      "target": "GQ_GAME_7186909519",
+      "type": "serious-game",
+      "ext": {
+        "progress": 1
+      },
+      "gameplayId": "5bbc71483db22a0083711bfe",
+      "versionId": "5b165d4ac7171c007719bc62",
+      "activityId": "5b165f9ec7171c007719bc66",
+      "session": 3,
+      "firstSessionStarted": "2018-10-09T09:13:44.903Z",
+      "currentSessionStarted": "2018-10-09T09:26:12.597Z",
+      "uuidv4": "bf5ce9df-0fb4-4031-ac4d-93337430307b"
+    },
+    "playerId": "5bbc71483db22a0083711bfd",
+    "gameplayId": "5bbc71483db22a0083711bfe",
+    "versionId": "5b165d4ac7171c007719bc62",
+    "activityId": "5b165f9ec7171c007719bc66",
+    "classId": "5b165e8ec7171c007719bc63"
+  }
+]

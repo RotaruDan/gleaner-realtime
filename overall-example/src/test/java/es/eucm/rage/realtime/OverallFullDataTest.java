@@ -210,8 +210,8 @@ public class OverallFullDataTest {
 		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);
 		conf.put(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM, ES_HOST);
 		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
+		conf.put(AbstractAnalysis.KAFKA_URL_FLUX_PARAM, ZOOKEEPER_URL + ":9092");
 		// Test topology Builder configuration
-		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
 
 		StormTopology topology = new OAnalysis().getTopology(conf);
 		StormTopology glpTopology = new GAnalysis().getTopology(conf);

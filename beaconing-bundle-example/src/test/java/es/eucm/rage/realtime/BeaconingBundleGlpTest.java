@@ -18,16 +18,11 @@ package es.eucm.rage.realtime;
 import com.google.gson.Gson;
 import es.eucm.rage.realtime.simple.Analysis;
 import es.eucm.rage.realtime.simple.DAnalysis;
-import es.eucm.rage.realtime.simple.PAnalysis;
 import es.eucm.rage.realtime.simple.topologies.GLPTopologyBuilder;
 import es.eucm.rage.realtime.simple.topologies.OverallTopologyBuilder;
-import es.eucm.rage.realtime.simple.topologies.PerformanceTopologyBuilder;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
-import es.eucm.rage.realtime.utils.CSVToMapTrace;
 import es.eucm.rage.realtime.utils.ESUtils;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpStatus;
-import org.apache.http.util.EntityUtils;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -35,34 +30,28 @@ import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.generated.StormTopology;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.Test;
 
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the {@link OverallTopologyBuilder} executed on a local cluster and
  * receiving data from a local files VERBS_FILES
  */
-public class BeaconingBundleOverallFullDataTest {
-
-	private static final String[] VERBS_FILES = { "DSIR", "KXIH"/*
-																 * , "SSYP",
-																 * "TQBG",
-																 * "ZEHU"
-																 */};
+public class BeaconingBundleGlpTest {
 
 	private static final String NOW_DATE = String.valueOf(new Date().getTime());
 	private static final String ES_HOST = "localhost";
 	private static final String ZOOKEEPER_URL = "localhost";
 	private static final String BOOTSTRAP_SERVERS = "0.0.0.0:9092";
-	private static final String TOPIC = "overall-test-topic-default-kibana-analysis-"
+	private static final String TOPIC = "overall-test-topic-default-glp-kibana-analysis-"
 			+ NOW_DATE;
 	private static final Gson gson = new Gson();
 
@@ -106,7 +95,7 @@ public class BeaconingBundleOverallFullDataTest {
 		client.performRequest("DELETE", "*");
 		/**
 		 * Simple GLP: PARENT: "parent-" + NOW_DATE -> GLP_ID
-		 * 
+		 *
 		 * FIRST CHILD: "1-" + NOW_DATE -> leaf -> receives traces SECOND CHILD:
 		 * "2-" + NOW_DATE -> leaf -> receives traces
 		 * **/
@@ -210,13 +199,11 @@ public class BeaconingBundleOverallFullDataTest {
 		hClient.index(indexFirstChild);
 		hClient.index(indexSecondChild);
 
-		CSVToMapTrace parser = new CSVToMapTrace(analyticsGLPId);
-
 		Config conf = new Config();
 		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);
+		conf.put(AbstractAnalysis.KAFKA_URL_FLUX_PARAM, ZOOKEEPER_URL + ":9092");
 		conf.put(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM, ES_HOST);
 		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
-		conf.put(AbstractAnalysis.KAFKA_URL_FLUX_PARAM, ZOOKEEPER_URL + ":9092");
 		// Test topology Builder configuration
 		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
 
@@ -229,185 +216,23 @@ public class BeaconingBundleOverallFullDataTest {
 		LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology("realtime-default-" + NOW_DATE, conf, dtopology);
 
-		Map<String, Map> results = new HashMap<String, Map>();
 
-		for (int i = 0; i < VERBS_FILES.length; ++i) {
-			String idx;
-			if (i < 1) {
-				idx = firstIndex;
-			} else {
-				idx = secondIndex;
-			}
-			List<List<Object>> tuples = parser.getTuples("traces/"
-					+ VERBS_FILES[i] + ".csv", idx, i);
-			for (List tupleNestedList : tuples) {
-				for (Object trace : tupleNestedList) {
-					Map traceMap = (Map) trace;
+		List<Map> traces = gson.fromJson(new InputStreamReader(ClassLoader.getSystemResourceAsStream("conflictive/traces.json")), List.class);
 
-					Map out = (Map) ((Map) trace).get(TopologyBuilder.OUT_KEY);
+		for (int i = 0; i < traces.size(); ++i) {
 
-					Object score = out
-							.get(TopologyBuilder.TridentTraceKeys.SCORE);
-					if (score != null) {
-						float scoreNum = ((Number) score).floatValue();
-						String name = out.get(
-								TopologyBuilder.TridentTraceKeys.NAME)
-								.toString();
-						Map player = results.get(name);
-						if (player == null) {
-							player = new HashMap();
-							results.put(name, player);
-						}
+			Map traceMap = traces.get(i);
 
-						Object minObj = player.get("min");
-						if (minObj != null) {
-							float min = (float) minObj;
-							if (scoreNum < min) {
-								player.put("min", scoreNum);
-							}
-						} else {
-							player.put("min", scoreNum);
-						}
-
-					}
-					runProducer(traceMap);
-				}
-			}
+			runProducer(traceMap);
 		}
 
 		try {
-			Thread.sleep(60000);
+			Thread.sleep(20000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
-		List<Map<String, Object>> players = new ArrayList<Map<String, Object>>(
-				5);
-		Map<String, Object> player0 = new HashMap();
-		player0.put("name", "DSIR");
-		player0.put("selected", 65);
 
-		players.add(player0);
-		Map<String, Object> player1 = new HashMap();
-		player1.put("name", "KXIH");
-		player1.put("selected", 90);
-		/*
-		 * players.add(player1); Map<String, Object> player2 = new HashMap();
-		 * player2.put("name", "SSYP"); player2.put("selected", 50);
-		 * 
-		 * players.add(player2); Map<String, Object> player3 = new HashMap();
-		 * player3.put("name", "TQBG"); player3.put("selected", 107);
-		 * 
-		 * players.add(player3); Map<String, Object> player4 = new HashMap();
-		 * player4.put("name", "ZEHU"); player4.put("selected", 44);
-		 * 
-		 * players.add(player4);
-		 */
-		String resultsIndex = OverallTopologyBuilder.OVERALL_INDEX;
-		for (int i = 0; i < players.size(); ++i) {
-
-			Map player = players.get(i);
-			String name = player.get("name").toString();
-			// Check responses
-
-			Response resultResponse = client.performRequest("GET", "/"
-					+ resultsIndex + "/" + ESUtils.getResultsType() + "/"
-					+ name);
-			int resultStatus = resultResponse.getStatusLine().getStatusCode();
-
-			assertEquals("TEST GET result error, status is" + resultStatus,
-					resultStatus, HttpStatus.SC_OK);
-
-			String responseResultString = EntityUtils.toString(resultResponse
-					.getEntity());
-			Map<String, Object> playerState = (Map) gson.fromJson(
-					responseResultString, Map.class).get("_source");
-
-			List<Map> answers = (List) playerState.get("answers");
-
-			assertEquals("Answers don't coincide", answers.size(),
-					player.get("selected"));
-		}
-
-		resultsIndex = PerformanceTopologyBuilder.PERFORMANCE_INDEX;
-		Response resultResponse = client.performRequest("GET", "/"
-				+ resultsIndex + "/" + ESUtils.getResultsType() + "/testClass");
-		int resultStatus = resultResponse.getStatusLine().getStatusCode();
-
-		assertEquals("TEST GET result error, status is" + resultStatus,
-				resultStatus, HttpStatus.SC_OK);
-
-		String responseResultString = EntityUtils.toString(resultResponse
-				.getEntity());
-		Map<String, Object> playerState = (Map) gson.fromJson(
-				responseResultString, Map.class).get("_source");
-
-		Map yearMap = (Map) playerState.get("2017");
-
-		Map months = (Map) yearMap.get("months");
-		Map first = (Map) months.get("1");
-		List firstMonthStudents = (List) first.get("students");
-
-		assertEquals("year doesn't coincide", firstMonthStudents.size(), 2);
-		Map weeks = (Map) yearMap.get("weeks");
-		Map week7 = (Map) weeks.get("7");
-		List week7Students = (List) week7.get("students");
-		assertEquals("year doesn't coincide", week7Students.size(), 2);
-
-		List students = (List) yearMap.get("students");
-		assertEquals("year doesn't coincide", students.size(), 2);
-
-		// Check parent has the sum of both children
-
-		Response responseParent = client.performRequest("GET", "/"
-				+ parentIndex + "/_search?size=5000&q=*:*");
-		int status = responseParent.getStatusLine().getStatusCode();
-
-		assertEquals("TEST GET error, status is" + status, status,
-				HttpStatus.SC_OK);
-
-		String responseString = EntityUtils
-				.toString(responseParent.getEntity());
-		Map<String, Object> responseDocs = (Map) gson.fromJson(responseString,
-				Map.class);
-
-		Map hits = (Map) responseDocs.get("hits");
-
-		int totalParent = ((Double) hits.get("total")).intValue();
-
-		Response responseChild1 = client.performRequest("GET", "/" + firstIndex
-				+ "/_search?size=5000&q=*:*");
-
-		String responseStringChild1 = EntityUtils.toString(responseChild1
-				.getEntity());
-		Map<String, Object> responseDocsChild1 = (Map) gson.fromJson(
-				responseStringChild1, Map.class);
-
-		Map hitsChild1 = (Map) responseDocsChild1.get("hits");
-
-		int totalChild1 = ((Double) hitsChild1.get("total")).intValue();
-
-		Response responseChild2 = client.performRequest("GET", "/"
-				+ secondIndex + "/_search?size=5000&q=*:*");
-
-		String responseStringChild2 = EntityUtils.toString(responseChild2
-				.getEntity());
-		Map<String, Object> responseDocsChild2 = (Map) gson.fromJson(
-				responseStringChild2, Map.class);
-
-		Map hitsChild2 = (Map) responseDocsChild2.get("hits");
-
-		int totalChild2 = ((Double) hitsChild2.get("total")).intValue();
-
-		assertEquals(
-				"Total traces " + parentIndex + ", current " + totalParent,
-				totalChild1, 224);
-		assertEquals(
-				"Total traces " + parentIndex + ", current " + totalParent,
-				totalChild2, 343);
-		assertEquals(
-				"Total traces " + parentIndex + ", current " + totalParent,
-				totalParent, 605);
 	}
 
 }

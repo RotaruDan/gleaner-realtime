@@ -140,6 +140,8 @@ public class OverallTopologyBuilder implements
 								* 100000, spout))
 				.each(new Fields(TRACE_KEY), new IsLeafFilter(TRACE_KEY))
 				.peek(new LogConsumer("Completed Leaf passed"))
+				.each(new Fields(TRACE_KEY), new HasTimeFilter())
+				.peek(new LogConsumer("Completed HasTime passed"))
 				.each(new Fields(TRACE_KEY),
 						new TraceFieldExtractor(o(TridentTraceKeys.NAME),
 								o(TridentTraceKeys.TARGET), o("ext."
@@ -154,8 +156,6 @@ public class OverallTopologyBuilder implements
 				.each(new Fields(TridentTraceKeys.EVENT, TRACE_KEY),
 						new FieldValueFilter(TridentTraceKeys.EVENT,
 								TraceEventTypes.COMPLETED))
-				.each(new Fields(TRACE_KEY), new HasTimeFilter())
-				.peek(new LogConsumer("Completed HasTime passed"))
 				// Persist to ActivityID
 				.partitionPersist(
 						partitionPersistFactory,
