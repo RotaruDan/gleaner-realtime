@@ -48,6 +48,13 @@ public interface TopologyBuilder {
 	 */
 	String ACTIVITY_ID_KEY = "activityId";
 	/**
+	 * Provided from the Flux configuration, used to know to which session the
+	 * trace belongs. See:
+	 * https://github.com/e-ucm/rage-analytics/wiki/Understanding
+	 * -RAGE-Analytics-Traces-Flow#storm-flux-configuration-files
+	 */
+	String ACTIVITY_NAME_KEY = "activityName";
+	/**
 	 * The ID this trace comes from, if not available, is a leaf
 	 */
 	String CHILD_ACTIVITY_ID_KEY = "childActivityId";

@@ -57,7 +57,7 @@ public class IsBubbledTrace implements Filter {
 					.get(TopologyBuilder.CHILD_ACTIVITY_ID_KEY);
 
 			if (childActivityObject != null) {
-				// Is has been bubbled it will have a CHILD_ACTIVITY_ID_KEY
+				// If has been bubbled it will have a CHILD_ACTIVITY_ID_KEY
 				// AND the CHILD_ACTIVITY_ID_KEY will be different
 				// than the current ACTIVITY_ID_KEY
 				return !childActivityObject.equals(traceMap
