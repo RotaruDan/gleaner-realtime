@@ -19,6 +19,8 @@ import es.eucm.rage.realtime.simple.filters.FieldValueFilter;
 import es.eucm.rage.realtime.simple.filters.FieldValuesOrFilter;
 import es.eucm.rage.realtime.functions.*;
 import es.eucm.rage.realtime.functions.DocumentBuilder;
+import es.eucm.rage.realtime.simple.filters.IsLeafFilter;
+import es.eucm.rage.realtime.simple.filters.IsRootFilter;
 import es.eucm.rage.realtime.states.GameplayStateUpdater;
 import es.eucm.rage.realtime.states.TraceStateUpdater;
 
@@ -67,6 +69,8 @@ public class TopologyBuilder implements
 		// ElasticSearch
 		// index
 		tracesStream
+				// Filter only leafs
+				.each(new Fields(TRACE_KEY), new IsRootFilter(TRACE_KEY))
 				.each(new Fields(TRACE_KEY), new DocumentBuilder(TRACE_KEY),
 						new Fields(DOCUMENT_KEY))
 				.peek(new LogConsumer("Directly to Kibana!"))
@@ -83,12 +87,15 @@ public class TopologyBuilder implements
 		// TridentTraceKeys.EVENT so that we can play
 		// with it below
 
-		Stream gameplayIdStream = tracesStream.each(
-				new Fields(TRACE_KEY),
-				new TraceFieldExtractor(ACTIVITY_ID_KEY, GAMEPLAY_ID,
-						o(TridentTraceKeys.NAME), o(TridentTraceKeys.EVENT)),
-				new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID, TridentTraceKeys.NAME,
-						TridentTraceKeys.EVENT)).peek(new LogConsumer("1"));
+		Stream gameplayIdStream = tracesStream
+				.each(new Fields(TRACE_KEY),
+						new TraceFieldExtractor(ACTIVITY_ID_KEY, GAMEPLAY_ID,
+								o(TridentTraceKeys.NAME),
+								o(TridentTraceKeys.EVENT)),
+						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID,
+								TridentTraceKeys.NAME, TridentTraceKeys.EVENT))
+				.each(new Fields(TRACE_KEY), new GlpIdFieldExtractor(),
+						new Fields(GLP_ID_KEY)).peek(new LogConsumer("1"));
 
 		// 3 - For each TRACE_KEY (from Kibana) that we receive
 		// 4 - Extract the field 'timestamp' and add it to the document per
@@ -105,7 +112,8 @@ public class TopologyBuilder implements
 				.partitionPersist(
 						partitionPersistFactory,
 						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
-								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
+								GLP_ID_KEY, PROPERTY_KEY, VALUE_KEY),
+						gameplayStateUpdater);
 
 		// 5 - Add the name of the given player to the document ('gameplayId')
 		gameplayIdStream
@@ -117,7 +125,8 @@ public class TopologyBuilder implements
 				.partitionPersist(
 						partitionPersistFactory,
 						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
-								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
+								GLP_ID_KEY, PROPERTY_KEY, VALUE_KEY),
+						gameplayStateUpdater);
 
 		// Alternatives (selected & unlocked) processing
 		// 6 - For each TraceEventTypes.SELECTED or TraceEventTypes.UNLOCKED
@@ -142,9 +151,15 @@ public class TopologyBuilder implements
 						new PropertyCreator(TRACE_KEY, TridentTraceKeys.EVENT,
 								TridentTraceKeys.TYPE, TridentTraceKeys.TARGET),
 						new Fields(PROPERTY_KEY, VALUE_KEY))
+				.each(new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME),
+						new ActivityIdNameCreator(ACTIVITY_ID_KEY,
+								TridentTraceKeys.NAME),
+						new Fields(ACTIVITY_ID_KEY + "_"
+								+ TridentTraceKeys.NAME))
 				.peek(new LogConsumer("5"))
 				.groupBy(
-						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
+						new Fields(GLP_ID_KEY, ACTIVITY_ID_KEY + "_"
+								+ TridentTraceKeys.NAME,
 								TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
 								TridentTraceKeys.TARGET,
 								TridentTraceKeys.RESPONSE))
@@ -178,9 +193,15 @@ public class TopologyBuilder implements
 						new PropertyCreator(TRACE_KEY, TridentTraceKeys.EVENT,
 								TridentTraceKeys.TYPE, TridentTraceKeys.TARGET),
 						new Fields(PROPERTY_KEY, VALUE_KEY))
+				.each(new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME),
+						new ActivityIdNameCreator(ACTIVITY_ID_KEY,
+								TridentTraceKeys.NAME),
+						new Fields(ACTIVITY_ID_KEY + "_"
+								+ TridentTraceKeys.NAME))
 				.peek(new LogConsumer("initialized 2"))
 				.groupBy(
-						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
+						new Fields(GLP_ID_KEY, ACTIVITY_ID_KEY + "_"
+								+ TridentTraceKeys.NAME,
 								TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
 								TridentTraceKeys.TARGET))
 				.persistentAggregate(persistentAggregateFactory, new Count(),
@@ -214,7 +235,8 @@ public class TopologyBuilder implements
 				.partitionPersist(
 						partitionPersistFactory,
 						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
-								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
+								GLP_ID_KEY, PROPERTY_KEY, VALUE_KEY),
+						gameplayStateUpdater);
 
 		// Completable (Completed) processing for field TridentTraceKeys.SUCCESS
 		// 11 - For each TraceEventTypes.COMPLETED (Completable) trace
@@ -240,7 +262,8 @@ public class TopologyBuilder implements
 				.partitionPersist(
 						partitionPersistFactory,
 						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
-								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
+								GLP_ID_KEY, PROPERTY_KEY, VALUE_KEY),
+						gameplayStateUpdater);
 
 		// Completable (Completed) processing for field TridentTraceKeys.SCORE
 		// 13 - For each TraceEventTypes.COMPLETED (Completable) trace
@@ -264,7 +287,8 @@ public class TopologyBuilder implements
 				.partitionPersist(
 						partitionPersistFactory,
 						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
-								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
+								GLP_ID_KEY, PROPERTY_KEY, VALUE_KEY),
+						gameplayStateUpdater);
 
 		/*
 		 * --> Additional/custom analysis needed can be added here or changing

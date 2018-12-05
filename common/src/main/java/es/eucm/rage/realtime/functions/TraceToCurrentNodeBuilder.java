@@ -17,6 +17,7 @@ package es.eucm.rage.realtime.functions;
 
 import com.esotericsoftware.minlog.Log;
 import com.google.gson.Gson;
+import com.rits.cloning.Cloner;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import org.apache.storm.trident.operation.Function;
 import org.apache.storm.trident.operation.TridentCollector;
@@ -41,6 +42,7 @@ public class TraceToCurrentNodeBuilder implements Function {
 	private final String defaultTraceKey;
 	private final String analyticsKey;
 	private Gson gson;
+	private Cloner cloner;
 
 	/**
 	 * Builds a {@link Map} from a TridentTouple. The trace is designed to be
@@ -59,7 +61,7 @@ public class TraceToCurrentNodeBuilder implements Function {
 			Map inTrace = (Map) tuple.getValueByField(defaultTraceKey);
 			Map analytics = (Map) tuple.getValueByField(analyticsKey);
 
-			Map trace = new HashMap(inTrace);
+			Map trace = cloner.deepClone(inTrace);
 
 			trace.put(TopologyBuilder.ORIGINAL_ID,
 					trace.get(TopologyBuilder.ACTIVITY_ID_KEY));
@@ -94,6 +96,7 @@ public class TraceToCurrentNodeBuilder implements Function {
 	@Override
 	public void prepare(Map conf, TridentOperationContext context) {
 		gson = new Gson();
+		cloner = new Cloner();
 	}
 
 	@Override

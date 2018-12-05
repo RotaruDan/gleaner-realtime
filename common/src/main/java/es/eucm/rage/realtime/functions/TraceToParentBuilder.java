@@ -17,6 +17,7 @@ package es.eucm.rage.realtime.functions;
 
 import com.esotericsoftware.minlog.Log;
 import com.google.gson.Gson;
+import com.rits.cloning.Cloner;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.Document;
 import org.apache.storm.trident.TridentTopology;
@@ -25,10 +26,7 @@ import org.apache.storm.trident.operation.TridentCollector;
 import org.apache.storm.trident.operation.TridentOperationContext;
 import org.apache.storm.trident.tuple.TridentTuple;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -43,6 +41,7 @@ public class TraceToParentBuilder implements Function {
 	private final String defaultTraceKey;
 	private final String analyticsKey;
 	private Gson gson;
+	private Cloner cloner;
 
 	/**
 	 * Builds a {@link Map} from a TridentTouple. The trace is designed to be
@@ -60,7 +59,7 @@ public class TraceToParentBuilder implements Function {
 		try {
 			Map inTrace = (Map) tuple.getValueByField(defaultTraceKey);
 
-			Map trace = new HashMap(inTrace);
+			Map trace = cloner.deepClone(inTrace);
 			Map analytics = (Map) tuple.getValueByField(analyticsKey);
 
 			Object parentIdObj = analytics
@@ -95,6 +94,9 @@ public class TraceToParentBuilder implements Function {
 					trace.get(TopologyBuilder.ACTIVITY_ID_KEY));
 			trace.put(TopologyBuilder.ACTIVITY_ID_KEY, parentId);
 
+			// change uuid to new documment in order to not override
+			trace.put(TopologyBuilder.UUIDV4, UUID.randomUUID().toString());
+
 			ArrayList<Object> object = new ArrayList<Object>(1);
 			object.add(gson.toJson(trace, Map.class));
 
@@ -111,6 +113,7 @@ public class TraceToParentBuilder implements Function {
 	@Override
 	public void prepare(Map conf, TridentOperationContext context) {
 		gson = new Gson();
+		cloner = new Cloner();
 	}
 
 	@Override

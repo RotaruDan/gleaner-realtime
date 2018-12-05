@@ -95,7 +95,7 @@ public class BeaconingBundleGlpTest {
 		client.performRequest("DELETE", "*");
 		/**
 		 * Simple GLP: PARENT: "parent-" + NOW_DATE -> GLP_ID
-		 *
+		 * 
 		 * FIRST CHILD: "1-" + NOW_DATE -> leaf -> receives traces SECOND CHILD:
 		 * "2-" + NOW_DATE -> leaf -> receives traces
 		 * **/
@@ -216,8 +216,10 @@ public class BeaconingBundleGlpTest {
 		LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology("realtime-default-" + NOW_DATE, conf, dtopology);
 
-
-		List<Map> traces = gson.fromJson(new InputStreamReader(ClassLoader.getSystemResourceAsStream("conflictive/traces.json")), List.class);
+		List<Map> traces = gson.fromJson(
+				new InputStreamReader(ClassLoader
+						.getSystemResourceAsStream("conflictive/traces.json")),
+				List.class);
 
 		for (int i = 0; i < traces.size(); ++i) {
 
@@ -231,7 +233,6 @@ public class BeaconingBundleGlpTest {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
 
 	}
 
