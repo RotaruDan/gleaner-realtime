@@ -46,7 +46,6 @@ import java.util.logging.Logger;
 public class BeaconingBundleTopologyBuilder implements
 		es.eucm.rage.realtime.topologies.TopologyBuilder {
 
-
 	private String o(String key) {
 		return OUT_KEY + "." + key;
 	}
@@ -57,8 +56,13 @@ public class BeaconingBundleTopologyBuilder implements
 			StateFactory partitionPersistFactory,
 			StateFactory persistentAggregateFactory, Map<String, Object> conf) {
 
-		new GLPTopologyBuilder().build(tridentTopology, spout, tracesStream, partitionPersistFactory, persistentAggregateFactory, conf);
-		new OverallTopologyBuilder().build(tridentTopology, spout, tracesStream, partitionPersistFactory, persistentAggregateFactory, conf);
-		new PerformanceTopologyBuilder().build(tridentTopology, spout, tracesStream, partitionPersistFactory, persistentAggregateFactory, conf);
+		new GLPTopologyBuilder().build(tridentTopology, spout, tracesStream,
+				partitionPersistFactory, persistentAggregateFactory, conf);
+		new OverallTopologyBuilder().build(tridentTopology, spout,
+				tracesStream, partitionPersistFactory,
+				persistentAggregateFactory, conf);
+		new PerformanceTopologyBuilder().build(tridentTopology, spout,
+				tracesStream, partitionPersistFactory,
+				persistentAggregateFactory, conf);
 	}
 }

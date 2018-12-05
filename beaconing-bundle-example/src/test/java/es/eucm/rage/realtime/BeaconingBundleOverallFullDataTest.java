@@ -267,7 +267,7 @@ public class BeaconingBundleOverallFullDataTest {
 		}
 
 		try {
-			Thread.sleep(40000);
+			Thread.sleep(35000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

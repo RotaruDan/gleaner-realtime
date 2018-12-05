@@ -31,6 +31,7 @@ import org.apache.storm.task.IMetricsContext;
 import org.apache.storm.trident.state.*;
 import org.apache.storm.trident.state.map.*;
 import org.apache.storm.tuple.Values;
+import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -180,6 +181,12 @@ public class EsMapState<T> implements IBackingMap<T> {
 				_mreads.incrBy(ret.size());
 			}
 			return ret;
+		} catch (ElasticsearchStatusException e) {
+			for (List<Object> key : keys) {
+
+				String index = key.get(0).toString();
+				ESUtils.reopenIndexIfNeeded(e, index, LOG, _client);
+			}
 		} catch (Exception e) {
 			LOG.info("There was an MGET error, mget JSON " + mgetJson);
 			LOG.error("Exception while mget", e);
@@ -230,6 +237,16 @@ public class EsMapState<T> implements IBackingMap<T> {
 				}
 			}
 
+		} catch (ElasticsearchStatusException e) {
+			for (int i = 0; i < keys.size(); i++) {
+
+				// Update the result
+				List<Object> key = keys.get(i);
+
+				String activityId = (String) key.get(0);
+				String index = ESUtils.getOpaqueValuesIndex(activityId);
+				ESUtils.reopenIndexIfNeeded(e, index, LOG, _client);
+			}
 		} catch (Exception e) {
 			LOG.error("MULTI PUT error", e);
 		}
@@ -254,6 +271,10 @@ public class EsMapState<T> implements IBackingMap<T> {
 					.getResultsIndex(activityId), ESUtils.getResultsType(),
 					gameplayId).docAsUpsert(true).doc(doc).retryOnConflict(50));
 
+		} catch (ElasticsearchStatusException e) {
+
+			ESUtils.reopenIndexIfNeeded(e, ESUtils.getResultsIndex(activityId),
+					LOG, _client);
 		} catch (Exception e) {
 			LOG.error("Set Property has failures : {}", e);
 			e.printStackTrace();

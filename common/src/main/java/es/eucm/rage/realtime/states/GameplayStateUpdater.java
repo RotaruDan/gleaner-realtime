@@ -18,6 +18,7 @@ package es.eucm.rage.realtime.states;
 import es.eucm.rage.realtime.functions.MapFieldExtractor;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.states.elasticsearch.EsState;
+import es.eucm.rage.realtime.utils.ESUtils;
 import org.apache.storm.trident.operation.TridentCollector;
 import org.apache.storm.trident.operation.TridentOperationContext;
 import org.apache.storm.trident.state.StateUpdater;
@@ -44,12 +45,22 @@ public class GameplayStateUpdater implements StateUpdater<EsState> {
 			for (TridentTuple tuple : tuples) {
 				String activityId = tuple
 						.getStringByField(TopologyBuilder.ACTIVITY_ID_KEY);
+				String glpId = tuple
+						.getStringByField(TopologyBuilder.GLP_ID_KEY);
+
+				if (glpId == null) {
+					glpId = activityId;
+				} else {
+					glpId = ESUtils.getRootGLPId(glpId);
+				}
+
 				String name = tuple
 						.getStringByField(TopologyBuilder.TridentTraceKeys.NAME);
 				String property = tuple
 						.getStringByField(TopologyBuilder.PROPERTY_KEY);
 				Object value = tuple.getValueByField(TopologyBuilder.VALUE_KEY);
-				state.setProperty(activityId, name, property, value);
+				state.setProperty(glpId, activityId + "_" + name, property,
+						value);
 			}
 		} catch (Exception ex) {
 			LOGGER.info("Error unexpected exception, discarding "

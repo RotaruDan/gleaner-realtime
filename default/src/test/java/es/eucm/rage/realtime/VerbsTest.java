@@ -148,7 +148,8 @@ public class VerbsTest {
 			String resultsIndex = ESUtils.getResultsIndex(idx);
 
 			Response resultResponse = client.performRequest("GET", "/"
-					+ resultsIndex + "/" + ESUtils.getResultsType() + "/name");
+					+ resultsIndex + "/" + ESUtils.getResultsType() + "/" + idx
+					+ "_name");
 			int resultStatus = resultResponse.getStatusLine().getStatusCode();
 			assertEquals("TEST GET result error, status is" + resultStatus,
 					resultStatus, HttpStatus.SC_OK);

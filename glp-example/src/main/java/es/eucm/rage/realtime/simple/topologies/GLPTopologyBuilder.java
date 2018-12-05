@@ -456,10 +456,11 @@ public class GLPTopologyBuilder implements
 					Object competencies = result.get(COMPETENCIES);
 					Object learningObjectives = result.get(LEARNING_OBJECTIVES);
 
-					state.setProperty(activityId, name, COMPETENCIES,
-							competencies);
-					state.setProperty(activityId, name, LEARNING_OBJECTIVES,
-							learningObjectives);
+					String rootGlpId = ESUtils.getRootGLPId(glpId);
+					state.setProperty(rootGlpId, activityId + "_" + name,
+							COMPETENCIES, competencies);
+					state.setProperty(rootGlpId, activityId + "_" + name,
+							LEARNING_OBJECTIVES, learningObjectives);
 					state.updateUniqueArray(glpId, activityId, COMPLETED_KEY,
 							name, null);
 

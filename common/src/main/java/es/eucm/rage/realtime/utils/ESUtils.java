@@ -15,6 +15,13 @@
  */
 package es.eucm.rage.realtime.utils;
 
+import org.apache.http.HttpStatus;
+import org.elasticsearch.ElasticsearchStatusException;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+import org.slf4j.Logger;
+
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -106,5 +113,31 @@ public class ESUtils {
 	 */
 	public static String getOpaqueValuesIndex(String sessionId) {
 		return "opaque-values-" + sessionId.toLowerCase();
+	}
+
+	/**
+	 * Tries to reopen the index if the exception is of type
+	 * index_closed_exception
+	 */
+	public static void reopenIndexIfNeeded(ElasticsearchStatusException e,
+			String index, Logger LOG, RestClient _client) {
+		if (e.getDetailedMessage().contains("index_closed_exception")) {
+			LOG.error("ElasticsearchStatusException", e);
+			try {
+				Response resultResponse = _client.performRequest("POST", "/"
+						+ index + "/_open");
+				int resultStatus = resultResponse.getStatusLine()
+						.getStatusCode();
+
+				LOG.info("OPENING!!!!!!!!! " + resultStatus);
+
+				if (resultStatus != HttpStatus.SC_OK) {
+					LOG.error("Could not open the closed index " + index
+							+ ", status " + resultStatus);
+				}
+			} catch (IOException e1) {
+				LOG.error("Could not open the closed index ", e1);
+			}
+		}
 	}
 }

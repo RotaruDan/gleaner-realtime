@@ -295,7 +295,7 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 
 		int total = ((Double) hits.get("total")).intValue();
 
-		assertEquals("Total traces " + parentIndex + ", current " + total, 7,
+		assertEquals("Total traces " + parentIndex + ", current " + total, 14,
 				total);
 	}
 }
