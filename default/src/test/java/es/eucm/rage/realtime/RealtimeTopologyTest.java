@@ -165,8 +165,8 @@ public class RealtimeTopologyTest {
 			String resultsIndex = ESUtils.getResultsIndex(idx);
 
 			Response resultResponse = client.performRequest("GET", "/"
-					+ resultsIndex + "/" + ESUtils.getResultsType() + "/"
-					+ TRACES_FILES[i] + ";");
+					+ resultsIndex + "/" + ESUtils.getResultsType() + "/" + idx
+					+ "_" + TRACES_FILES[i] + ";");
 			int resultStatus = resultResponse.getStatusLine().getStatusCode();
 			assertEquals("TEST GET result error, status is" + resultStatus,
 					resultStatus, HttpStatus.SC_OK);
