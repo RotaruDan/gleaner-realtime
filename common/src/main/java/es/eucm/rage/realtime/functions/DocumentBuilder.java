@@ -17,6 +17,7 @@ package es.eucm.rage.realtime.functions;
 
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.Document;
+import es.eucm.rage.realtime.utils.ESUtils;
 import org.apache.storm.trident.operation.Function;
 import org.apache.storm.trident.operation.TridentCollector;
 import org.apache.storm.trident.operation.TridentOperationContext;
@@ -62,19 +63,28 @@ public class DocumentBuilder implements Function {
 
 			String index = null;
 
-			Object indexObj = trace.get(TopologyBuilder.ACTIVITY_ID_KEY);
+			Object glpIdObject = trace.get(TopologyBuilder.GLP_ID_KEY);
 
-			if (indexObj != null && (indexObj instanceof String)) {
-				index = indexObj.toString();
+			if (glpIdObject != null && !glpIdObject.toString().isEmpty()) {
+				// Is directly TARGETED AT ROOT ROOT
+				index = ESUtils.getRootGLPId(glpIdObject.toString());
+			} else {
+				Object indexObj = trace.get(TopologyBuilder.ACTIVITY_ID_KEY);
+
+				if (indexObj != null && (indexObj instanceof String)) {
+					index = indexObj.toString();
+				}
 			}
 
-			Document<Map> doc = new Document(resultTraces, null, null, null,
-					index);
+			if (index != null) {
+				Document<Map> doc = new Document(resultTraces, null, null,
+						null, index);
 
-			ArrayList<Object> object = new ArrayList<Object>(1);
-			object.add(doc);
+				ArrayList<Object> object = new ArrayList<Object>(1);
+				object.add(doc);
 
-			collector.emit(object);
+				collector.emit(object);
+			}
 		} catch (Exception ex) {
 			LOG.info("Error unexpected exception, discarding" + ex.toString());
 		}

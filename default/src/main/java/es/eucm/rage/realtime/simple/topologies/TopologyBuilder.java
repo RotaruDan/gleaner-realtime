@@ -19,8 +19,6 @@ import es.eucm.rage.realtime.simple.filters.FieldValueFilter;
 import es.eucm.rage.realtime.simple.filters.FieldValuesOrFilter;
 import es.eucm.rage.realtime.functions.*;
 import es.eucm.rage.realtime.functions.DocumentBuilder;
-import es.eucm.rage.realtime.simple.filters.IsLeafFilter;
-import es.eucm.rage.realtime.simple.filters.IsRootFilter;
 import es.eucm.rage.realtime.states.GameplayStateUpdater;
 import es.eucm.rage.realtime.states.TraceStateUpdater;
 
@@ -70,7 +68,6 @@ public class TopologyBuilder implements
 		// index
 		tracesStream
 				// Filter only leafs
-				.each(new Fields(TRACE_KEY), new IsRootFilter(TRACE_KEY))
 				.each(new Fields(TRACE_KEY), new DocumentBuilder(TRACE_KEY),
 						new Fields(DOCUMENT_KEY))
 				.peek(new LogConsumer("Directly to Kibana!"))
