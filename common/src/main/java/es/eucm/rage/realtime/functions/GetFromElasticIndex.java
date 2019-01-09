@@ -32,14 +32,7 @@ public class GetFromElasticIndex extends BaseQueryFunction<EsState, Map> {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(GetFromElasticIndex.class);
 
-	private String indexPrefix, indexKey, typeKey, idKey;
-
-	public GetFromElasticIndex() {
-		super();
-		indexKey = "index";
-		typeKey = "type";
-		idKey = "id";
-	}
+	private String indexPrefix, indexKey, typeKey, idKey, prefixId;
 
 	public GetFromElasticIndex(String indexKey, String typeKey, String idKey) {
 		this("", indexKey, typeKey, idKey);
@@ -47,11 +40,17 @@ public class GetFromElasticIndex extends BaseQueryFunction<EsState, Map> {
 
 	public GetFromElasticIndex(String indexPrefix, String indexKey,
 			String typeKey, String idKey) {
+		this(indexPrefix, indexKey, typeKey, idKey, "");
+	}
+
+	public GetFromElasticIndex(String indexPrefix, String indexKey,
+			String typeKey, String idKey, String prefixId) {
 		super();
 		this.indexPrefix = indexPrefix;
 		this.indexKey = indexKey;
 		this.typeKey = typeKey;
 		this.idKey = idKey;
+		this.prefixId = prefixId;
 	}
 
 	@Override
@@ -69,7 +68,7 @@ public class GetFromElasticIndex extends BaseQueryFunction<EsState, Map> {
 				}
 				String id = "_all";
 				if (idKey != null) {
-					id = input.getStringByField(idKey);
+					id = prefixId + input.getStringByField(idKey);
 				}
 				res.add(indexState.getFromIndex(index, type, id));
 			}
