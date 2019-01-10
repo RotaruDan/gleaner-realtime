@@ -32,7 +32,7 @@ public class HasOperationAndChildrenAreValidAndParseValues implements Function {
 	private static final Logger LOGGER = Logger
 			.getLogger(HasOperationAndChildrenAreValidAndParseValues.class
 					.getName());
-	public static final boolean LOG = true;
+	public static final boolean LOG = false;
 
 	private String traceKey, analyticsKey, weightsAnalyticsKey;
 

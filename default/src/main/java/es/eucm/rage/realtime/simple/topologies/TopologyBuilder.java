@@ -380,7 +380,7 @@ public class TopologyBuilder implements
 	static class PerformOperationUpdater implements StateUpdater<EsState> {
 		private static final Logger LOGGER = Logger
 				.getLogger(PerformOperationUpdater.class.getName());
-		private static final boolean LOG = true;
+		private static final boolean LOG = false;
 
 		// Performs the "weights_full" object operation and UPDATES the result
 		// into
