@@ -15,7 +15,6 @@
  */
 package es.eucm.rage.realtime.simple.filters;
 
-import es.eucm.rage.realtime.simple.topologies.GLPTopologyBuilder;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import org.apache.storm.trident.operation.Filter;
 import org.apache.storm.trident.operation.TridentOperationContext;
@@ -68,19 +67,17 @@ public class IsDirectChildTrace implements Filter {
 			Map analyticsMap = (Map) analyticsObject;
 
 			String comesFrom = (String) traceMap
-					.get(GLPTopologyBuilder.ORIGINAL_ID);
-			List children = (List) analyticsMap
-					.get(GLPTopologyBuilder.CHILDREN);
+					.get(TopologyBuilder.ORIGINAL_ID);
+			List children = (List) analyticsMap.get(TopologyBuilder.CHILDREN);
 
-			if (!children.contains(comesFrom)) {
+			if (children == null || !children.contains(comesFrom)) {
 				return false;
 			} else {
-				return !traceMap.get(GLPTopologyBuilder.CHILD_ACTIVITY_ID_KEY)
-						.equals(traceMap
-								.get(GLPTopologyBuilder.ACTIVITY_ID_KEY));
+				return !traceMap.get(TopologyBuilder.CHILD_ACTIVITY_ID_KEY)
+						.equals(traceMap.get(TopologyBuilder.ACTIVITY_ID_KEY));
 			}
 		} catch (Exception ex) {
-			LOGGER.info("Error unexpected exception, discarding"
+			LOGGER.info("Error unexpected exception, discarding "
 					+ ex.toString());
 			ex.printStackTrace();
 			return false;
