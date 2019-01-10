@@ -59,6 +59,42 @@ public interface TopologyBuilder {
 	 */
 	String CHILD_ACTIVITY_ID_KEY = "childActivityId";
 	/**
+	 * The ID this array of id (strings) that are children
+	 */
+	String CHILDREN = "children";
+	/**
+	 * The ID the "weights" array in the "weights_analyticsId" analytics object
+	 */
+	String WEIGHTS = "weights";
+	/**
+	 * The KEY of the "weights[i].name" string
+	 */
+	String OPERATION_NAME_KEY = "name";
+	/**
+	 * The KEY of the "weights[i].op" string
+	 */
+	String OPERATION_KEY = "op";
+	/**
+	 * The KEY of the "weights[i].children[j].id" string
+	 */
+	String OPERATION_CHILD_ID_KEY = "id";
+	/**
+	 * The KEY of the "weights[i].children[j].multiplier" string
+	 */
+	String OPERATION_CHILD_MULTIPLIER_KEY = "multiplier";
+	/**
+	 * The KEY of the "weights[i].children[j].needsUpdate" string
+	 */
+	String OPERATION_CHILDREN_NEEDSUPDATE_KEY = "needsUpdate";
+	/**
+	 * The KEY of the "weights[i].children[j].value" string
+	 */
+	String OPERATION_CHILDREN_VALUE_KEY = "value";
+	/**
+	 * The KEY of the "weights[i].children" array
+	 */
+	String OPERATION_CHILDREN_KEY = "children";
+	/**
 	 * The ID this trace comes from, if not available, is a leaf
 	 */
 	String ORIGINAL_ID = "orginalId";

@@ -65,12 +65,10 @@ public class GLPTopologyBuilder implements
 	public static final String LEARNING_OBJECTIVES = "learningObjectives";
 	public static final String COMPETENCIES = "competencies";
 	public static final String CONTRIBUTES = "contributes";
-	public static final String GLP_RESULTS_KEY = "glp_results";
 	private static final String GLP_STREAM_ID = "glp-"
 			+ AbstractAnalysis.INPUT_SPOUT_TX_ID;
 	private static final String PARENT_PROGRESSED_STREAM_ID = "parent-progressed-"
 			+ AbstractAnalysis.INPUT_SPOUT_TX_ID;
-	public static final String CHILDREN = "children";
 	public static final String COMPLETED_KEY = "completed";
 	public static final String ANALYTICS_FULL_COMPLETED = "fullCompleted";
 
