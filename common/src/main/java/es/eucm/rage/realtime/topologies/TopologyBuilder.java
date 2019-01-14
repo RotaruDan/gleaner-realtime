@@ -25,13 +25,14 @@ import java.util.Map;
 /**
  * Configures a {@link org.apache.storm.trident.TridentTopology} when invoking
  * the method
- * {@link TopologyBuilder#build(TridentTopology, Stream, StateFactory, StateFactory)}
- * .
+ * {@link TopologyBuilder#build(TridentTopology tridentTopology, OpaqueTridentKafkaSpout spout, Stream tracesStream, StateFactory partitionPersistFactory, StateFactory persistentAggregateFactory, Map conf)}
+ * 
  */
 public interface TopologyBuilder {
 
 	/**
-	 * TODO ..
+	 * Used to store the values of the TRACE after being "flattened-out". All
+	 * traces are stored within the "out" document.
 	 */
 	String OUT_KEY = "out";
 	/**
@@ -55,7 +56,8 @@ public interface TopologyBuilder {
 	 */
 	String ACTIVITY_NAME_KEY = "activityName";
 	/**
-	 * The ID this trace comes from, if not available, is a leaf
+	 * The ID this trace comes from, if not available, is a leaf. This value is
+	 * set by the analysis when a trace is bubbled for the first time.
 	 */
 	String CHILD_ACTIVITY_ID_KEY = "childActivityId";
 	/**
@@ -102,10 +104,31 @@ public interface TopologyBuilder {
 	 * Used to know to which GLP the trace belongs to.
 	 */
 	String GLP_ID_KEY = "glpId";
+	/**
+	 * Used to know ROOT_id of the GLP the trace belongs to.
+	 */
+	String ROOT_ID_KEY = "rootId";
+	/**
+	 * Used to identify the "analytics" object for meta-data information about
+	 * the activities. Used in Default Aggregation Analysis, Overall Analysis
+	 * and GLP Analysis
+	 */
 	String ANALYTICS_KEY = "analytics";
+	/**
+	 * Used to identify the "root analytics" object. Used in Overall Analysis
+	 */
 	String ROOT_ANALYTICS_KEY = "rootAnalytics";
+
+	/**
+	 * The key from the "analytics" that identifies the link to the
+	 * "parent analytics" in the GLP tree.
+	 */
 	String ANALYTICS_PARENT_ID_KEY = "parentId";
 
+	/**
+	 * Part of the trace to identify the trace as UNIQUE. Usually established
+	 * before arriving at the Storm Analysis, in the backend.
+	 */
 	String UUIDV4 = "uuidv4";
 	/**
 	 * Identifies the trace object {@link java.util.Map}
@@ -136,11 +159,12 @@ public interface TopologyBuilder {
 	String TRACE_ANALYTICS_ORIGINAL_NAME = "originalName";
 
 	/**
-	 * TODO ..
+	 * Used to identify the ID of the Gameplay of the student. Is part of the
+	 * trace.
 	 */
 	String GAMEPLAY_ID = "gameplayId";
 	/**
-	 * TODO ..
+	 * Used to identify the ID of the class. Is part of the class.
 	 */
 	String CLASS_ID = "classId";
 

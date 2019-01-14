@@ -32,7 +32,12 @@ import java.util.logging.Logger;
  * Sets the property extracting the {@link TopologyBuilder#PROPERTY_KEY} and the
  * {@link TopologyBuilder#VALUE_KEY} for a given
  * {@link TopologyBuilder#ACTIVITY_ID_KEY} and
- * {@link TopologyBuilder.TridentTraceKeys#GAMEPLAY_ID}.
+ * {@link TopologyBuilder.TridentTraceKeys#GAMEPLAY_ID}. Also receives
+ * {@link TopologyBuilder#GLP_ID_KEY} (for the index) and Also receives
+ * {@link TopologyBuilder.TridentTraceKeys#NAME}.
+ * 
+ * Elasticsearch _id = {@link TopologyBuilder#ACTIVITY_ID_KEY} + "_" +
+ * {@link TopologyBuilder.TridentTraceKeys#NAME}.
  */
 public class GameplayStateUpdater implements StateUpdater<EsState> {
 	private static final Logger LOGGER = Logger
@@ -46,7 +51,7 @@ public class GameplayStateUpdater implements StateUpdater<EsState> {
 				String activityId = tuple
 						.getStringByField(TopologyBuilder.ACTIVITY_ID_KEY);
 				String glpId = tuple
-						.getStringByField(TopologyBuilder.GLP_ID_KEY);
+						.getStringByField(TopologyBuilder.ROOT_ID_KEY);
 
 				if (glpId == null) {
 					glpId = activityId;

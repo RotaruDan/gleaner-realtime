@@ -32,7 +32,11 @@ public class IsDirectChildTrace implements Filter {
 	private String traceKey, analyticsKey;
 
 	/**
-	 * Filters trace to be coming directly from a children of current node
+	 * Filters trace to be coming directly from a children of current node.
+	 * 
+	 * DIRECT child means that {@link TopologyBuilder#ORIGINAL_ID} must not be
+	 * null AND must be in the {@link TopologyBuilder#CHILDREN} array of the
+	 * analytics metadata of the current node.
 	 * 
 	 */
 	public IsDirectChildTrace(String traceKey, String analyticsKey) {

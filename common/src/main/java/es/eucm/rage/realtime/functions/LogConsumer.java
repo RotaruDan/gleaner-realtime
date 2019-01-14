@@ -20,6 +20,10 @@ import org.apache.storm.trident.tuple.TridentTuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Simple LOGGING function that, if activated will prompt the value of the
+ * touples that pass by.
+ */
 public class LogConsumer implements Consumer {
 
 	public static boolean LOG_ENABLED = false;
@@ -30,10 +34,24 @@ public class LogConsumer implements Consumer {
 	private String prefix = "";
 	private boolean log = false;
 
+	/**
+	 * LOGGER is desactivated, will add at the beginning of the log the "prefix"
+	 * parameter.
+	 * 
+	 * @param prefix
+	 */
 	public LogConsumer(String prefix) {
 		this(prefix, false);
 	}
 
+	/**
+	 * Creates a simple LOGGER for the Storm Trident pipeline.
+	 * 
+	 * @param prefix
+	 *            String to add at the beginning of the log.
+	 * @param log
+	 *            wether the log is activated or not.
+	 */
 	public LogConsumer(String prefix, boolean log) {
 		this.prefix = prefix;
 		this.log = log;

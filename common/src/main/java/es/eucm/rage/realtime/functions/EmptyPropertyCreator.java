@@ -24,57 +24,34 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class SuffixPropertyCreator implements Function {
+public class EmptyPropertyCreator implements Function {
 	private static final Logger LOGGER = Logger
-			.getLogger(SuffixPropertyCreator.class.getName());
+			.getLogger(EmptyPropertyCreator.class.getName());
 
-	private final String suffix;
 	private String valueField;
-
-	private String[] keysField;
 
 	/**
 	 * Creates a new {@link TridentTuple} depending on the value of the
-	 * valueField and the keysField provided (directly concatenated). If suffix
-	 * is provided, it will be appended to the ending of the property.
+	 * valueField and the keys field directly provided (directly concatenated).
 	 * 
 	 * @param valueField
 	 *            Extracts the value of this field from the {@link TridentTuple}
 	 *            . Emitted as the second parameter of the result
 	 *            {@link TridentTuple}.
-	 * @param suffix
-	 *            Value appended at the end of the resulting key build using the
-	 *            keysField parameter.
-	 * @param keysField
-	 *            builds the resulting keys by concatenating the resulting
-	 *            String of this keys from the {@link TridentTuple} see
-	 *            {@link PropertyCreator#toPropertyKey(TridentTuple)}. Emitted
-	 *            as the first parameter of the result {@link TridentTuple}.
 	 */
-	public SuffixPropertyCreator(String valueField, String suffix,
-			String... keysField) {
+	public EmptyPropertyCreator(String valueField) {
 		this.valueField = valueField;
-		this.keysField = keysField;
-		this.suffix = suffix;
 	}
 
 	@Override
 	public void execute(TridentTuple tuple, TridentCollector collector) {
 		try {
-			collector.emit(Arrays.asList(toPropertyKey(tuple),
-					tuple.getValueByField(valueField)));
+			collector.emit(Arrays.asList(tuple.getValueByField(valueField)));
 		} catch (Exception ex) {
 			LOGGER.info("Error unexpected exception, discarding "
 					+ ex.toString());
+			ex.printStackTrace();
 		}
-	}
-
-	public String toPropertyKey(TridentTuple tuple) {
-		String result = "";
-		for (String key : keysField) {
-			result += tuple.getStringByField(key) + ".";
-		}
-		return result + suffix;
 	}
 
 	@Override

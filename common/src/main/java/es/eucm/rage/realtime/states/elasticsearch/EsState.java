@@ -50,6 +50,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * Implementation of a basic Storm Trident {@link State} to store
+ * {@link Document}s in ElasticSearch
+ */
 public class EsState implements State {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EsState.class);
@@ -73,13 +77,23 @@ public class EsState implements State {
 		this.hClient = hClient;
 	}
 
+	/**
+	 * Updates all the {@link Document}s available in the inputs parameter,
+	 * adding them to ElasticSearch
+	 * 
+	 * @param inputs
+	 *            a list of touples such ad {{@link Document}s}
+	 */
 	public void bulkUpdateIndices(List<TridentTuple> inputs) {
 
 		try {
 			BulkRequest request = new BulkRequest();
 
+			// Iterate over the input tuples and store them in ElasticSearch
+			// Through a BULK INDEX Request
 			for (TridentTuple input : inputs) {
-				Document<Map> doc = (Document<Map>) input.get(0);
+				Document<Map> doc = (Document<Map>) input
+						.getValueByField(TopologyBuilder.DOCUMENT_KEY);
 				Map source = doc.getSource();
 
 				String index = ESUtils.getTracesIndex(doc.getIndex());
@@ -145,6 +159,18 @@ public class EsState implements State {
 		}
 	}
 
+	/**
+	 * Sets the key/value property of a document in Elasticsearch
+	 * 
+	 * @param activityId
+	 *            the Elasticsearch index
+	 * @param name
+	 *            The document _id
+	 * @param key
+	 *            They kay (split by "." to produce a nested document)
+	 * @param value
+	 *            The new value of the "key"
+	 */
 	public void setProperty(String activityId, String name, String key,
 			Object value) {
 
@@ -174,6 +200,20 @@ public class EsState implements State {
 		}
 	}
 
+	/**
+	 * Ads a value to a unique array if not already available
+	 * 
+	 * @param glpId
+	 *            The index
+	 * @param activityId
+	 *            The document _id
+	 * @param key
+	 *            The key of the array
+	 * @param name
+	 *            The value to be added to the array
+	 * @param childId
+	 *            Adds childId to "fullCompleted" array
+	 */
 	public void updateUniqueArray(String glpId, String activityId, String key,
 			String name, String childId) {
 		try {
@@ -219,6 +259,16 @@ public class EsState implements State {
 		}
 	}
 
+	/**
+	 * Receives the "performanceIndex" and updates the Performance of the
+	 * student
+	 * 
+	 * @param performanceIndex
+	 * @param classId
+	 * @param timestamp
+	 * @param name
+	 * @param score
+	 */
 	public void updatePerformanceArray(String performanceIndex, String classId,
 			String timestamp, String name, float score) {
 		try {

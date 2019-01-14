@@ -34,11 +34,12 @@ public class MapFieldExtractor implements Function {
 	private final String[] fields;
 
 	/**
-	 * Extracts fields from a Map
+	 * Extracts fields from a Map identified by the "mapKey" parameter.
 	 * 
 	 * @param fields
 	 *            used to extracts objects from the {@link Map} and emit them
-	 *            preserving the order.
+	 *            preserving the order. May contain "." which will search in
+	 *            nested objects of the map.
 	 */
 	public MapFieldExtractor(String mapKey, String... fields) {
 		this.mapKey = mapKey;

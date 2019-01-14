@@ -31,7 +31,13 @@ public class IsLeafFilter implements Filter {
 	private String traceKey;
 
 	/**
-	 * Filters a Trace TridentTuple to se eif it's a leaf
+	 * Filters a Trace TridentTuple to see if it's a leaf. It means that the
+	 * activity has noot been created by a node, therefore the
+	 * {@link TopologyBuilder#CHILD_ACTIVITY_ID_KEY} value is null (not
+	 * present).
+	 * 
+	 * Furthermore, must be a trace aimed at a GLP, thus
+	 * {@link TopologyBuilder#GLP_ID_KEY} must not be null.
 	 * 
 	 */
 	public IsLeafFilter(String traceKey) {

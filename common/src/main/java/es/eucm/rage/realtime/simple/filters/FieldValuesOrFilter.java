@@ -32,7 +32,7 @@ public class FieldValuesOrFilter implements Filter {
 
 	/**
 	 * Filters a TridentTuple depending on the value of multiple filters, if any
-	 * of the given values the value from the provided field (OR)
+	 * of the given values the value from the provided field (OR).
 	 * 
 	 * @param field
 	 *            field key to extract from the {@link TridentTuple}

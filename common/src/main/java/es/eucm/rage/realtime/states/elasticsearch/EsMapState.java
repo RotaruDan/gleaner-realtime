@@ -25,7 +25,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.util.EntityUtils;
-import org.apache.storm.Config;
 import org.apache.storm.metric.api.CountMetric;
 import org.apache.storm.task.IMetricsContext;
 import org.apache.storm.trident.state.*;
@@ -35,7 +34,6 @@ import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -47,6 +45,13 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.*;
 
+/**
+ * Implementation of {@link IBackingMap} for Elasticsearch Backend. Useful to
+ * layer over a map that communicates with a database. You generally layer
+ * opaque map over this over your database store
+ * 
+ * @param <T>
+ */
 public class EsMapState<T> implements IBackingMap<T> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EsMapState.class);
@@ -54,8 +59,8 @@ public class EsMapState<T> implements IBackingMap<T> {
 
 	public static class Options implements Serializable {
 
-		public int localCacheSize = 1000;
-		public String globalKey = "$GLOBAL$";
+		private int localCacheSize = 1000;
+		private String globalKey = "$GLOBAL$";
 	}
 
 	public static StateFactory opaque() {
@@ -66,6 +71,9 @@ public class EsMapState<T> implements IBackingMap<T> {
 		return new Factory(opts);
 	}
 
+	/**
+	 * Factory Implementation for {@link EsMapState} creation
+	 */
 	public static class Factory implements StateFactory {
 		protected Options _opts;
 
@@ -77,6 +85,16 @@ public class EsMapState<T> implements IBackingMap<T> {
 			_opts = options;
 		}
 
+		/**
+		 * Has to return a {@link EsMapState} properly created.
+		 * 
+		 * @param conf
+		 *            The Map passed as arguments to the Storm JVP
+		 * @param context
+		 * @param partitionIndex
+		 * @param numPartitions
+		 * @return a new instance of an {@link EsMapState} object
+		 */
 		@Override
 		public State makeState(Map conf, IMetricsContext context,
 				int partitionIndex, int numPartitions) {
@@ -86,7 +104,7 @@ public class EsMapState<T> implements IBackingMap<T> {
 			RestClient client = makeElasticsearchClient(new HttpHost(esHost,
 					9200));
 			EsMapState s = new EsMapState(client, new RestHighLevelClient(
-					client), _opts);
+					client));
 
 			CachedMap c = new CachedMap(s, _opts.localCacheSize);
 			MapState ms = OpaqueMap.build(c);
@@ -110,16 +128,11 @@ public class EsMapState<T> implements IBackingMap<T> {
 
 	private JSONOpaqueSerializerString ser = new JSONOpaqueSerializerString();
 	private final RestClient _client;
-	private Options _opts;
 	CountMetric _mreads;
-	CountMetric _mwrites;
-	CountMetric _mexceptions;
 	private Gson gson = new Gson();
 
-	public EsMapState(RestClient client, RestHighLevelClient hClient,
-			Options opts) {
+	public EsMapState(RestClient client, RestHighLevelClient hClient) {
 		_client = client;
-		_opts = opts;
 		this.hClient = hClient;
 	}
 
@@ -127,6 +140,14 @@ public class EsMapState<T> implements IBackingMap<T> {
 	 * MapState implementation
 	 **/
 
+	/**
+	 * Implementation by getting multiple objects from the ElasticSearch to the
+	 * MapState and keeping consistency with the "opaque-values-index"
+	 * 
+	 * @param keys
+	 *            List of {@link es.eucm.rage.realtime.utils.Document}
+	 * @return a List of documents depending the keys passed from ElasticSearch
+	 */
 	@Override
 	public List<T> multiGet(List<List<Object>> keys) {
 
@@ -195,6 +216,16 @@ public class EsMapState<T> implements IBackingMap<T> {
 		return ret;
 	}
 
+	/**
+	 * Store in the DB the multiple objects available as keys/values
+	 * respectively
+	 * 
+	 * @param keys
+	 *            List of keys: key[0] activityId, key[1] gameplayId, key[2+]
+	 *            property keys
+	 * @param vals
+	 *            The values to be stored as opaque-values and property value
+	 */
 	@Override
 	public void multiPut(List<List<Object>> keys, List<T> vals) {
 

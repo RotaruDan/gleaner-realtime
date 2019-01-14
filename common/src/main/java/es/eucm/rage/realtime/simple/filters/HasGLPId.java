@@ -31,7 +31,9 @@ public class HasGLPId implements Filter {
 	private String traceKey;
 
 	/**
-	 * Filters a Trace TridentTuple to se if it has GLP_ID field
+	 * Filters a Trace TridentTuple to se if it has GLP_ID field.
+	 * 
+	 * 1) {@link TopologyBuilder#GLP_ID_KEY} must not be null.
 	 * 
 	 */
 	public HasGLPId(String traceKey) {

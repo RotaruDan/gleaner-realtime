@@ -54,6 +54,16 @@ public class BuildWeightsValuesFromElasticIndex extends
 	 * "agg_childActivityId_username") IF the "value" field is not set already.
 	 * 
 	 * If values are not available, the value is set to "0".
+	 * 
+	 * 
+	 * @param glpIdKey
+	 *            to get the current root ID of the GLP tree
+	 * @param nameKey
+	 *            to get the name value of the current user.
+	 * @param weightsKey
+	 *            to get the current Analytics metadata object and obtain the
+	 *            {@link TopologyBuilder#OPERATION_CHILD_ID_KEY} and other
+	 *            values for the default aggregation analysis.
 	 */
 	public BuildWeightsValuesFromElasticIndex(String glpIdKey, String nameKey,
 			String weightsKey) {
@@ -153,7 +163,7 @@ public class BuildWeightsValuesFromElasticIndex extends
 						if (valueObj != null) {
 							// Value was present in current trace, and was set
 							// in
-							// HasOperationAndChildrenAreValidAndParseValues
+							// CheckOperationAndValidateChildren
 							// class
 							continue;
 						}

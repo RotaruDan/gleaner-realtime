@@ -30,7 +30,13 @@ public class HasClassAttributes implements Filter {
 
 	/**
 	 * Filters a Trace TridentTuple depending if it has the "activityId",
-	 * "classId" and "activityName" fields
+	 * "classId" and "activityName" fields.
+	 * 
+	 * 1) {@link TopologyBuilder#ACTIVITY_ID_KEY} must not be null 2)
+	 * {@link TopologyBuilder#ACTIVITY_NAME_KEY} must not be null 3)
+	 * {@link TopologyBuilder#CLASS_ID} must not be null 3)
+	 * {@link TopologyBuilder#CHILD_ACTIVITY_ID_KEY} must be null to avoid
+	 * "overposting" to class every time a trace is bubbled
 	 */
 	public HasClassAttributes() {
 	}
@@ -110,9 +116,7 @@ public class HasClassAttributes implements Filter {
 					.get(TopologyBuilder.CHILD_ACTIVITY_ID_KEY);
 
 			if (childActivityObject != null) {
-				// Is has been bubbled it will have a CHILD_ACTIVITY_ID_KEY
-				// AND the CHILD_ACTIVITY_ID_KEY will be different
-				// than the current ACTIVITY_ID_KEY
+				// If it has been bubbled it will have a CHILD_ACTIVITY_ID_KEY
 				if (LOG) {
 					LOGGER.info(TopologyBuilder.CHILD_ACTIVITY_ID_KEY
 							+ " is not null, trace has been bubbled, not overposting to the class, value is: "

@@ -50,8 +50,26 @@ public class Document<T> implements Serializable {
 	 */
 	private String indexPrefix;
 
+	/**
+	 * The "index" of the Elasticsearch document in the database.
+	 */
 	private String index;
 
+	/**
+	 * Document that is mapped to ElasticSearch directly.
+	 * 
+	 * @param source
+	 *            The "_source" of the Elasticsearch document.
+	 * @param id
+	 *            The "_id" of the Elasticsearch document.
+	 * @param type
+	 *            The "_type" of the Elasticsearch document.
+	 * @param indexPrefix
+	 *            The value to be added at the beginning of the Elasticsearch
+	 *            index value.
+	 * @param index
+	 *            The "index" of the Elasticsearch document.
+	 */
 	public Document(T source, String id, String type, String indexPrefix,
 			String index) {
 		this.source = source;

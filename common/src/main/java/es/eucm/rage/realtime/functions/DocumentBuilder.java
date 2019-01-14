@@ -46,6 +46,7 @@ public class DocumentBuilder implements Function {
 	 * in ElasticSearch.
 	 * 
 	 * @param defaultTraceKey
+	 *            to obtain the "trace" from the tuple and build the document.
 	 */
 	public DocumentBuilder(String defaultTraceKey) {
 		this(defaultTraceKey, TopologyBuilder.ACTIVITY_ID_KEY);
@@ -57,6 +58,10 @@ public class DocumentBuilder implements Function {
 	 * in ElasticSearch.
 	 * 
 	 * @param defaultTraceKey
+	 *            to obtain the "trace" from the tuple and build the document.
+	 * @param indexIdKey
+	 *            The key that represents the "index" value from the "trace".
+	 *            Defaults to {@link TopologyBuilder#ACTIVITY_ID_KEY}.
 	 */
 	public DocumentBuilder(String defaultTraceKey, String indexIdKey) {
 		this.indexIdKey = indexIdKey;

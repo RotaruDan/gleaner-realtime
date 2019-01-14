@@ -36,6 +36,10 @@ public class ActivityIdNameCreator implements Function {
 	 * Creates a new {@link TridentTuple} depending on the value of the
 	 * activityIdKey and the nameKey provided (concatenated with "_")
 	 * 
+	 * @param activityIdKey
+	 *            to get the value of the current activity id.
+	 * @param nameKey
+	 *            to get the name value of the current user.
 	 */
 	public ActivityIdNameCreator(String activityIdKey, String nameKey) {
 		this.activityIdKey = activityIdKey;

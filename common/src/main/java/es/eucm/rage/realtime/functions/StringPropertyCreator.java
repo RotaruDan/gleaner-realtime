@@ -33,9 +33,8 @@ public class StringPropertyCreator implements Function {
 	private String[] keysField;
 
 	/**
-	 * 
 	 * Creates a new {@link TridentTuple} depending on the value of the
-	 * valueField and the keys field directly provided (concatenated)
+	 * valueField and the keys field directly provided (directly concatenated).
 	 * 
 	 * @param valueField
 	 *            Extracts the value of this field from the {@link TridentTuple}
@@ -43,7 +42,8 @@ public class StringPropertyCreator implements Function {
 	 *            {@link TridentTuple}.
 	 * @param keysField
 	 *            builds the resulting keys by concatenating the resulting
-	 *            String of this keys directly concatenated.
+	 *            String of this keys. See
+	 *            {@link PropertyCreator#toPropertyKey(TridentTuple)}.
 	 */
 	public StringPropertyCreator(String valueField, String... keysField) {
 		this.valueField = valueField;

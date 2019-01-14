@@ -25,19 +25,19 @@ import org.apache.storm.trident.tuple.TridentTuple;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
-public class GlpIdFieldExtractor implements Function {
+public class RootGlpIdFieldExtractor implements Function {
 	private static final Logger LOGGER = Logger
-			.getLogger(GlpIdFieldExtractor.class.getName());
+			.getLogger(RootGlpIdFieldExtractor.class.getName());
 	public static final boolean LOG = false;
 
-	private String[] fields;
-
 	/**
-	 * Extracts field "glpId" from a "trace" touple
+	 * Extracts field "glpId" from a "trace" tuple.
+	 * 
+	 * Requires {@link TopologyBuilder#TRACE_KEY} to extract the key
+	 * {@link TopologyBuilder#GLP_ID_KEY}.
 	 */
-	public GlpIdFieldExtractor() {
+	public RootGlpIdFieldExtractor() {
 
 	}
 
@@ -74,9 +74,6 @@ public class GlpIdFieldExtractor implements Function {
 			LOGGER.info("Error unexpected exception, discarding "
 					+ ex.toString());
 			LOGGER.info(tuple.toString());
-			for (int i = 0; i < fields.length; i++) {
-				LOGGER.info(fields[i] + ", ");
-			}
 			ex.printStackTrace();
 		}
 	}

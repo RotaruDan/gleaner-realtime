@@ -16,7 +16,6 @@
 package es.eucm.rage.realtime.functions;
 
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.storm.trident.operation.Function;
 import org.apache.storm.trident.operation.TridentCollector;
@@ -28,10 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class HasOperationAndChildrenAreValidAndParseValues implements Function {
+public class CheckOperationAndValidateChildren implements Function {
 	private static final Logger LOGGER = Logger
-			.getLogger(HasOperationAndChildrenAreValidAndParseValues.class
-					.getName());
+			.getLogger(CheckOperationAndValidateChildren.class.getName());
 	public static final boolean LOG = false;
 
 	private String traceKey, analyticsKey, weightsAnalyticsKey;
@@ -41,8 +39,18 @@ public class HasOperationAndChildrenAreValidAndParseValues implements Function {
 	 * are correctly referenced in the "weights" array AND extracts all the
 	 * values possible from the CURRENT TRACE setting the "value" field in the
 	 * "weights[i].children[j]"
+	 * 
+	 * @param traceKey
+	 *            to get the current trace object for the analysis values
+	 * @param analyticsKey
+	 *            to get the current Analytics metadata object and obtain the
+	 *            {@link TopologyBuilder#CHILDREN} and other values.
+	 * @param weightsAnalyticsKey
+	 *            to get the current Analytics metadata object and obtain the
+	 *            {@link TopologyBuilder#OPERATION_CHILD_ID_KEY} and other
+	 *            values for the analysis.
 	 */
-	public HasOperationAndChildrenAreValidAndParseValues(String traceKey,
+	public CheckOperationAndValidateChildren(String traceKey,
 			String analyticsKey, String weightsAnalyticsKey) {
 		this.traceKey = traceKey;
 		this.analyticsKey = analyticsKey;

@@ -23,6 +23,10 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * Class used to parse CSV traces to {@link Map} objects to send them to the
+ * Storm Trident cluster. This class is used only in tests.
+ */
 public class CSVToMapTrace {
 
 	int biasesCount = 0;

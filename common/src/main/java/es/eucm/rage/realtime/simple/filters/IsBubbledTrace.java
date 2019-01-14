@@ -31,7 +31,11 @@ public class IsBubbledTrace implements Filter {
 	private String traceKey;
 
 	/**
-	 * Filters a Trace TridentTuple to see if it has been bubbled
+	 * Filters a Trace TridentTuple to see if it has been bubbled at least once.
+	 * If it has been bubbled the {@link TopologyBuilder#CHILD_ACTIVITY_ID_KEY}
+	 * must not be null and be different than
+	 * {@link TopologyBuilder#ACTIVITY_ID_KEY}. (if they are equal it means that
+	 * the trace has been sent to the same node, not upwards to the parent node)
 	 * 
 	 */
 	public IsBubbledTrace(String traceKey) {

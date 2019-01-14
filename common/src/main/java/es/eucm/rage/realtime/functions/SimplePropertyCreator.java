@@ -34,7 +34,8 @@ public class SimplePropertyCreator implements Function {
 
 	/**
 	 * Creates a new {@link TridentTuple} depending on the value of the
-	 * valueField and the keysField provided (concatenated)
+	 * valueField and the key provided, directly passed (not extracted from the
+	 * tuple).
 	 * 
 	 * @param valueField
 	 *            Extracts the value of this field from the {@link TridentTuple}

@@ -31,7 +31,9 @@ import java.util.logging.Logger;
 
 /**
  * Storm Trident function for building a {@link Map} object with the information
- * required to display Kibana bisualization.
+ * required to be sent to the parent node.
+ * 
+ * 1) {@link TopologyBuilder#ANALYTICS_PARENT_ID_KEY} must not be null
  */
 public class TraceToParentBuilder implements Function {
 	private static final Logger LOG = Logger
@@ -45,9 +47,14 @@ public class TraceToParentBuilder implements Function {
 
 	/**
 	 * Builds a {@link Map} from a TridentTouple. The trace is designed to be
-	 * sent to kafka.
+	 * sent to kafka. Note that a DEEP CLONE of the original trace object is
+	 * required.
 	 * 
 	 * @param defaultTraceKey
+	 *            to get the current trace object
+	 * @param analyticsKey
+	 *            to get the current Analytics metadata object and obtain the
+	 *            {@link TopologyBuilder#ANALYTICS_PARENT_ID_KEY} link.
 	 */
 	public TraceToParentBuilder(String defaultTraceKey, String analyticsKey) {
 		this.defaultTraceKey = defaultTraceKey;
@@ -57,9 +64,7 @@ public class TraceToParentBuilder implements Function {
 	@Override
 	public void execute(TridentTuple tuple, TridentCollector collector) {
 		try {
-			Map inTrace = (Map) tuple.getValueByField(defaultTraceKey);
 
-			Map trace = cloner.deepClone(inTrace);
 			Map analytics = (Map) tuple.getValueByField(analyticsKey);
 
 			Object parentIdObj = analytics
@@ -70,6 +75,9 @@ public class TraceToParentBuilder implements Function {
 				}
 				return;
 			}
+
+			Map inTrace = (Map) tuple.getValueByField(defaultTraceKey);
+			Map trace = cloner.deepClone(inTrace);
 
 			Object origId = trace.get(TopologyBuilder.ORIGINAL_ID);
 			if (origId == null) {

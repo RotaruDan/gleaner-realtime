@@ -35,7 +35,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Base class for RAGE realtime analysis.
+ * Base class for RAGE real-time analysis.
  */
 public abstract class AbstractAnalysis {
 
@@ -92,7 +92,10 @@ public abstract class AbstractAnalysis {
 	 * @param zookeeperUrl
 	 *            Used to connect to Kafka and pull data from the topic
 	 *            'sessionId'
-	 * @return a topology that connects to kafka and performs the realtime
+	 * @param conf
+	 *            A {@link Map} with the configuration values passed to the
+	 *            Flux.yml file
+	 * @return a topology that connects to kafka and performs the real-time
 	 *         analysis
 	 */
 	private StormTopology buildTopology(String topicName, String zookeeperUrl,
@@ -110,6 +113,9 @@ public abstract class AbstractAnalysis {
 		TridentTopology tridentTopology = new TridentTopology();
 
 		// Create and enhance the input kafka stream
+		// Creates the stream with the UNIQUE ID and the SPOUT from Kafka
+		// The first parameter must be a UNIQUE ID in order to properly work
+		// The stream receives data from the Spout just created from Kafka
 		Stream stream = tridentTopology.newStream(
 				INPUT_SPOUT_TX_ID + Math.random() * 100000, spout);
 		stream = enhanceTracesStream(stream);
@@ -125,18 +131,35 @@ public abstract class AbstractAnalysis {
 	/**
 	 * Enhance the incoming kafka stream.
 	 * 
+	 * A stream is an array of tuples. Tuples are arrays of values. You can
+	 * access the values through TAGS.
+	 * 
+	 * Example of stream:
+	 * 
+	 * [(value1),(value1, value2),(value1, value2, value3,...,valueN)]
+	 * 
+	 * Given an array of TAGS (fields) such as:
+	 * 
+	 * [TAG1, TAG2, TAG3]
+	 * 
+	 * You can access to "value1" through tuple.getValueByField("TAG1") You can
+	 * access to "value2" through tuple.getValueByField("TAG2") You can access
+	 * to "value3" through tuple.getValueByField("TAG3") You can access to
+	 * "valueN" through tuple.getValueByField("TAGN")
+	 * 
+	 * 
 	 * <pre>
 	 *   Kafka Input:
-	 *     [("str"=>"XXXXXXX"),
-	 *      ("str"=>"YYYYYYY"), ...]
+	 *     [("str"=>"JSON_VALUE_OF_TRACE_1"),
+	 *      ("str"=>"JSON_VALUE_OF_TRACE_2"), ...]
 	 * 
 	 *   Enhanced Kafka Stream:
-	 *     [("sessionId" => sessionId, "trace" => toMap(JSON.parse(getValue("str") // "XXXXXXX")),
-	 *      ("sessionId" => sessionId, "trace" => toMap(JSON.parse(getValue("str") // "YYYYYYY")), ...]
+	 *     [("trace" => toMap(JSON.parse(tuple.getValueByField("str") // "JSON_VALUE_OF_TRACE_1")),
+	 *      ("trace" => toMap(JSON.parse(tuple.getValueByField("str") // "JSON_VALUE_OF_TRACE_2")), ...]
 	 * </pre>
 	 * 
 	 * @param stream
-	 *            Default kafka input stream
+	 *            Default RAW kafka input stream.
 	 * 
 	 * @return An enhanced {@link Stream}
 	 */
@@ -145,5 +168,10 @@ public abstract class AbstractAnalysis {
 				new JsonToTrace(), new Fields(TopologyBuilder.TRACE_KEY));
 	}
 
+	/**
+	 * Should build the Storm TRIDENT Topology with the full real-time analysis.
+	 * 
+	 * @return a {@link TopologyBuilder} with the full real-time analysis.
+	 */
 	protected abstract TopologyBuilder getTopologyBuilder();
 }

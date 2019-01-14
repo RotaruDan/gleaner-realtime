@@ -32,7 +32,15 @@ public class IsRootCreatedInRoot implements Filter {
 	private String traceKey;
 
 	/**
-	 * Filters a Trace TridentTuple to se eif it's a leaf
+	 * Filters a Trace TridentTuple to ses if it is a trace going to ROOT and
+	 * has been created in the ROOT node as well.
+	 * 
+	 * 1) {@link TopologyBuilder#CHILD_ACTIVITY_ID_KEY} must not be null 2)
+	 * {@link TopologyBuilder#ORIGINAL_ID} must not be null 3)
+	 * {@link TopologyBuilder#ACTIVITY_ID_KEY} must not be null 4)
+	 * {@link TopologyBuilder#GLP_ID_KEY} must not be null 5) ROOT_ID must equal
+	 * {@link TopologyBuilder#ORIGINAL_ID} and
+	 * {@link TopologyBuilder#CHILD_ACTIVITY_ID_KEY}
 	 * 
 	 */
 	public IsRootCreatedInRoot(String traceKey) {
