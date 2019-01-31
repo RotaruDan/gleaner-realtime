@@ -58,23 +58,18 @@ public class PerformanceTopologyBuilder implements
 			StateFactory partitionPersistFactory,
 			StateFactory persistentAggregateFactory, Map<String, Object> conf) {
 
-		/** ---> AbstractAnalysis definition <--- **/
-		/* DEFAULT TOPOLOGY ANALYSIS */
+		/* PERFORMANCE TOPOLOGY ANALYSIS */
 
 		/*
-		 * --> Analyzing for Kibana visualizations (traces index, 'sessionId')
-		 * <--
-		 */
-
-		/*
-		 * --> Analyzing for the Alerts and Warnings system (results index,
-		 * 'results-sessionId') <--
+		 * --> Analyzing for the Performance Results <--
 		 */
 
 		// 1 - For each TRACE_KEY (from Kibana) that we receive
-		// 2 - Extract the fields TridentTraceKeys.GAMEPLAY_ID and
-		// TridentTraceKeys.EVENT so that we can play
+		// 2 - Ensure it has score
+		// 3 - Extract the fields TridentTraceKeys.CLASS_ID, NAME, TIMESTAMP and
+		// TridentTraceKeys.SCORE so that we can play
 		// with it below
+		// 4 - Persist per students, weeks, months
 		tracesStream
 				// Filter only leafs
 				.each(new Fields(TRACE_KEY), new IsLeafFilter(TRACE_KEY))

@@ -46,9 +46,6 @@ import java.util.logging.Logger;
 public class BeaconingBundleTopologyBuilder implements
 		es.eucm.rage.realtime.topologies.TopologyBuilder {
 
-	private String o(String key) {
-		return OUT_KEY + "." + key;
-	}
 
 	@Override
 	public void build(TridentTopology tridentTopology,
