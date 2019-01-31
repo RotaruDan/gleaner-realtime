@@ -65,6 +65,11 @@ public class DefaultAnalysisAggregation {
 
 	private static final Gson gson = new Gson();
 
+	/**
+	 * Returns a Producer (conexion with Kafka) that sends data to the queue
+	 * 
+	 * @return the producer created
+	 */
 	private static Producer<String, String> createProducer() {
 		Properties props = new Properties();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
@@ -76,6 +81,12 @@ public class DefaultAnalysisAggregation {
 		return new KafkaProducer<>(props);
 	}
 
+	/**
+	 * Receives a Trace Map and feeds the map to Kafka with the help of the
+	 * producer
+	 * 
+	 * @param trace
+	 */
 	static void runProducer(final Map trace) {
 
 		try {
@@ -249,7 +260,10 @@ public class DefaultAnalysisAggregation {
 				.source(parentAnalyticsWeights);
 		hClient.index(indexParentWeights);
 
+		// Parser that receives a local file in CSV and returns a list of Map
+		// Traces
 		CSVToMapTrace parser = new CSVToMapTrace(analyticsGLPId);
+		// Read the TEST files, parse them and Feed them to the Local Cluster
 		for (int i = 0; i < TRACES_FILES.length; ++i) {
 			String idx;
 			if (i < 3) {
@@ -284,11 +298,14 @@ public class DefaultAnalysisAggregation {
 		cluster2.submitTopology("realtime-" + NOW_DATE, conf, topology);
 
 		try {
+			// Wait for thr traces to be analyzed by the Topology
 			Thread.sleep(20000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
+		// Start querying ElasticSearch and compare the results with the
+		// expected values
 		Response response = client.performRequest(
 				"GET",
 				"/"
@@ -356,6 +373,7 @@ public class DefaultAnalysisAggregation {
 		List<List<Object>> tuples = parser.getTuples("glp/" + TRACES_FILES[0]
 				+ ".csv", secondIndex, 2);
 
+		// Send second batch of traces to the Topology (kafka)
 		for (List tupleNestedList : tuples) {
 			for (Object trace : tupleNestedList) {
 				Map traceMap = (Map) trace;
@@ -364,11 +382,14 @@ public class DefaultAnalysisAggregation {
 		}
 
 		try {
+			// Wait for thr traces to be analyzed by the Topology
 			Thread.sleep(20000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
+		// Start querying ElasticSearch and compare the results with the
+		// expected values
 		response = client.performRequest(
 				"GET",
 				"/"

@@ -143,7 +143,7 @@ public class PartialThresholdsFilter implements Filter {
 			}
 
 			Object contributesThresholdObject = partialThresholdsMap
-					.get(GLPTopologyBuilder.CONTRIBUTES);
+					.get(GLPTopologyBuilder.COMPETENCIES);
 
 			if (contributesThresholdObject != null) {
 
@@ -156,7 +156,7 @@ public class PartialThresholdsFilter implements Filter {
 					}
 				} catch (NumberFormatException nfexScore) {
 					if (LOG) {
-						LOGGER.info(GLPTopologyBuilder.CONTRIBUTES
+						LOGGER.info(GLPTopologyBuilder.COMPETENCIES
 								+ " field of trace " + traceObject
 								+ " is not a FLOAT: "
 								+ contributesThresholdObject + " " + nfexScore);

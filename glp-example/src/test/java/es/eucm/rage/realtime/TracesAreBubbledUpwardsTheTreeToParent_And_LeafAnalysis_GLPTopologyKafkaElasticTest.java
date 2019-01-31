@@ -67,6 +67,11 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 
 	private static final Gson gson = new Gson();
 
+	/**
+	 * Returns a Producer (conexion with Kafka) that sends data to the queue
+	 * 
+	 * @return the producer created
+	 */
 	private static Producer<String, String> createProducer() {
 		Properties props = new Properties();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
@@ -78,6 +83,12 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 		return new KafkaProducer<>(props);
 	}
 
+	/**
+	 * Receives a Trace Map and feeds the map to Kafka with the help of the
+	 * producer
+	 * 
+	 * @param trace
+	 */
 	static void runProducer(final Map trace) {
 
 		try {
@@ -206,12 +217,15 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 		hClient.index(indexFirstChild);
 		hClient.index(indexSecondChild);
 
+		// Parser that receives a local file in CSV and returns a list of Map
+		// Traces
 		CSVToMapTrace parser = new CSVToMapTrace(analyticsGLPId);
 		Map<String, Integer> res = new HashMap<>();
 		List<Map> firstChildTraces = new ArrayList<>();
 		List<Map> secondChildTraces = new ArrayList<>();
 		List<Map> parentChildTraces = new ArrayList<>();
 		List<List<Object>> tuples2 = null;
+		// Read the TEST files, parse them and Feed them to the Local Cluster
 		for (int i = 0; i < TRACES_FILES.length; ++i) {
 			String idx;
 			if (i < 3) {
@@ -270,18 +284,24 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 		cluster2.submitTopology("realtime-" + NOW_DATE, conf, topology);
 
 		try {
+			// Wait for thr traces to be analyzed by the Topology
 			Thread.sleep(20000);
 
+			// Send second batch of traces to the Topology (kafka)
 			for (List tupleNestedList : tuples2) {
 				for (Object trace : tupleNestedList) {
 					Map traceMap = (Map) trace;
 					runProducer(traceMap);
 				}
 			}
+			// Wait for thr traces to be analyzed by the Topology
 			Thread.sleep(25000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+
+		// Start querying ElasticSearch and compare the results with the
+		// expected values
 
 		Response response = client.performRequest("GET", "/" + parentIndex
 				+ "/_search?size=5000&q=*:*");
@@ -298,7 +318,7 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 
 		int total = ((Double) hits.get("total")).intValue();
 
-		assertEquals("Total traces " + parentIndex + ", current " + total, 112,
+		assertEquals("Total traces " + parentIndex + ", current " + total, 140,
 				total);
 	}
 }

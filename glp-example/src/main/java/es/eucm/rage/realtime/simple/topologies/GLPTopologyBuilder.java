@@ -37,6 +37,7 @@ import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.operation.CombinerAggregator;
 import org.apache.storm.trident.operation.TridentCollector;
 import org.apache.storm.trident.operation.TridentOperationContext;
+import org.apache.storm.trident.operation.builtin.Count;
 import org.apache.storm.trident.state.StateFactory;
 import org.apache.storm.trident.state.StateUpdater;
 import org.apache.storm.trident.tuple.TridentTuple;
@@ -94,13 +95,15 @@ public class GLPTopologyBuilder implements
 
 		TridentState staticState = tridentTopology
 				.newStaticState(partitionPersistFactory);
-		// 1 - Extract "glpId" and "activityId" from trace
+		// 1 - Start with a new stream to avoid conflicts with other analysis
+		// such as Performance/Overall
 		AbstractAnalysis
 				.enhanceTracesStream(
 						tridentTopology.newStream(GLP_STREAM_ID + Math.random()
 								* 100000, spout))
 
-				// Filter all traces that are not bubbled
+				// Every trace that has a "glpId" will be part of the tree and
+				// will need bubbling
 				.each(new Fields(TRACE_KEY), new HasGLPId(TRACE_KEY))
 				.each(new Fields(TRACE_KEY),
 						new TraceFieldExtractor(GLP_ID_KEY, ACTIVITY_ID_KEY),
@@ -128,9 +131,8 @@ public class GLPTopologyBuilder implements
 		TridentState staticStateCompleted = tridentTopology
 				.newStaticState(partitionPersistFactory);
 
-		// 1 - For each TRACE_KEY (from Kibana) that we receive
-		// 2 - Extract the field TridentTraceKeys.EVENT
-		// so that we can play with it below
+		// 1 - Start with a new stream to avoid conflicts with other analysis
+		// such as Performance/Overall
 		AbstractAnalysis
 				.enhanceTracesStream(
 						tridentTopology.newStream(GLP_STREAM_ID + Math.random()
@@ -150,7 +152,7 @@ public class GLPTopologyBuilder implements
 				// Filter only leafs
 				.each(new Fields(TRACE_KEY), new IsLeafFilter(TRACE_KEY))
 				.peek(new LogConsumer("Leaf passed"))
-				// Extract GLP_ID, ActivityID and GameplayId
+				// Extract GLP_ID, ActivityID and NAME
 				.each(new Fields(TRACE_KEY),
 						new TraceFieldExtractor(GLP_ID_KEY, ACTIVITY_ID_KEY,
 								o(TridentTraceKeys.NAME)),
@@ -177,41 +179,62 @@ public class GLPTopologyBuilder implements
 						new StringPropertyCreator(CONTRIBUTES, CONTRIBUTES),
 						new Fields(PROPERTY_KEY, VALUE_KEY))
 				.peek(new LogConsumer("Created Property"))
+				.each(new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME),
+						new ActivityIdNameCreator(ACTIVITY_ID_KEY,
+								TridentTraceKeys.NAME),
+						new Fields(ACTIVITY_ID_KEY + "_"
+								+ TridentTraceKeys.NAME))
+				.each(new Fields(TRACE_KEY), new RootGlpIdFieldExtractor(),
+						new Fields(ROOT_ID_KEY))
 				// Group by ACTIVITY ID
 				.groupBy(
-						new Fields(GLP_ID_KEY, ACTIVITY_ID_KEY,
-								TridentTraceKeys.NAME, PROPERTY_KEY, VALUE_KEY))
-				// Aggregate SUM the Contributes (Competencies and
-				// LearningObjetives) per ACTIVITY ID
-				.aggregate(
-						new Fields(GLP_ID_KEY, ACTIVITY_ID_KEY,
-								TridentTraceKeys.NAME, PROPERTY_KEY, VALUE_KEY),
-						new ContribSumAggregation(), new Fields("results"))
+						new Fields(ROOT_ID_KEY, ACTIVITY_ID_KEY + "_"
+								+ TridentTraceKeys.NAME, TridentTraceKeys.NAME,
+								PROPERTY_KEY, VALUE_KEY))
+				.persistentAggregate(persistentAggregateFactory, new Count(),
+						new Fields("count"))
+				.newValuesStream()
+				.peek(new LogConsumer("NEW VALUES STREAM PEEK "))
 				// Persist to ActivityID
 				.partitionPersist(
 						partitionPersistFactory,
-						new Fields("results"),
+						new Fields(ROOT_ID_KEY, ACTIVITY_ID_KEY + "_"
+								+ TridentTraceKeys.NAME, TridentTraceKeys.NAME,
+								PROPERTY_KEY, VALUE_KEY, "count"),
 						new ContribStateUpdater(),
-						new Fields(GLP_ID_KEY, ACTIVITY_ID_KEY,
-								TridentTraceKeys.NAME, PROPERTY_KEY, VALUE_KEY))
+						new Fields(ROOT_ID_KEY, ACTIVITY_ID_KEY + "_"
+								+ TridentTraceKeys.NAME, TridentTraceKeys.NAME,
+								PROPERTY_KEY, VALUE_KEY, "count"))
 				.newValuesStream()
-				// Group by GLP ID
+				.each(new Fields(ROOT_ID_KEY, TridentTraceKeys.NAME),
+						new ActivityIdNameCreator(ROOT_ID_KEY,
+								TridentTraceKeys.NAME),
+						new Fields(ROOT_ID_KEY + "_" + TridentTraceKeys.NAME))
 				.groupBy(
-						new Fields(GLP_ID_KEY, TridentTraceKeys.NAME,
-								PROPERTY_KEY, VALUE_KEY))
-				// Aggregate SUM the Contributes (Competencies and
-				// LearningObjetives) per GLP ID
-				.aggregate(
-						new Fields(GLP_ID_KEY, TridentTraceKeys.NAME,
-								PROPERTY_KEY, VALUE_KEY),
-						new ContribSumAggregation(), new Fields("results"))
-				.partitionPersist(partitionPersistFactory,
-						new Fields("results"), new ContribStateUpdater());
+						new Fields(ROOT_ID_KEY, ROOT_ID_KEY + "_"
+								+ TridentTraceKeys.NAME, TridentTraceKeys.NAME,
+								PROPERTY_KEY, VALUE_KEY, "count"))
+				.persistentAggregate(persistentAggregateFactory, new Count(),
+						new Fields("count_root"))
+				.newValuesStream()
+				.peek(new LogConsumer("NEW VALUES STREAM PEEK 2"))
+				// Persist to ActivityID
+				.partitionPersist(
+						partitionPersistFactory,
+						new Fields(ROOT_ID_KEY, ROOT_ID_KEY + "_"
+								+ TridentTraceKeys.NAME, TridentTraceKeys.NAME,
+								PROPERTY_KEY, VALUE_KEY, "count_root", "count"),
+						new ContribStateUpdater("count_root", ROOT_ID_KEY + "_"
+								+ TridentTraceKeys.NAME),
+						new Fields(ROOT_ID_KEY, ROOT_ID_KEY + "_"
+								+ TridentTraceKeys.NAME, TridentTraceKeys.NAME,
+								PROPERTY_KEY, VALUE_KEY, "count_root"));
 
 		/** PARENT PROGRESSED ANALYSIS **/
 		TridentState staticParentProgressedState = tridentTopology
 				.newStaticState(partitionPersistFactory);
-		// 1 - Extract "glpId" and "activityId" from trace
+		// 1 - Start with a new stream to avoid conflicts with other analysis
+		// such as Performance/Overall
 		AbstractAnalysis
 				.enhanceTracesStream(
 						tridentTopology.newStream(PARENT_PROGRESSED_STREAM_ID
@@ -238,10 +261,7 @@ public class GLPTopologyBuilder implements
 				 * .each(new Fields(TRACE_KEY), new SuccessFilter(true))
 				 * .peek(new LogConsumer("Success is TRUE"))
 				 */
-				// TODO should pass the PartialThreshold filter?? (preguntar) ->
-				// por ahora no
-				// TODO check is child (?) send Progressed accoordingly
-				// /completed (if appcable) to kafka
+				// completed (if applicable) to kafka
 				// Extract Analytics
 				.stateQuery(
 						staticParentProgressedState,
@@ -291,6 +311,17 @@ public class GLPTopologyBuilder implements
 
 	}
 
+	/**
+	 * Creates a conexion with Kafka that will send traces to the queue when
+	 * obtained from the stream.
+	 * 
+	 * @param conf
+	 *            The configuration object to obtain the connection with kafka
+	 * @param key
+	 *            Unique value that can nbe used by the consumer, must be unique
+	 *            per State Factory.
+	 * @return the {@link TridentKafkaStateFactory} to pass it to the stream
+	 */
 	public static TridentKafkaStateFactory toParentKafkaFactory(
 			final Map<String, Object> conf, final String key) {
 
@@ -299,7 +330,7 @@ public class GLPTopologyBuilder implements
 		String bootstrapServers = kafkaUrl;
 		final String topic = conf.get(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM)
 				.toString();
-		// set producer properties.
+		// Set producer properties for the connection with Kafka
 		Properties props = new Properties();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 		props.put(ProducerConfig.ACKS_CONFIG, "1");
@@ -312,9 +343,9 @@ public class GLPTopologyBuilder implements
 		TridentKafkaStateFactory stateFactory = new TridentKafkaStateFactory()
 				.withProducerProperties(props)
 				.withKafkaTopicSelector(new KafkaTopicSelector() {
-					// TODO no anonymous class
 					@Override
 					public String getTopic(TridentTuple tridentTuple) {
+						// The name of the topic where to send the traces
 						return topic;
 					}
 				})
@@ -327,168 +358,12 @@ public class GLPTopologyBuilder implements
 
 					@Override
 					public Object getMessageFromTuple(TridentTuple tridentTuple) {
+						// The message that we send, the value of the tag
+						// PARENT_TRACE
 						return tridentTuple.getValueByField(PARENT_TRACE);
 					}
 				});
 		return stateFactory;
-	}
-
-	static class ContribSumAggregation implements
-			CombinerAggregator<Map<String, Object>> {
-		private static final Logger LOGGER = Logger
-				.getLogger(ContribSumAggregation.class.getName());
-
-		@Override
-		public Map<String, Object> init(TridentTuple tuple) {
-			try {
-				Map contrib = (Map) tuple.getValueByField(VALUE_KEY);
-				Map result = new HashMap(contrib);
-				Object actId;
-				try {
-					actId = tuple.getValueByField(ACTIVITY_ID_KEY);
-				} catch (NullPointerException exp) {
-					actId = ESUtils.getRootGLPId(tuple.getValueByField(
-							GLP_ID_KEY).toString());
-				}
-
-				result.put(ACTIVITY_ID_KEY, actId);
-				result.put(TridentTraceKeys.NAME,
-						tuple.getValueByField(TridentTraceKeys.NAME));
-				result.put(GLP_ID_KEY, tuple.getValueByField(GLP_ID_KEY));
-				result.put(PROPERTY_KEY, tuple.getValueByField(PROPERTY_KEY));
-				return result;
-			} catch (Exception ex) {
-				LOGGER.info("Unexpected exception initializing");
-				ex.printStackTrace();
-				return new HashMap();
-			}
-		}
-
-		@Override
-		public Map<String, Object> combine(Map<String, Object> val1,
-				Map<String, Object> val2) {
-
-			Map<String, Object> res = new HashMap(val2);
-
-			try {
-				Map<String, Object> resCompetencies = (Map) res
-						.get(COMPETENCIES);
-				Map<String, Object> val1Competencies = (Map) val1
-						.get(COMPETENCIES);
-				if (val1Competencies != null) {
-					for (Map.Entry<String, Object> stringObjectEntry : resCompetencies
-							.entrySet()) {
-						Object oldVal = val1Competencies.get(stringObjectEntry
-								.getKey());
-						if (oldVal != null) {
-							try {
-								resCompetencies.put(stringObjectEntry.getKey(),
-										Numbers.add(
-												stringObjectEntry.getValue(),
-												oldVal));
-							} catch (Exception nfex) {
-								LOGGER.info("Number format exception parsing competencies, "
-										+ "stringObjectEntry "
-										+ stringObjectEntry);
-								nfex.printStackTrace();
-							}
-						}
-					}
-				}
-
-				Map<String, Object> resLos = (Map) res.get(LEARNING_OBJECTIVES);
-				Map<String, Object> val1Los = (Map) val1
-						.get(LEARNING_OBJECTIVES);
-				if (val1Los != null) {
-					for (Map.Entry<String, Object> stringObjectEntry : resLos
-							.entrySet()) {
-						Object val1Object = val1Los.get(stringObjectEntry
-								.getKey());
-						if (val1Object != null) {
-							try {
-								resLos.put(stringObjectEntry.getKey(), Numbers
-										.add(stringObjectEntry.getValue(),
-												val1Object));
-							} catch (Exception nfex) {
-								LOGGER.info("Number format exception parsing learning objectives, "
-										+ "stringObjectEntry "
-										+ stringObjectEntry);
-								nfex.printStackTrace();
-							}
-						}
-					}
-				}
-			} catch (Exception ex) {
-				LOGGER.info("Unexpected exception combining");
-				ex.printStackTrace();
-			}
-			return res;
-		}
-
-		@Override
-		public Map<String, Object> zero() {
-			return new HashMap();
-		}
-
-	}
-
-	static class ContribStateUpdater implements StateUpdater<EsState> {
-		private static final Logger LOGGER = Logger
-				.getLogger(ContribStateUpdater.class.getName());
-
-		@Override
-		public void updateState(EsState state, List<TridentTuple> tuples,
-				TridentCollector collector) {
-			try {
-				for (TridentTuple tuple : tuples) {
-
-					Map<String, Object> result = (Map) tuple
-							.getValueByField("results");
-
-					String glpId = result.get(GLP_ID_KEY).toString();
-					String activityId = result.get(ACTIVITY_ID_KEY).toString();
-					String name = result.get(TridentTraceKeys.NAME).toString();
-					String property = result.get(PROPERTY_KEY).toString();
-					Object competencies = result.get(COMPETENCIES);
-					Object learningObjectives = result.get(LEARNING_OBJECTIVES);
-
-					String rootGlpId = ESUtils.getRootGLPId(glpId);
-					state.setProperty(rootGlpId, activityId + "_" + name,
-							COMPETENCIES, competencies);
-					state.setProperty(rootGlpId, activityId + "_" + name,
-							LEARNING_OBJECTIVES, learningObjectives);
-					state.updateUniqueArray(glpId, activityId, COMPLETED_KEY,
-							name, null);
-
-					Map value = new HashMap();
-					value.put(COMPETENCIES, competencies);
-					value.put(LEARNING_OBJECTIVES, learningObjectives);
-					List<Object> ret = new ArrayList<>(5);
-					ret.add(glpId);
-					ret.add(activityId);
-					ret.add(name);
-					ret.add(property);
-					ret.add(value);
-					// GLP_ID_KEY, ACTIVITY_ID_KEY, NAME,
-					// PROPERTY_KEY,VALUE_KEY
-					collector.emit(ret);
-				}
-			} catch (Exception ex) {
-				LOGGER.info("Error unexpected exception, discarding "
-						+ ex.toString());
-				ex.printStackTrace();
-			}
-		}
-
-		@Override
-		public void prepare(Map conf, TridentOperationContext context) {
-
-		}
-
-		@Override
-		public void cleanup() {
-
-		}
 	}
 
 	static class ParentCompletedStateUpdater implements StateUpdater<EsState> {
