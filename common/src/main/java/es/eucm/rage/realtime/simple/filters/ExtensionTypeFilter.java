@@ -32,8 +32,10 @@ public class ExtensionTypeFilter implements Filter {
 	private String extensionKey;
 
 	/**
-	 * Filters a Trace TridentTuple depending if it has an extension 'extKey' if
-	 * type 'clazz'
+	 * Filters a Trace TridentTuple depending if it has an extension 'extKey' of
+	 * type 'clazz'.
+	 * 
+	 * Must receive {@link TopologyBuilder#TRACE_KEY} to work properly.
 	 */
 	public ExtensionTypeFilter(String extKey, Class clazz) {
 		this.extensionKey = extKey;

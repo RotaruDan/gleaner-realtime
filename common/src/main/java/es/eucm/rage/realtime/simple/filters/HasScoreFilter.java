@@ -29,7 +29,10 @@ public class HasScoreFilter implements Filter {
 	public static final boolean LOG = false;
 
 	/**
-	 * Filters a Trace TridentTuple depending if it has the "score" field
+	 * Filters a Trace TridentTuple depending if it has the "score" field.
+	 * 
+	 * {@link TopologyBuilder.TridentTraceKeys#SCORE} must not be null and not
+	 * throw exception for {@link Float#parseFloat(String)} invocation.
 	 */
 	public HasScoreFilter() {
 	}

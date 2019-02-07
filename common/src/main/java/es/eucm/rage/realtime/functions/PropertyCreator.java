@@ -34,7 +34,7 @@ public class PropertyCreator implements Function {
 
 	/**
 	 * Creates a new {@link TridentTuple} depending on the value of the
-	 * valueField and the keysField provided (concatenated)
+	 * valueField and the keysField provided (values of the keys concatenated)
 	 * 
 	 * @param valueField
 	 *            Extracts the value of this field from the {@link TridentTuple}
@@ -70,7 +70,8 @@ public class PropertyCreator implements Function {
 			try {
 				prop = tuple.getStringByField(key);
 			} catch (RuntimeException re) {
-				System.err.print(re);
+				LOGGER.info("Error obtaining value from property " + keysField
+						+ ", exception: " + re.toString());
 				Object val = tuple.getValueByField(key);
 				if (val == null) {
 					prop = "null";

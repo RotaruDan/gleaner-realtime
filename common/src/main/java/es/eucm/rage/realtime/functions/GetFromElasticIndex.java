@@ -27,31 +27,61 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Simple {@link BaseQueryFunction} that extracts from ElasticSearch Index a
+ * given value returned as a {@link Map} if available, or null if not available.
+ */
 public class GetFromElasticIndex extends BaseQueryFunction<EsState, Map> {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(GetFromElasticIndex.class);
 
-	private String indexPrefix, indexKey, typeKey, idKey;
+	private String indexPrefix, indexKey, typeKey, idKey, prefixId;
 
-	public GetFromElasticIndex() {
-		super();
-		indexKey = "index";
-		typeKey = "type";
-		idKey = "id";
-	}
-
+	/**
+	 * Directly extracts a {@link Map} from the Elasticsearch database
+	 * 
+	 * @param indexKey
+	 *            The Elasticsearch Index, if null "_all" will be used
+	 * @param typeKey
+	 *            The Elasticsearch document type, if null "_all" will be used
+	 * @param idKey
+	 *            The Elasticsearch document _id value, if null "_all" will be
+	 *            used
+	 */
 	public GetFromElasticIndex(String indexKey, String typeKey, String idKey) {
 		this("", indexKey, typeKey, idKey);
 	}
 
+	/**
+	 * Directly extracts a {@link Map} from the Elasticsearch database,
+	 * considering the "indexPrefix" if available.
+	 * 
+	 * @param indexPrefix
+	 *            Value to be added at the beginning of the "indexKey" value to
+	 *            form the Elasticsearch index such as
+	 *            "prefixId + input.getStringByField(idKey);"
+	 * @param indexKey
+	 *            The Elasticsearch Index, if null "_all" will be used
+	 * @param typeKey
+	 *            The Elasticsearch document type, if null "_all" will be used
+	 * @param idKey
+	 *            The Elasticsearch document _id value, if null "_all" will be
+	 *            used
+	 */
 	public GetFromElasticIndex(String indexPrefix, String indexKey,
 			String typeKey, String idKey) {
+		this(indexPrefix, indexKey, typeKey, idKey, "");
+	}
+
+	public GetFromElasticIndex(String indexPrefix, String indexKey,
+			String typeKey, String idKey, String prefixId) {
 		super();
 		this.indexPrefix = indexPrefix;
 		this.indexKey = indexKey;
 		this.typeKey = typeKey;
 		this.idKey = idKey;
+		this.prefixId = prefixId;
 	}
 
 	@Override
@@ -69,7 +99,7 @@ public class GetFromElasticIndex extends BaseQueryFunction<EsState, Map> {
 				}
 				String id = "_all";
 				if (idKey != null) {
-					id = input.getStringByField(idKey);
+					id = prefixId + input.getStringByField(idKey);
 				}
 				res.add(indexState.getFromIndex(index, type, id));
 			}

@@ -17,6 +17,7 @@ package es.eucm.rage.realtime.functions;
 
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.Document;
+import es.eucm.rage.realtime.utils.ESUtils;
 import org.apache.storm.trident.operation.Function;
 import org.apache.storm.trident.operation.TridentCollector;
 import org.apache.storm.trident.operation.TridentOperationContext;
@@ -45,6 +46,7 @@ public class DocumentBuilder implements Function {
 	 * in ElasticSearch.
 	 * 
 	 * @param defaultTraceKey
+	 *            to obtain the "trace" from the tuple and build the document.
 	 */
 	public DocumentBuilder(String defaultTraceKey) {
 		this(defaultTraceKey, TopologyBuilder.ACTIVITY_ID_KEY);
@@ -56,6 +58,10 @@ public class DocumentBuilder implements Function {
 	 * in ElasticSearch.
 	 * 
 	 * @param defaultTraceKey
+	 *            to obtain the "trace" from the tuple and build the document.
+	 * @param indexIdKey
+	 *            The key that represents the "index" value from the "trace".
+	 *            Defaults to {@link TopologyBuilder#ACTIVITY_ID_KEY}.
 	 */
 	public DocumentBuilder(String defaultTraceKey, String indexIdKey) {
 		this.indexIdKey = indexIdKey;
@@ -74,20 +80,39 @@ public class DocumentBuilder implements Function {
 			}
 
 			String index = null;
+			if (this.indexIdKey.equals(TopologyBuilder.CLASS_ID)) {
+				Object indexObj = trace.get(indexIdKey);
 
-			Object indexObj = trace.get(indexIdKey);
-
-			if (indexObj != null && (indexObj instanceof String)) {
-				index = indexObj.toString();
+				if (indexObj != null && (indexObj instanceof String)) {
+					index = indexObj.toString();
+				}
 			}
 
-			Document<Map> doc = new Document(resultTraces, null, null, null,
-					index);
+			if (index == null) {
+				Object glpIdObject = trace.get(TopologyBuilder.GLP_ID_KEY);
 
-			ArrayList<Object> object = new ArrayList<Object>(1);
-			object.add(doc);
+				if (glpIdObject != null && !glpIdObject.toString().isEmpty()) {
+					// Is directly TARGETED AT ROOT ROOT
+					index = ESUtils.getRootGLPId(glpIdObject.toString());
+				} else {
+					Object indexObj = trace
+							.get(TopologyBuilder.ACTIVITY_ID_KEY);
 
-			collector.emit(object);
+					if (indexObj != null && (indexObj instanceof String)) {
+						index = indexObj.toString();
+					}
+				}
+			}
+
+			if (index != null) {
+				Document<Map> doc = new Document(resultTraces, null, null,
+						null, index);
+
+				ArrayList<Object> object = new ArrayList<Object>(1);
+				object.add(doc);
+
+				collector.emit(object);
+			}
 		} catch (Exception ex) {
 			LOG.info("Error unexpected exception, discarding" + ex.toString());
 		}

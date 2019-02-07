@@ -54,6 +54,7 @@ public class RealtimeTopologyTest {
 	@Test
 	public void test() throws IOException {
 
+		// Local SPOUT to FEED traces to the local Storm Cluster
 		FeederBatchSpout tracesSpout = new FeederBatchSpout(
 				Arrays.asList(es.eucm.rage.realtime.topologies.TopologyBuilder.TRACE_KEY));
 
@@ -67,18 +68,23 @@ public class RealtimeTopologyTest {
 				topology.newStream("testFileStream", tracesSpout),
 				partitionPersist, persistentAggregateFactory, null);
 
+		// Config Object that must be given to the Topology Initialization
 		Config conf = new Config();
 		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);
 		conf.put(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM, ES_HOST);
 		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, NOW_DATE);
+		// Instantiate the Topology in memory (local)
 		LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology("realtime", conf, topology.build());
 
+		// Parser that receives a local file in CSV and returns a list of Map
+		// Traces
 		CSVToMapTrace parser = new CSVToMapTrace();
 		String firstIndex = "1-" + NOW_DATE;
 		String secondIndex = "2-" + NOW_DATE;
 		String className = "class_name-" + NOW_DATE;
 		Map<String, Integer> res = new HashMap<>();
+		// Read the TEST files, parse them and Feed them to the Local Cluster
 		for (int i = 0; i < TRACES_FILES.length; ++i) {
 			String idx;
 			if (i < 3) {
@@ -102,11 +108,14 @@ public class RealtimeTopologyTest {
 		Gson gson = new Gson();
 
 		try {
+			// Wait for thr traces to be analyzed by the Topology
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
+		// Start querying ElasticSearch and compare the results with the
+		// expected values
 		RestClient client = RestClient.builder(new HttpHost(ES_HOST, 9200))
 				.build();
 
@@ -151,6 +160,7 @@ public class RealtimeTopologyTest {
 		assertEquals("Total traces " + className + ", current " + totalClassDB,
 				totalClassDB, totalClass);
 
+		// Parse the results folder of the verbs and compare them
 		for (int i = 0; i < TRACES_FILES.length; ++i) {
 			List<String> lines = parser.getLines("traces/results/"
 					+ TRACES_FILES[i] + ".csv-result");
@@ -165,8 +175,8 @@ public class RealtimeTopologyTest {
 			String resultsIndex = ESUtils.getResultsIndex(idx);
 
 			Response resultResponse = client.performRequest("GET", "/"
-					+ resultsIndex + "/" + ESUtils.getResultsType() + "/"
-					+ TRACES_FILES[i] + ";");
+					+ resultsIndex + "/" + ESUtils.getResultsType() + "/" + idx
+					+ "_" + TRACES_FILES[i] + ";");
 			int resultStatus = resultResponse.getStatusLine().getStatusCode();
 			assertEquals("TEST GET result error, status is" + resultStatus,
 					resultStatus, HttpStatus.SC_OK);

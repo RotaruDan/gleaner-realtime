@@ -29,7 +29,10 @@ public class HasProgressFilter implements Filter {
 	public static final boolean LOG = false;
 
 	/**
-	 * Filters a Trace TridentTuple depending if it has the "score" field
+	 * Filters a Trace TridentTuple depending if it has the "progress" field.
+	 * 
+	 * {@link TopologyBuilder.TridentTraceKeys#PROGRESS} must not be null and
+	 * not throw exception for {@link Float#parseFloat(String)} invocation.
 	 */
 	public HasProgressFilter() {
 	}

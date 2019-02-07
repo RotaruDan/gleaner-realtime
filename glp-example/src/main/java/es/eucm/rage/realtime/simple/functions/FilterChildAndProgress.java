@@ -40,7 +40,7 @@ public class FilterChildAndProgress implements Function {
 	private Cloner cloner;
 
 	/**
-	 * Filters a Trace TridentTuple depending if it is achild of the current
+	 * Filters a Trace TridentTuple depending if it is a child of the current
 	 * analytics
 	 */
 	public FilterChildAndProgress(String analyticsKey, String traceKey) {
@@ -175,7 +175,7 @@ public class FilterChildAndProgress implements Function {
 									newTarget);
 							outCompValues.put(TopologyBuilder.EXTENSIONS_KEY,
 									new HashMap());
-							// TODO check with real score
+
 							outCompValues.put(
 									TopologyBuilder.TridentTraceKeys.SUCCESS,
 									true);

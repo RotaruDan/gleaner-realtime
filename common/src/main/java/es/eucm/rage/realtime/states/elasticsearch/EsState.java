@@ -20,11 +20,14 @@ import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import es.eucm.rage.realtime.utils.Document;
 import es.eucm.rage.realtime.utils.ESUtils;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
 import org.apache.storm.task.IMetricsContext;
 import org.apache.storm.trident.state.State;
 import org.apache.storm.trident.state.StateFactory;
 import org.apache.storm.trident.tuple.TridentTuple;
+import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.DocWriteRequest;
+import org.elasticsearch.action.admin.indices.open.OpenIndexRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -33,6 +36,7 @@ import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
+import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.get.GetResult;
@@ -42,9 +46,14 @@ import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * Implementation of a basic Storm Trident {@link State} to store
+ * {@link Document}s in ElasticSearch
+ */
 public class EsState implements State {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EsState.class);
@@ -68,13 +77,23 @@ public class EsState implements State {
 		this.hClient = hClient;
 	}
 
+	/**
+	 * Updates all the {@link Document}s available in the inputs parameter,
+	 * adding them to ElasticSearch
+	 * 
+	 * @param inputs
+	 *            a list of touples such ad {{@link Document}s}
+	 */
 	public void bulkUpdateIndices(List<TridentTuple> inputs) {
 
 		try {
 			BulkRequest request = new BulkRequest();
 
+			// Iterate over the input tuples and store them in ElasticSearch
+			// Through a BULK INDEX Request
 			for (TridentTuple input : inputs) {
-				Document<Map> doc = (Document<Map>) input.get(0);
+				Document<Map> doc = (Document<Map>) input
+						.getValueByField(TopologyBuilder.DOCUMENT_KEY);
 				Map source = doc.getSource();
 
 				String index = ESUtils.getTracesIndex(doc.getIndex());
@@ -127,12 +146,31 @@ public class EsState implements State {
 					}
 				}
 			}
+		} catch (ElasticsearchStatusException e) {
+			for (TridentTuple input : inputs) {
+				Document<Map> doc = (Document<Map>) input.get(0);
+
+				String index = ESUtils.getTracesIndex(doc.getIndex());
+				ESUtils.reopenIndexIfNeeded(e, index, LOG, _client);
+			}
 		} catch (Exception e) {
 			LOG.error("error while executing bulk request to elasticsearch, "
 					+ "failed to store data into elasticsearch", e);
 		}
 	}
 
+	/**
+	 * Sets the key/value property of a document in Elasticsearch
+	 * 
+	 * @param activityId
+	 *            the Elasticsearch index
+	 * @param name
+	 *            The document _id
+	 * @param key
+	 *            They kay (split by "." to produce a nested document)
+	 * @param value
+	 *            The new value of the "key"
+	 */
 	public void setProperty(String activityId, String name, String key,
 			Object value) {
 
@@ -153,11 +191,29 @@ public class EsState implements State {
 					.getResultsIndex(activityId), ESUtils.getResultsType(),
 					name).docAsUpsert(true).doc(map).retryOnConflict(50));
 
+		} catch (ElasticsearchStatusException e) {
+
+			ESUtils.reopenIndexIfNeeded(e, ESUtils.getResultsIndex(activityId),
+					LOG, _client);
 		} catch (Exception e) {
 			LOG.error("Set Property has failures : {}", e);
 		}
 	}
 
+	/**
+	 * Ads a value to a unique array if not already available
+	 * 
+	 * @param glpId
+	 *            The index
+	 * @param activityId
+	 *            The document _id
+	 * @param key
+	 *            The key of the array
+	 * @param name
+	 *            The value to be added to the array
+	 * @param childId
+	 *            Adds childId to "fullCompleted" array
+	 */
 	public void updateUniqueArray(String glpId, String activityId, String key,
 			String name, String childId) {
 		try {
@@ -196,11 +252,23 @@ public class EsState implements State {
 			update.retryOnConflict(50);
 			hClient.update(update);
 
+		} catch (ElasticsearchStatusException e) {
+			ESUtils.reopenIndexIfNeeded(e, glpId, LOG, _client);
 		} catch (Exception e) {
 			LOG.error("updateUniqueArray has failures : {}", e);
 		}
 	}
 
+	/**
+	 * Receives the "performanceIndex" and updates the Performance of the
+	 * student
+	 * 
+	 * @param performanceIndex
+	 * @param classId
+	 * @param timestamp
+	 * @param name
+	 * @param score
+	 */
 	public void updatePerformanceArray(String performanceIndex, String classId,
 			String timestamp, String name, float score) {
 		try {
@@ -331,6 +399,8 @@ public class EsState implements State {
 			update.retryOnConflict(50);
 			hClient.update(update);
 
+		} catch (ElasticsearchStatusException e) {
+			ESUtils.reopenIndexIfNeeded(e, performanceIndex, LOG, _client);
 		} catch (Exception e) {
 			LOG.error("updatePerformanceArray has failures : {}", e);
 		}
@@ -390,6 +460,8 @@ public class EsState implements State {
 			update.retryOnConflict(50);
 			hClient.update(update);
 
+		} catch (ElasticsearchStatusException e) {
+			ESUtils.reopenIndexIfNeeded(e, overallIndex, LOG, _client);
 		} catch (Exception e) {
 			LOG.error("updatePerformanceArray has failures : {}", e);
 		}
@@ -499,6 +571,8 @@ public class EsState implements State {
 			update.retryOnConflict(50);
 			hClient.update(update);
 
+		} catch (ElasticsearchStatusException e) {
+			ESUtils.reopenIndexIfNeeded(e, overallIndex, LOG, _client);
 		} catch (Exception e) {
 			LOG.error("updatePerformanceArray has failures : {}", e);
 		}
@@ -690,6 +764,8 @@ public class EsState implements State {
 				}
 			}
 
+		} catch (ElasticsearchStatusException e) {
+			ESUtils.reopenIndexIfNeeded(e, overallIndex, LOG, _client);
 		} catch (Exception e) {
 			LOG.error("updatePerformanceArray has failures : {}", e);
 			e.printStackTrace();
@@ -756,6 +832,8 @@ public class EsState implements State {
 			updatePlayer.retryOnConflict(50);
 			hClient.update(updatePlayer);
 
+		} catch (ElasticsearchStatusException e) {
+			ESUtils.reopenIndexIfNeeded(e, overallIndex, LOG, _client);
 		} catch (Exception e) {
 			LOG.error("updatePerformanceArray has failures : {}", e);
 			e.printStackTrace();
@@ -770,6 +848,9 @@ public class EsState implements State {
 			GetResponse resp = hClient.get(getRequest);
 
 			ret = resp.getSourceAsMap();
+		} catch (ElasticsearchStatusException e) {
+			ESUtils.reopenIndexIfNeeded(e, index, LOG, _client);
+			ret = null;
 		} catch (Exception e) {
 			LOG.error(
 					"error while executing getFromIndex request from elasticsearch, "
@@ -784,6 +865,8 @@ public class EsState implements State {
 
 			hClient.update(new UpdateRequest(index, type, id).docAsUpsert(true)
 					.doc(source).retryOnConflict(50));
+		} catch (ElasticsearchStatusException e) {
+			ESUtils.reopenIndexIfNeeded(e, index, LOG, _client);
 		} catch (Exception e) {
 			LOG.error(
 					"error while executing setOnIndex request to elasticsearch, "

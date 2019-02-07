@@ -93,7 +93,7 @@ public class PerformanceDataTest {
 	@Test
 	public void test() throws IOException {
 
-		CSVToMapTrace parser = new CSVToMapTrace();
+		CSVToMapTrace parser = new CSVToMapTrace("testglpid" + NOW_DATE);
 		String firstIndex = "1-" + NOW_DATE;
 		String secondIndex = "2-" + NOW_DATE;
 

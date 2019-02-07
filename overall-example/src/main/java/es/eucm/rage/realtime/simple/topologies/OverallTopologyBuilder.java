@@ -58,17 +58,10 @@ public class OverallTopologyBuilder implements
 			StateFactory partitionPersistFactory,
 			StateFactory persistentAggregateFactory, Map<String, Object> conf) {
 
-		/** ---> AbstractAnalysis definition <--- **/
-		/* DEFAULT TOPOLOGY ANALYSIS */
+		/* OVERALL TOPOLOGY ANALYSIS */
 
 		/*
-		 * --> Analyzing for Kibana visualizations (traces index, 'sessionId')
-		 * <--
-		 */
-
-		/*
-		 * --> Analyzing for the Alerts and Warnings system (results index,
-		 * 'results-sessionId') <--
+		 * --> Analyzing for the overall results <--
 		 */
 		TridentState staticState = tridentTopology
 				.newStaticState(partitionPersistFactory);
@@ -76,8 +69,9 @@ public class OverallTopologyBuilder implements
 				.newStaticState(partitionPersistFactory);
 
 		// 1 - For each TRACE_KEY (from Kibana) that we receive
-		// 2 - Extract the fields TridentTraceKeys.GAMEPLAY_ID and
-		// TridentTraceKeys.EVENT so that we can play
+		// 2 - Extract the fields TridentTraceKeys.GAMEPLAY_ID,
+		// TridentTraceKeys.EVENT, GLP_ID_KEY and ACTIVITY_ID_KEY so that we can
+		// play
 		// with it below
 		tracesStream
 				// Filter only leafs
@@ -90,19 +84,23 @@ public class OverallTopologyBuilder implements
 						new Fields(TridentTraceKeys.NAME,
 								TridentTraceKeys.EVENT, GLP_ID_KEY,
 								ACTIVITY_ID_KEY))
-				.peek(new LogConsumer("log 1"))
+				.peek(new LogConsumer(
+						"Extracted TridentTraceKeys.GAMEPLAY_ID, "
+								+ "TridentTraceKeys.EVENT, GLP_ID_KEY and ACTIVITY_ID_KEY"))
 				.each(new Fields(TridentTraceKeys.EVENT, TRACE_KEY),
 						new FieldValueFilter(TridentTraceKeys.EVENT,
 								TraceEventTypes.SELECTED))
-				.peek(new LogConsumer("log 2"))
+				.peek(new LogConsumer("Filtered ONLY SELECTED"))
 				// 2 - With the "glpId" and "activityId" get the "analytics"
-				// object
+				// object with the information about competencies, thresholds...
 				.stateQuery(
 						staticState,
 						new Fields(GLP_ID_KEY, ACTIVITY_ID_KEY),
 						new GetFromElasticIndex(GLP_ID_KEY, null,
 								ACTIVITY_ID_KEY), new Fields(ANALYTICS_KEY))
 				.peek(new LogConsumer("Extracted Analytics"))
+				// 3 - With the "glpId" and "activityId" get the ROOT
+				// "analytics"
 				// object
 				.stateQuery(glpState, new Fields(GLP_ID_KEY),
 						new GetRootGlpFromIndex(),
@@ -119,7 +117,7 @@ public class OverallTopologyBuilder implements
 				// Filter only leafs
 				.each(new Fields(TRACE_KEY), new IsLeafFilter(TRACE_KEY))
 				.peek(new LogConsumer("Leaf passed"))
-				.each(new Fields(TRACE_KEY), new HasTimeFilter())
+				.each(new Fields(TRACE_KEY), new HasScoreFilter())
 				.peek(new LogConsumer("Has Score"))
 				.each(new Fields(TRACE_KEY),
 						new TraceFieldExtractor(o(TridentTraceKeys.NAME),
@@ -140,6 +138,8 @@ public class OverallTopologyBuilder implements
 								* 100000, spout))
 				.each(new Fields(TRACE_KEY), new IsLeafFilter(TRACE_KEY))
 				.peek(new LogConsumer("Completed Leaf passed"))
+				.each(new Fields(TRACE_KEY), new HasTimeFilter())
+				.peek(new LogConsumer("Completed HasTime passed"))
 				.each(new Fields(TRACE_KEY),
 						new TraceFieldExtractor(o(TridentTraceKeys.NAME),
 								o(TridentTraceKeys.TARGET), o("ext."
@@ -154,8 +154,6 @@ public class OverallTopologyBuilder implements
 				.each(new Fields(TridentTraceKeys.EVENT, TRACE_KEY),
 						new FieldValueFilter(TridentTraceKeys.EVENT,
 								TraceEventTypes.COMPLETED))
-				.each(new Fields(TRACE_KEY), new HasTimeFilter())
-				.peek(new LogConsumer("Completed HasTime passed"))
 				// Persist to ActivityID
 				.partitionPersist(
 						partitionPersistFactory,

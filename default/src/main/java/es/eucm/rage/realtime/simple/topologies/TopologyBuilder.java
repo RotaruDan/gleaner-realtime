@@ -15,16 +15,15 @@
  */
 package es.eucm.rage.realtime.simple.topologies;
 
-import es.eucm.rage.realtime.simple.filters.FieldValueFilter;
-import es.eucm.rage.realtime.simple.filters.FieldValuesOrFilter;
+import es.eucm.rage.realtime.simple.filters.*;
 import es.eucm.rage.realtime.functions.*;
 import es.eucm.rage.realtime.functions.DocumentBuilder;
-import es.eucm.rage.realtime.simple.filters.HasClassAttributes;
 import es.eucm.rage.realtime.states.GameplayStateUpdater;
 import es.eucm.rage.realtime.states.TraceStateUpdater;
 
 import org.apache.storm.kafka.trident.OpaqueTridentKafkaSpout;
 import org.apache.storm.trident.Stream;
+import org.apache.storm.trident.TridentState;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.operation.builtin.Count;
 import org.apache.storm.trident.state.StateFactory;
@@ -68,13 +67,15 @@ public class TopologyBuilder implements
 		// ElasticSearch
 		// index
 		tracesStream
+				// Filter only leafs
 				.each(new Fields(TRACE_KEY), new DocumentBuilder(TRACE_KEY),
 						new Fields(DOCUMENT_KEY))
-				.peek(new LogConsumer("Directly to Kibana!"))
+				.peek(new LogConsumer("Directly to Kibana for Activity!"))
 				.partitionPersist(partitionPersistFactory,
 						new Fields(DOCUMENT_KEY), new TraceStateUpdater());
 
 		// 1 - For each TRACE_KEY (from Kibana) that we receive
+		// 1.5 - Filter that is aimed at a CLASS and IS NOT BUBBLED
 		// 2 - Create an ElasticSearch "sanitized" document identified as
 		// "document"
 		// 3 - Finally persist the "document" to the CLASS_ID
@@ -85,7 +86,7 @@ public class TopologyBuilder implements
 				.each(new Fields(TRACE_KEY),
 						new DocumentBuilder(TRACE_KEY, CLASS_ID),
 						new Fields(DOCUMENT_KEY))
-				.peek(new LogConsumer("Directly to Kibana!"))
+				.peek(new LogConsumer("Directly to Kibana for Class!"))
 				.partitionPersist(partitionPersistFactory,
 						new Fields(DOCUMENT_KEY), new TraceStateUpdater());
 
@@ -98,13 +99,16 @@ public class TopologyBuilder implements
 		// 2 - Extract the fields TridentTraceKeys.GAMEPLAY_ID and
 		// TridentTraceKeys.EVENT so that we can play
 		// with it below
-
-		Stream gameplayIdStream = tracesStream.each(
-				new Fields(TRACE_KEY),
-				new TraceFieldExtractor(ACTIVITY_ID_KEY, GAMEPLAY_ID,
-						o(TridentTraceKeys.NAME), o(TridentTraceKeys.EVENT)),
-				new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID, TridentTraceKeys.NAME,
-						TridentTraceKeys.EVENT)).peek(new LogConsumer("1"));
+		Stream gameplayIdStream = tracesStream
+				.each(new Fields(TRACE_KEY),
+						new TraceFieldExtractor(ACTIVITY_ID_KEY, GAMEPLAY_ID,
+								o(TridentTraceKeys.NAME),
+								o(TridentTraceKeys.EVENT)),
+						new Fields(ACTIVITY_ID_KEY, GAMEPLAY_ID,
+								TridentTraceKeys.NAME, TridentTraceKeys.EVENT))
+				.each(new Fields(TRACE_KEY), new RootGlpIdFieldExtractor(),
+						new Fields(ROOT_ID_KEY))
+				.peek(new LogConsumer("Root ID Extracted"));
 
 		// 3 - For each TRACE_KEY (from Kibana) that we receive
 		// 4 - Extract the field 'timestamp' and add it to the document per
@@ -117,23 +121,25 @@ public class TopologyBuilder implements
 						new SimplePropertyCreator(TridentTraceKeys.TIMESTAMP,
 								TridentTraceKeys.TIMESTAMP),
 						new Fields(PROPERTY_KEY, VALUE_KEY))
-				.peek(new LogConsumer("3"))
+				.peek(new LogConsumer("Created Simple Property (timestamp key)"))
 				.partitionPersist(
 						partitionPersistFactory,
 						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
-								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
+								ROOT_ID_KEY, PROPERTY_KEY, VALUE_KEY),
+						gameplayStateUpdater);
 
-		// 5 - Add the name of the given player to the document ('gameplayId')
+		// 5 - Add the "name" of the given player to the document ('gameplayId')
 		gameplayIdStream
 				.each(new Fields(TridentTraceKeys.NAME),
 						new SimplePropertyCreator(TridentTraceKeys.NAME,
 								TridentTraceKeys.NAME),
 						new Fields(PROPERTY_KEY, VALUE_KEY))
-				.peek(new LogConsumer("4"))
+				.peek(new LogConsumer("Created Simple Property (name key)"))
 				.partitionPersist(
 						partitionPersistFactory,
 						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
-								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
+								ROOT_ID_KEY, PROPERTY_KEY, VALUE_KEY),
+						gameplayStateUpdater);
 
 		// Alternatives (selected & unlocked) processing
 		// 6 - For each TraceEventTypes.SELECTED or TraceEventTypes.UNLOCKED
@@ -158,9 +164,15 @@ public class TopologyBuilder implements
 						new PropertyCreator(TRACE_KEY, TridentTraceKeys.EVENT,
 								TridentTraceKeys.TYPE, TridentTraceKeys.TARGET),
 						new Fields(PROPERTY_KEY, VALUE_KEY))
-				.peek(new LogConsumer("5"))
+				.each(new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME),
+						new ActivityIdNameCreator(ACTIVITY_ID_KEY,
+								TridentTraceKeys.NAME),
+						new Fields(ACTIVITY_ID_KEY + "_"
+								+ TridentTraceKeys.NAME))
+				.peek(new LogConsumer("Created Activity Id Name"))
 				.groupBy(
-						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
+						new Fields(ROOT_ID_KEY, ACTIVITY_ID_KEY + "_"
+								+ TridentTraceKeys.NAME,
 								TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
 								TridentTraceKeys.TARGET,
 								TridentTraceKeys.RESPONSE))
@@ -188,15 +200,21 @@ public class TopologyBuilder implements
 								o(TridentTraceKeys.TYPE)),
 						new Fields(TridentTraceKeys.TARGET,
 								TridentTraceKeys.TYPE))
-				.peek(new LogConsumer("initialized 1"))
+				.peek(new LogConsumer("Initialized analysis first step"))
 				.each(new Fields(TRACE_KEY, TridentTraceKeys.TYPE,
 						TridentTraceKeys.EVENT, TridentTraceKeys.TARGET),
 						new PropertyCreator(TRACE_KEY, TridentTraceKeys.EVENT,
 								TridentTraceKeys.TYPE, TridentTraceKeys.TARGET),
 						new Fields(PROPERTY_KEY, VALUE_KEY))
-				.peek(new LogConsumer("initialized 2"))
+				.each(new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME),
+						new ActivityIdNameCreator(ACTIVITY_ID_KEY,
+								TridentTraceKeys.NAME),
+						new Fields(ACTIVITY_ID_KEY + "_"
+								+ TridentTraceKeys.NAME))
+				.peek(new LogConsumer("Initialized analysis second step"))
 				.groupBy(
-						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
+						new Fields(ROOT_ID_KEY, ACTIVITY_ID_KEY + "_"
+								+ TridentTraceKeys.NAME,
 								TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
 								TridentTraceKeys.TARGET))
 				.persistentAggregate(persistentAggregateFactory, new Count(),
@@ -226,11 +244,13 @@ public class TopologyBuilder implements
 								TridentTraceKeys.EVENT, TridentTraceKeys.TYPE,
 								TridentTraceKeys.TARGET),
 						new Fields(PROPERTY_KEY, VALUE_KEY))
-				.peek(new LogConsumer("6"))
+				.peek(new LogConsumer(
+						"Suffix Property Created (PROGRESS, EVENT, TYPE, TARGET)"))
 				.partitionPersist(
 						partitionPersistFactory,
 						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
-								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
+								ROOT_ID_KEY, PROPERTY_KEY, VALUE_KEY),
+						gameplayStateUpdater);
 
 		// Completable (Completed) processing for field TridentTraceKeys.SUCCESS
 		// 11 - For each TraceEventTypes.COMPLETED (Completable) trace
@@ -256,7 +276,8 @@ public class TopologyBuilder implements
 				.partitionPersist(
 						partitionPersistFactory,
 						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
-								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
+								ROOT_ID_KEY, PROPERTY_KEY, VALUE_KEY),
+						gameplayStateUpdater);
 
 		// Completable (Completed) processing for field TridentTraceKeys.SCORE
 		// 13 - For each TraceEventTypes.COMPLETED (Completable) trace
@@ -280,7 +301,72 @@ public class TopologyBuilder implements
 				.partitionPersist(
 						partitionPersistFactory,
 						new Fields(ACTIVITY_ID_KEY, TridentTraceKeys.NAME,
-								PROPERTY_KEY, VALUE_KEY), gameplayStateUpdater);
+								ROOT_ID_KEY, PROPERTY_KEY, VALUE_KEY),
+						gameplayStateUpdater);
+
+		/*
+		 * --> Aggregation analysis <--
+		 */
+
+		// Static State used to Query from ElasticSearch the
+		// "weights_activityId" object
+		TridentState staticState = tridentTopology
+				.newStaticState(partitionPersistFactory);
+
+		// Static State used to query from ElasticSearch the "analytics"
+		// object of the current node (activityId)
+		TridentState staticChildState = tridentTopology
+				.newStaticState(partitionPersistFactory);
+
+		tracesStream
+				// 1 - Filter only leafs with glpId
+				.each(new Fields(TRACE_KEY), new HasGLPId(TRACE_KEY))
+
+				// 2 - With the "glpId" and "activityId" get the "analytics"
+				// object
+				.each(new Fields(TRACE_KEY),
+						new TraceFieldExtractor(GLP_ID_KEY, ACTIVITY_ID_KEY,
+								o(TridentTraceKeys.NAME)),
+						new Fields(GLP_ID_KEY, ACTIVITY_ID_KEY,
+								TridentTraceKeys.NAME))
+				.peek(new LogConsumer("Agg analysis, only not bubbled filter!"))
+				.stateQuery(
+						staticChildState,
+						new Fields(GLP_ID_KEY, ACTIVITY_ID_KEY),
+						new GetFromElasticIndex(GLP_ID_KEY, null,
+								ACTIVITY_ID_KEY), new Fields(ANALYTICS_KEY))
+				.each(new Fields(TRACE_KEY, ANALYTICS_KEY),
+						new IsDirectChildTrace(TRACE_KEY, ANALYTICS_KEY))
+				// 3 - Get the weights_activityId object from analytics-rootId
+				// index
+				.stateQuery(
+						staticState,
+						new Fields(GLP_ID_KEY, ACTIVITY_ID_KEY),
+						new GetFromElasticIndex("", GLP_ID_KEY, null,
+								ACTIVITY_ID_KEY, WEIGHTS + "_"),
+						new Fields(WEIGHTS + "_" + ANALYTICS_KEY))
+				// 4 - Check if "WEIGHTS" object has Correct Operations and
+				// Children
+				.each(new Fields(TRACE_KEY, ANALYTICS_KEY, WEIGHTS + "_"
+						+ ANALYTICS_KEY),
+						new CheckOperationAndValidateChildren(TRACE_KEY,
+								ANALYTICS_KEY, WEIGHTS + "_" + ANALYTICS_KEY),
+						new Fields(WEIGHTS))
+				// 5 - Compile Remaining Values for the Operation from
+				// ElasticSearch
+				.stateQuery(
+						staticChildState,
+						new Fields(GLP_ID_KEY, TridentTraceKeys.NAME, WEIGHTS),
+						new BuildWeightsValuesFromElasticIndex(GLP_ID_KEY,
+								TridentTraceKeys.NAME, WEIGHTS),
+						new Fields(WEIGHTS + "_full"))
+				.peek(new LogConsumer("Weights full produced"))
+				// 6 - Persist to ActivityID after performing operation
+				.partitionPersist(
+						partitionPersistFactory,
+						new Fields(GLP_ID_KEY, ACTIVITY_ID_KEY,
+								TridentTraceKeys.NAME, WEIGHTS + "_full"),
+						new PerformOperationUpdater());
 
 		/*
 		 * --> Additional/custom analysis needed can be added here or changing
@@ -288,5 +374,4 @@ public class TopologyBuilder implements
 		 */
 
 	}
-
 }

@@ -20,28 +20,28 @@ import org.apache.storm.trident.operation.Filter;
 import org.apache.storm.trident.operation.TridentOperationContext;
 import org.apache.storm.trident.tuple.TridentTuple;
 
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class IsLeafFilter implements Filter {
-	private static final Logger LOGGER = Logger.getLogger(IsLeafFilter.class
-			.getName());
+public class IsDirectChildTrace implements Filter {
+	private static final Logger LOGGER = Logger
+			.getLogger(IsDirectChildTrace.class.getName());
 	public static final boolean LOG = true;
 
-	private String traceKey;
+	private String traceKey, analyticsKey;
 
 	/**
-	 * Filters a Trace TridentTuple to see if it's a leaf. It means that the
-	 * activity has noot been created by a node, therefore the
-	 * {@link TopologyBuilder#CHILD_ACTIVITY_ID_KEY} value is null (not
-	 * present).
+	 * Filters trace to be coming directly from a children of current node.
 	 * 
-	 * Furthermore, must be a trace aimed at a GLP, thus
-	 * {@link TopologyBuilder#GLP_ID_KEY} must not be null.
+	 * DIRECT child means that {@link TopologyBuilder#ORIGINAL_ID} must not be
+	 * null AND must be in the {@link TopologyBuilder#CHILDREN} array of the
+	 * analytics metadata of the current node.
 	 * 
 	 */
-	public IsLeafFilter(String traceKey) {
+	public IsDirectChildTrace(String traceKey, String analyticsKey) {
 		this.traceKey = traceKey;
+		this.analyticsKey = analyticsKey;
 	}
 
 	@Override
@@ -57,26 +57,33 @@ public class IsLeafFilter implements Filter {
 				return false;
 			}
 
-			Map traceMap = (Map) traceObject;
+			Object analyticsObject = objects.getValueByField(analyticsKey);
 
-			Object childActivityObject = traceMap
-					.get(TopologyBuilder.CHILD_ACTIVITY_ID_KEY);
-
-			if (childActivityObject == null) {
-				// Is a leaf, it's not coming from a child
-
-				// ALso check that it has a GLP_ID key set
-
-				Object glpId = traceMap.get(TopologyBuilder.GLP_ID_KEY);
-
-				// Let it pass only if the glpId is not null
-				return glpId != null;
+			if (!(analyticsObject instanceof Map)) {
+				if (LOG) {
+					LOGGER.info(analyticsKey + " field of tuple " + objects
+							+ " is not a map, found: " + analyticsObject);
+				}
+				return false;
 			}
 
-			return false;
+			Map traceMap = (Map) traceObject;
+			Map analyticsMap = (Map) analyticsObject;
+
+			String comesFrom = (String) traceMap
+					.get(TopologyBuilder.ORIGINAL_ID);
+			List children = (List) analyticsMap.get(TopologyBuilder.CHILDREN);
+
+			if (children == null || !children.contains(comesFrom)) {
+				return false;
+			} else {
+				return !traceMap.get(TopologyBuilder.CHILD_ACTIVITY_ID_KEY)
+						.equals(traceMap.get(TopologyBuilder.ACTIVITY_ID_KEY));
+			}
 		} catch (Exception ex) {
-			LOGGER.info("Error unexpected exception, discarding"
+			LOGGER.info("Error unexpected exception, discarding "
 					+ ex.toString());
+			ex.printStackTrace();
 			return false;
 		}
 	}

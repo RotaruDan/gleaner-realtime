@@ -16,6 +16,7 @@
 package es.eucm.rage.realtime.functions;
 
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
+import es.eucm.rage.realtime.utils.ESUtils;
 import org.apache.storm.trident.operation.Function;
 import org.apache.storm.trident.operation.TridentCollector;
 import org.apache.storm.trident.operation.TridentOperationContext;
@@ -24,49 +25,56 @@ import org.apache.storm.trident.tuple.TridentTuple;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
-public class MapFieldExtractor implements Function {
+public class RootGlpIdFieldExtractor implements Function {
 	private static final Logger LOGGER = Logger
-			.getLogger(MapFieldExtractor.class.getName());
-
-	private final String mapKey;
-	private final String[] fields;
+			.getLogger(RootGlpIdFieldExtractor.class.getName());
+	public static final boolean LOG = false;
 
 	/**
-	 * Extracts fields from a Map identified by the "mapKey" parameter.
+	 * Extracts field "glpId" from a "trace" tuple.
 	 * 
-	 * @param fields
-	 *            used to extracts objects from the {@link Map} and emit them
-	 *            preserving the order. May contain "." which will search in
-	 *            nested objects of the map.
+	 * Requires {@link TopologyBuilder#TRACE_KEY} to extract the key
+	 * {@link TopologyBuilder#GLP_ID_KEY}.
 	 */
-	public MapFieldExtractor(String mapKey, String... fields) {
-		this.mapKey = mapKey;
-		this.fields = fields;
+	public RootGlpIdFieldExtractor() {
+
 	}
 
 	@Override
 	public void execute(TridentTuple tuple, TridentCollector collector) {
 		try {
-			Map trace = (Map) tuple.getValueByField(mapKey);
-			ArrayList<Object> object = new ArrayList<Object>();
-			for (String field : fields) {
-				if (field.contains(".")) {
-					String[] nested = field.split(Pattern.quote("."));
-					Map nestedMap = trace;
-					for (int i = 0; i < nested.length - 1; ++i) {
-						nestedMap = (Map) nestedMap.get(nested[i]);
-					}
-					object.add(nestedMap.get(nested[nested.length - 1]));
-				} else {
-					object.add(trace.get(field));
+
+			Object traceObject = tuple
+					.getValueByField(TopologyBuilder.TRACE_KEY);
+			if (!(traceObject instanceof Map)) {
+				if (LOG) {
+					LOGGER.info(TopologyBuilder.TRACE_KEY + " field of tuple "
+							+ tuple + " is not a map, found: " + traceObject);
 				}
+				return;
 			}
+
+			Map traceMap = (Map) traceObject;
+
+			Object glpIdObject = traceMap.get(TopologyBuilder.GLP_ID_KEY);
+
+			if (glpIdObject == null || glpIdObject.toString().isEmpty()) {
+				glpIdObject = traceMap.get(TopologyBuilder.ORIGINAL_ID);
+				if (glpIdObject == null || glpIdObject.toString().isEmpty()) {
+					glpIdObject = traceMap.get(TopologyBuilder.ACTIVITY_ID_KEY);
+				}
+			} else {
+				glpIdObject = ESUtils.getRootGLPId(glpIdObject.toString());
+			}
+			ArrayList<Object> object = new ArrayList<Object>(1);
+			object.add(glpIdObject);
 			collector.emit(object);
 		} catch (Exception ex) {
 			LOGGER.info("Error unexpected exception, discarding "
 					+ ex.toString());
+			LOGGER.info(tuple.toString());
+			ex.printStackTrace();
 		}
 	}
 

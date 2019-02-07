@@ -26,7 +26,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * Invokes {@link EsState#bulkUpdateIndices(List)} with the input tuples
+ * Invokes {@link EsState#bulkUpdateIndices(List)} with the input tuples. Writes
+ * in an ElasticSearch index the list of
+ * {@link es.eucm.rage.realtime.utils.Document}s from the input tuples.
  */
 public class TraceStateUpdater extends BaseStateUpdater<EsState> {
 	private static final Logger LOGGER = Logger

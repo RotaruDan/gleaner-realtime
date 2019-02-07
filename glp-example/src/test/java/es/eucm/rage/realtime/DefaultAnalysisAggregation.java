@@ -16,7 +16,6 @@
 package es.eucm.rage.realtime;
 
 import com.google.gson.Gson;
-import es.eucm.rage.realtime.simple.Analysis;
 import es.eucm.rage.realtime.simple.DAnalysis;
 import es.eucm.rage.realtime.simple.GAnalysis;
 import es.eucm.rage.realtime.simple.topologies.GLPTopologyBuilder;
@@ -26,12 +25,10 @@ import es.eucm.rage.realtime.utils.ESUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.*;
-import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.generated.StormTopology;
@@ -46,15 +43,16 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the {@link TopologyBuilder} executed on a local cluster and receiving
  * data from a local files TRACES_FILES
  */
-public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopologyKafkaElasticTest {
+public class DefaultAnalysisAggregation {
 
-	private static final String[] TRACES_FILES = { "1" };
+	private static final String[] TRACES_FILES = { "defaultAggregation" };
 	private static final String NOW_DATE = String.valueOf(
 			(new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date())))
 			.toLowerCase();
@@ -118,7 +116,6 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 		 * **/
 		String firstIndex = "1-" + NOW_DATE;
 		String secondIndex = "2-" + NOW_DATE;
-		String middleIndex = "middle-" + NOW_DATE;
 		String parentIndex = "parent-" + NOW_DATE; // GLP_ID
 		String analyticsGLPId = ESUtils.getAnalyticsGLPIndex(parentIndex);
 
@@ -129,23 +126,13 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 		Map parentAnalytics = new HashMap();
 		parentAnalytics.put("testkey", "testval");
 		ArrayList childrenArray = new ArrayList<>(1);
-		childrenArray.add(middleIndex);
+		childrenArray.add(firstIndex);
+		childrenArray.add(secondIndex);
 		parentAnalytics.put(GLPTopologyBuilder.PARENT_CHILDREN_TRACE,
 				childrenArray);
+
 		IndexRequest indexParent = new IndexRequest(analyticsGLPId,
 				"analytics", parentIndex).source(parentAnalytics);
-
-		// MIDDLE CHILD
-		Map middleAnalytics = new HashMap();
-		ArrayList middleArray = new ArrayList<>(2);
-		middleArray.add(firstIndex);
-		middleArray.add(secondIndex);
-		middleAnalytics.put(GLPTopologyBuilder.PARENT_CHILDREN_TRACE,
-				middleArray);
-		middleAnalytics.put(TopologyBuilder.ANALYTICS_PARENT_ID_KEY,
-				parentIndex);
-		IndexRequest indexMiddle = new IndexRequest(analyticsGLPId,
-				"analytics", middleIndex).source(middleAnalytics);
 
 		Map firstChildAnalytics = new HashMap();
 
@@ -176,7 +163,7 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 				firstChildContributes);
 
 		firstChildAnalytics.put(TopologyBuilder.ANALYTICS_PARENT_ID_KEY,
-				middleIndex);
+				parentIndex);
 		IndexRequest indexFirstChild = new IndexRequest(analyticsGLPId,
 				"analytics", firstIndex).source(firstChildAnalytics);
 
@@ -208,23 +195,74 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 				secondChildContributes);
 
 		secondChildAnalytics.put(TopologyBuilder.ANALYTICS_PARENT_ID_KEY,
-				middleIndex);
+				parentIndex);
 		IndexRequest indexSecondChild = new IndexRequest(analyticsGLPId,
 				"analytics", secondIndex).source(secondChildAnalytics);
 
 		hClient.index(indexParent);
-		hClient.index(indexMiddle);
 		hClient.index(indexFirstChild);
 		hClient.index(indexSecondChild);
+
+		// First weight "+"
+		Map parentAnalyticsWeights = new HashMap();
+		ArrayList weightsArray = new ArrayList<>(1);
+
+		Map childWeight1 = new HashMap();
+		childWeight1.put(GLPTopologyBuilder.OPERATION_CHILD_ID_KEY, firstIndex);
+		childWeight1.put(GLPTopologyBuilder.OPERATION_NAME_KEY, "score");
+		childWeight1.put(GLPTopologyBuilder.OPERATION_CHILD_MULTIPLIER_KEY,
+				0.5f);
+
+		Map childWeight2 = new HashMap();
+		childWeight2
+				.put(GLPTopologyBuilder.OPERATION_CHILD_ID_KEY, secondIndex);
+		childWeight2.put(GLPTopologyBuilder.OPERATION_NAME_KEY, "score");
+		childWeight2.put(GLPTopologyBuilder.OPERATION_CHILD_MULTIPLIER_KEY,
+				0.9f);
+
+		Map firstWeight = new HashMap();
+		firstWeight.put(GLPTopologyBuilder.OPERATION_CHILDREN_KEY,
+				Arrays.asList(childWeight1, childWeight2));
+		firstWeight.put(GLPTopologyBuilder.OPERATION_KEY, "+");
+		String resultVarName = "resultAggregationValue";
+		firstWeight.put(GLPTopologyBuilder.OPERATION_NAME_KEY, resultVarName);
+
+		// Second weight "*"
+
+		Map childWeight12 = new HashMap();
+		childWeight12
+				.put(GLPTopologyBuilder.OPERATION_CHILD_ID_KEY, firstIndex);
+		childWeight12.put(GLPTopologyBuilder.OPERATION_NAME_KEY, "score");
+		childWeight12.put(GLPTopologyBuilder.OPERATION_CHILD_MULTIPLIER_KEY,
+				0.9f);
+
+		Map childWeight22 = new HashMap();
+		childWeight22.put(GLPTopologyBuilder.OPERATION_CHILD_ID_KEY,
+				secondIndex);
+		childWeight22.put(GLPTopologyBuilder.OPERATION_NAME_KEY, "score");
+		childWeight22.put(GLPTopologyBuilder.OPERATION_CHILD_MULTIPLIER_KEY,
+				0.9f);
+
+		Map secondWeight = new HashMap();
+		secondWeight.put(GLPTopologyBuilder.OPERATION_CHILDREN_KEY,
+				Arrays.asList(childWeight12, childWeight22));
+		secondWeight.put(GLPTopologyBuilder.OPERATION_KEY, "*");
+		String resultVarName2 = "resultMultAggregationValue";
+		secondWeight.put(GLPTopologyBuilder.OPERATION_NAME_KEY, resultVarName2);
+
+		weightsArray.add(firstWeight);
+		weightsArray.add(secondWeight);
+
+		parentAnalyticsWeights.put(GLPTopologyBuilder.WEIGHTS, weightsArray);
+
+		IndexRequest indexParentWeights = new IndexRequest(analyticsGLPId,
+				"analytics", "weights_" + parentIndex)
+				.source(parentAnalyticsWeights);
+		hClient.index(indexParentWeights);
 
 		// Parser that receives a local file in CSV and returns a list of Map
 		// Traces
 		CSVToMapTrace parser = new CSVToMapTrace(analyticsGLPId);
-		Map<String, Integer> res = new HashMap<>();
-		List<Map> firstChildTraces = new ArrayList<>();
-		List<Map> secondChildTraces = new ArrayList<>();
-		List<Map> parentChildTraces = new ArrayList<>();
-		List<List<Object>> tuples2 = null;
 		// Read the TEST files, parse them and Feed them to the Local Cluster
 		for (int i = 0; i < TRACES_FILES.length; ++i) {
 			String idx;
@@ -239,31 +277,7 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 				for (Object trace : tupleNestedList) {
 					Map traceMap = (Map) trace;
 					runProducer(traceMap);
-
-					if (i < 3) {
-						firstChildTraces.add(traceMap);
-					} else {
-						secondChildTraces.add(traceMap);
-					}
-					parentChildTraces.add(traceMap);
 				}
-			}
-			tuples2 = parser.getTuples("glp/" + TRACES_FILES[i] + ".csv",
-					secondIndex, 2);
-
-			Integer current = res.get(idx);
-			if (current == null) {
-				res.put(idx, parser.getCompletedSuccessfully());
-			} else {
-				res.put(idx, current + parser.getCompletedSuccessfully());
-			}
-
-			Integer currentParent = res.get(parentIndex);
-			if (currentParent == null) {
-				res.put(parentIndex, parser.getCompletedSuccessfully());
-			} else {
-				res.put(parentIndex,
-						currentParent + parser.getCompletedSuccessfully());
 			}
 		}
 
@@ -286,25 +300,18 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 		try {
 			// Wait for thr traces to be analyzed by the Topology
 			Thread.sleep(20000);
-
-			// Send second batch of traces to the Topology (kafka)
-			for (List tupleNestedList : tuples2) {
-				for (Object trace : tupleNestedList) {
-					Map traceMap = (Map) trace;
-					runProducer(traceMap);
-				}
-			}
-			// Wait for thr traces to be analyzed by the Topology
-			Thread.sleep(25000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
 		// Start querying ElasticSearch and compare the results with the
 		// expected values
-
-		Response response = client.performRequest("GET", "/" + parentIndex
-				+ "/_search?size=5000&q=*:*");
+		Response response = client.performRequest(
+				"GET",
+				"/"
+						+ ESUtils.getResultsIndex(ESUtils
+								.getRootGLPId(analyticsGLPId)) + "/results/"
+						+ "agg_" + parentIndex + "_USMK");
 		int status = response.getStatusLine().getStatusCode();
 
 		assertEquals("TEST GET error, status is" + status, status,
@@ -314,11 +321,139 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 		Map<String, Object> responseDocs = (Map) gson.fromJson(responseString,
 				Map.class);
 
+		responseDocs = (Map) responseDocs.get("_source");
+		float finalValueResult = Float.parseFloat(responseDocs.get(
+				resultVarName).toString());
+		float finalValueResult2 = Float.parseFloat(responseDocs.get(
+				resultVarName2).toString());
+
+		assertEquals("finalValueResult " + resultVarName + "is "
+				+ finalValueResult, 0.35f, finalValueResult, 0.001f);
+
+		assertEquals("finalValueResult " + resultVarName2 + "is "
+				+ finalValueResult2, 0f, finalValueResult2, 0.001f);
+
+		response = client.performRequest(
+				"GET",
+				"/"
+						+ ESUtils.getResultsIndex(ESUtils
+								.getRootGLPId(analyticsGLPId)) + "/results/"
+						+ "agg_" + firstIndex + "_USMK");
+		status = response.getStatusLine().getStatusCode();
+
+		assertEquals("TEST GET error, status is" + status, status,
+				HttpStatus.SC_OK);
+
+		responseString = EntityUtils.toString(response.getEntity());
+		responseDocs = (Map) gson.fromJson(responseString, Map.class);
+
+		responseDocs = (Map) responseDocs.get("_source");
+		finalValueResult = Float.parseFloat(responseDocs.get("score")
+				.toString());
+		assertEquals("finalValueResult (score) is " + finalValueResult, 0.7f,
+				finalValueResult, 0.001f);
+
+		response = client.performRequest("GET", "/" + parentIndex
+				+ "/_search?size=5000&q=*:*");
+		status = response.getStatusLine().getStatusCode();
+
+		assertEquals("TEST GET error, status is" + status, status,
+				HttpStatus.SC_OK);
+
+		responseString = EntityUtils.toString(response.getEntity());
+		responseDocs = (Map) gson.fromJson(responseString, Map.class);
+
 		Map hits = (Map) responseDocs.get("hits");
 
 		int total = ((Double) hits.get("total")).intValue();
 
-		assertEquals("Total traces " + parentIndex + ", current " + total, 140,
+		assertEquals("Total traces " + parentIndex + ", current " + total, 3,
 				total);
+
+		List<List<Object>> tuples = parser.getTuples("glp/" + TRACES_FILES[0]
+				+ ".csv", secondIndex, 2);
+
+		// Send second batch of traces to the Topology (kafka)
+		for (List tupleNestedList : tuples) {
+			for (Object trace : tupleNestedList) {
+				Map traceMap = (Map) trace;
+				runProducer(traceMap);
+			}
+		}
+
+		try {
+			// Wait for thr traces to be analyzed by the Topology
+			Thread.sleep(20000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		// Start querying ElasticSearch and compare the results with the
+		// expected values
+		response = client.performRequest(
+				"GET",
+				"/"
+						+ ESUtils.getResultsIndex(ESUtils
+								.getRootGLPId(analyticsGLPId)) + "/results/"
+						+ "agg_" + parentIndex + "_USMK");
+		status = response.getStatusLine().getStatusCode();
+
+		assertEquals("TEST GET error, status is" + status, status,
+				HttpStatus.SC_OK);
+
+		responseString = EntityUtils.toString(response.getEntity());
+		responseDocs = (Map) gson.fromJson(responseString, Map.class);
+
+		responseDocs = (Map) responseDocs.get("_source");
+		finalValueResult = Float.parseFloat(responseDocs.get(resultVarName)
+				.toString());
+		finalValueResult2 = Float.parseFloat(responseDocs.get(resultVarName2)
+				.toString());
+
+		assertEquals("finalValueResult " + resultVarName + "is "
+				+ finalValueResult, 0.7f * 0.5f + 0.7f * 0.9f,
+				finalValueResult, 0.001f);
+
+		assertEquals("finalValueResult " + resultVarName2 + "is "
+				+ finalValueResult2, 0.7f * 0.9f * 0.7f * 0.9f,
+				finalValueResult2, 0.001f);
+
+		response = client.performRequest(
+				"GET",
+				"/"
+						+ ESUtils.getResultsIndex(ESUtils
+								.getRootGLPId(analyticsGLPId)) + "/results/"
+						+ "agg_" + firstIndex + "_USMK");
+		status = response.getStatusLine().getStatusCode();
+
+		assertEquals("TEST GET error, status is" + status, status,
+				HttpStatus.SC_OK);
+
+		responseString = EntityUtils.toString(response.getEntity());
+		responseDocs = (Map) gson.fromJson(responseString, Map.class);
+
+		responseDocs = (Map) responseDocs.get("_source");
+		finalValueResult = Float.parseFloat(responseDocs.get("score")
+				.toString());
+		assertEquals("finalValueResult (score) is " + finalValueResult, 0.7f,
+				finalValueResult, 0.001f);
+
+		response = client.performRequest(
+				"GET",
+				"/"
+						+ ESUtils.getResultsIndex(ESUtils
+								.getRootGLPId(analyticsGLPId)) + "/results/"
+						+ "agg_" + secondIndex + "_USMK");
+		status = response.getStatusLine().getStatusCode();
+
+		assertEquals("TEST GET error, status is" + status, status,
+				HttpStatus.SC_OK);
+
+		responseString = EntityUtils.toString(response.getEntity());
+		responseDocs = (Map) gson.fromJson(responseString, Map.class);
+
+		responseDocs = (Map) responseDocs.get("_source");
+		assertEquals("finalValueResult (score) is " + finalValueResult, 0.7f,
+				Float.parseFloat(responseDocs.get("score").toString()), 0.001f);
 	}
 }

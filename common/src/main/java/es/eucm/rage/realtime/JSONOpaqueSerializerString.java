@@ -19,6 +19,26 @@ import org.apache.storm.shade.org.json.simple.JSONValue;
 import org.apache.storm.trident.state.OpaqueValue;
 import org.json.simple.JSONObject;
 
+/**
+ * Basic serializer of the OPAQUE-VALUES to keep consistency of the Storm
+ * Trident topology.
+ * 
+ * See "Opaque transactional" States and Spouts here
+ * http://storm.apache.org/releases/1.1.2/Trident-state.html
+ * 
+ * We must implement an Opaque transactional State like
+ * {@link es.eucm.rage.realtime.states.elasticsearch.EsMapState} in order to
+ * ensure that: - Every tuple is successfully processed in exactly one batch.
+ * However, it's possible for a tuple to fail to process in one batch and then
+ * succeed to process in a later batch.
+ * 
+ * This requires to store in an additional index "opaque-values-activityId"
+ * information about the current transaction:
+ * 
+ * { value = 4, // current value of our trace field prevValue = 1, // previous
+ * value of our trace field txid = 2 // TRANSACTION ID value passed by the Storm
+ * Trident Opaque Value system }
+ */
 public class JSONOpaqueSerializerString {
 	private static final class MapOpaqueValue {
 		long t;

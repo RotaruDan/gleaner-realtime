@@ -40,7 +40,7 @@ public class JsonToTrace implements Function {
 	 * Given a JSON Trace ({@link StringScheme#STRING_SCHEME_KEY} key, from
 	 * Kafka) string returns a
 	 * {@link es.eucm.rage.realtime.topologies.TopologyBuilder#TRACE_KEY} ->
-	 * Map<String, Object>
+	 * Map<String, Object>, wish is our full trace used for the analysis.
 	 * 
 	 */
 	public JsonToTrace() {

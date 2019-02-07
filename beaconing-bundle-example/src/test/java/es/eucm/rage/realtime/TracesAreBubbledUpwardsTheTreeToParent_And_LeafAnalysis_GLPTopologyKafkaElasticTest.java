@@ -254,6 +254,7 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 		Map<String, Object> conf = new HashedMap();
 		conf.put(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM, ES_HOST);
 		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);
+		conf.put(AbstractAnalysis.KAFKA_URL_FLUX_PARAM, ZOOKEEPER_URL + ":9092");
 		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
 
 		StormTopology topology = new Analysis().getTopology(conf);
@@ -295,7 +296,7 @@ public class TracesAreBubbledUpwardsTheTreeToParent_And_LeafAnalysis_GLPTopology
 
 		int total = ((Double) hits.get("total")).intValue();
 
-		assertEquals("Total traces " + parentIndex + ", current " + total, 7,
+		assertEquals("Total traces " + parentIndex + ", current " + total, 14,
 				total);
 	}
 }

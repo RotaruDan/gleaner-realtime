@@ -35,7 +35,8 @@ public class SuffixPropertyCreator implements Function {
 
 	/**
 	 * Creates a new {@link TridentTuple} depending on the value of the
-	 * valueField and the keysField provided (concatenated)
+	 * valueField and the keysField provided (directly concatenated). If suffix
+	 * is provided, it will be appended to the ending of the property.
 	 * 
 	 * @param valueField
 	 *            Extracts the value of this field from the {@link TridentTuple}

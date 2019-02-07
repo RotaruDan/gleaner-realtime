@@ -15,6 +15,13 @@
  */
 package es.eucm.rage.realtime.utils;
 
+import org.apache.http.HttpStatus;
+import org.elasticsearch.ElasticsearchStatusException;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+import org.slf4j.Logger;
+
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -24,7 +31,7 @@ public class ESUtils {
 
 	/**
 	 * @return the EslasticSearch type of the traces stored inside the
-	 *         {@link ESUtils#getTracesIndex(String)}
+	 *         {@link ESUtils#getTracesIndex(String)}.
 	 */
 	public static String getTracesType() {
 		return "traces";
@@ -32,7 +39,7 @@ public class ESUtils {
 
 	/**
 	 * @return the EslasticSearch type of the documents stored inside the
-	 *         {@link ESUtils#getResultsIndex(String)}
+	 *         {@link ESUtils#getResultsIndex(String)}.
 	 */
 	public static String getResultsType() {
 		return "results";
@@ -40,7 +47,7 @@ public class ESUtils {
 
 	/**
 	 * @return the EslasticSearch type of the documents stored inside the
-	 *         {@link ESUtils#getOpaqueValuesIndex(String)}
+	 *         {@link ESUtils#getOpaqueValuesIndex(String)}.
 	 */
 	public static String getOpaqueValuesType() {
 		return "opaquevalues";
@@ -51,7 +58,8 @@ public class ESUtils {
 	 * state per player used to display Alerts and Warnings to the teacher.
 	 * 
 	 * @param sessionId
-	 * @return
+	 *            or "activityId" is the ID value of the current activity.
+	 * @return a String such as "results-" + getTracesIndex(sessionId);
 	 */
 	public static String getResultsIndex(String sessionId) {
 		return "results-" + getTracesIndex(sessionId);
@@ -59,11 +67,11 @@ public class ESUtils {
 
 	/**
 	 * Returns the name if the ElasticSearch index used to store all the
-	 * Analytics for the current GLP
+	 * Analytics for the current GLP.
 	 * 
 	 * @param rootGlpId
 	 *            is the id of the root element of the GLP
-	 * @return
+	 * @return a String such as "analytics-" + rootGlpId
 	 */
 	public static String getAnalyticsGLPIndex(String rootGlpId) {
 		return "analytics-" + rootGlpId;
@@ -71,11 +79,12 @@ public class ESUtils {
 
 	/**
 	 * Returns the ID of the root object in the glpIndex (does the opposite of
-	 * ESUtils#getAnalyticsGLPIndex
+	 * {@link ESUtils#getAnalyticsGLPIndex(String)}
 	 * 
 	 * @param glpIndex
 	 *            is the id of the index where the analyticks tree is stored
-	 * @return
+	 * @return a String without the "analytics-" prefix, if available in the
+	 *         "glpIndex"
 	 */
 	public static String getRootGLPId(String glpIndex) {
 		String ret = glpIndex;
@@ -90,7 +99,8 @@ public class ESUtils {
 	 * traces used to display Kibana visualizations.
 	 * 
 	 * @param sessionId
-	 * @return
+	 *            or Id value of the current activity
+	 * @return The lower case of the "sessionId"
 	 */
 	public static String getTracesIndex(String sessionId) {
 		return sessionId.toLowerCase();
@@ -102,9 +112,36 @@ public class ESUtils {
 	 * Opaque API.
 	 * 
 	 * @param sessionId
-	 * @return
+	 *            or Id value of the current activity
+	 * @return A string such as "opaque-values-" + sessionId.toLowerCase();
 	 */
 	public static String getOpaqueValuesIndex(String sessionId) {
 		return "opaque-values-" + sessionId.toLowerCase();
+	}
+
+	/**
+	 * Tries to reopen the index if the exception is of type
+	 * index_closed_exception.
+	 */
+	public static void reopenIndexIfNeeded(ElasticsearchStatusException e,
+			String index, Logger LOG, RestClient _client) {
+		if (e.getDetailedMessage().contains("index_closed_exception")) {
+			LOG.error("ElasticsearchStatusException", e);
+			try {
+				Response resultResponse = _client.performRequest("POST", "/"
+						+ index + "/_open");
+				int resultStatus = resultResponse.getStatusLine()
+						.getStatusCode();
+
+				LOG.info("Opening " + resultStatus);
+
+				if (resultStatus != HttpStatus.SC_OK) {
+					LOG.error("Could not open the closed index " + index
+							+ ", status " + resultStatus);
+				}
+			} catch (IOException e1) {
+				LOG.error("Could not open the closed index ", e1);
+			}
+		}
 	}
 }

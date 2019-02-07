@@ -24,37 +24,33 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class SimplePropertyCreator implements Function {
+public class ActivityIdNameCreator implements Function {
 	private static final Logger LOGGER = Logger
-			.getLogger(SimplePropertyCreator.class.getName());
+			.getLogger(ActivityIdNameCreator.class.getName());
 
-	private String valueField;
+	private String activityIdKey;
 
-	private String key;
+	private String nameKey;
 
 	/**
 	 * Creates a new {@link TridentTuple} depending on the value of the
-	 * valueField and the key provided, directly passed (not extracted from the
-	 * tuple).
+	 * activityIdKey and the nameKey provided (concatenated with "_")
 	 * 
-	 * @param valueField
-	 *            Extracts the value of this field from the {@link TridentTuple}
-	 *            . Emitted as the second parameter of the result
-	 *            {@link TridentTuple}.
-	 * @param key
-	 *            the key emitted as the first parameter of the result
-	 *            {@link TridentTuple}.
+	 * @param activityIdKey
+	 *            to get the value of the current activity id.
+	 * @param nameKey
+	 *            to get the name value of the current user.
 	 */
-	public SimplePropertyCreator(String valueField, String key) {
-		this.valueField = valueField;
-		this.key = key;
+	public ActivityIdNameCreator(String activityIdKey, String nameKey) {
+		this.activityIdKey = activityIdKey;
+		this.nameKey = nameKey;
 	}
 
 	@Override
 	public void execute(TridentTuple tuple, TridentCollector collector) {
 		try {
-			collector
-					.emit(Arrays.asList(key, tuple.getValueByField(valueField)));
+			collector.emit(Arrays.asList(tuple.getValueByField(activityIdKey)
+					+ "_" + tuple.getValueByField(nameKey)));
 		} catch (Exception ex) {
 			LOGGER.info("Error unexpected exception, discarding "
 					+ ex.toString());

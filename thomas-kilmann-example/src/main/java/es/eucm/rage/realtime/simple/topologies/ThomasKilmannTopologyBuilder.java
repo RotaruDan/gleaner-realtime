@@ -96,10 +96,10 @@ public class ThomasKilmannTopologyBuilder implements
 				.peek(new LogConsumer("ThomasKilmannTopologyBuilder 2"))
 				.each(new Fields(TRACE_KEY),
 						new ThomasKilmannDocumentBuilder(TRACE_KEY),
-						new Fields(THOMAS_KILMANN_KEY))
+						new Fields(DOCUMENT_KEY))
 				.peek(new LogConsumer("ThomasKilmannTopologyBuilder 3"))
 				.partitionPersist(EsState.opaque(),
-						new Fields(THOMAS_KILMANN_KEY), new TraceStateUpdater());
+						new Fields(DOCUMENT_KEY), new TraceStateUpdater());
 
 	}
 

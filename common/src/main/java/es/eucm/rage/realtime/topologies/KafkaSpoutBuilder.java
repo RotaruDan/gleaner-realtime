@@ -22,6 +22,10 @@ import org.apache.storm.kafka.trident.OpaqueTridentKafkaSpout;
 import org.apache.storm.kafka.trident.TridentKafkaConfig;
 import org.apache.storm.spout.SchemeAsMultiScheme;
 
+/**
+ * Builder for the connection with Kafka through Storm Trident API. Requires the
+ * "topic" anme and the "zookeeperUrl"
+ */
 public class KafkaSpoutBuilder {
 
 	private String topic;
@@ -44,6 +48,12 @@ public class KafkaSpoutBuilder {
 		return this;
 	}
 
+	/**
+	 * Builds the connection and returns it as a Trident Spout.
+	 * 
+	 * @return a {@link OpaqueTridentKafkaSpout} with the connection to Kafka,
+	 *         receiving data from the stream.
+	 */
 	public OpaqueTridentKafkaSpout build() {
 
 		// ZooKeeper configuration for the TridentKafkaConfig

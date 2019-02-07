@@ -57,6 +57,10 @@
             <artifactId>storm-kafka</artifactId>
         </dependency>
         <dependency>
+            <groupId>uk.com.robust-it</groupId>
+            <artifactId>cloning</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>

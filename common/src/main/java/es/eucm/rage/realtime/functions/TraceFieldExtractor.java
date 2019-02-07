@@ -33,11 +33,13 @@ public class TraceFieldExtractor implements Function {
 	private String[] fields;
 
 	/**
-	 * Extracts fields from a "trace" touple
+	 * Extracts fields from a "trace" tuple. Needs
+	 * {@link TopologyBuilder#TRACE_KEY} to be sent in order to work properly.
 	 * 
 	 * @param fields
 	 *            used to extracts objects from the {@link TridentTuple} and
-	 *            emit them preserving the order.
+	 *            emit them preserving the order. (if they are separated by "."
+	 *            it will search in nested objects)
 	 */
 	public TraceFieldExtractor(String... fields) {
 		this.fields = fields;

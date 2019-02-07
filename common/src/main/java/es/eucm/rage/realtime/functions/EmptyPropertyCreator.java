@@ -24,43 +24,41 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class ValueProducer implements Function {
-	private static final Logger LOGGER = Logger.getLogger(ValueProducer.class
-			.getName());
-	public static final boolean LOG = true;
+public class EmptyPropertyCreator implements Function {
+	private static final Logger LOGGER = Logger
+			.getLogger(EmptyPropertyCreator.class.getName());
 
-	private Object value;
+	private String valueField;
 
 	/**
-	 * Filters a Trace TridentTuple depending if it is achild of the current
-	 * analytics
+	 * Creates a new {@link TridentTuple} depending on the value of the
+	 * valueField and the keys field directly provided (directly concatenated).
 	 * 
+	 * @param valueField
+	 *            Extracts the value of this field from the {@link TridentTuple}
+	 *            . Emitted as the second parameter of the result
+	 *            {@link TridentTuple}.
 	 */
-	public ValueProducer(Object value) {
-		this.value = value;
+	public EmptyPropertyCreator(String valueField) {
+		this.valueField = valueField;
 	}
 
 	@Override
-	public void execute(TridentTuple objects, TridentCollector collector) {
+	public void execute(TridentTuple tuple, TridentCollector collector) {
 		try {
-			collector.emit(Arrays.asList(value));
+			collector.emit(Arrays.asList(tuple.getValueByField(valueField)));
 		} catch (Exception ex) {
-			if (LOG) {
-				LOGGER.info("Error unexpected exception, discarding "
-						+ ex.toString());
-				ex.printStackTrace();
-			}
+			LOGGER.info("Error unexpected exception, discarding "
+					+ ex.toString());
+			ex.printStackTrace();
 		}
 	}
 
 	@Override
-	public void prepare(Map conf,
-			TridentOperationContext tridentOperationContext) {
-
+	public void prepare(Map conf, TridentOperationContext context) {
 	}
 
 	@Override
 	public void cleanup() {
-
 	}
 }

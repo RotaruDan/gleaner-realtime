@@ -15,30 +15,29 @@
  */
 package es.eucm.rage.realtime.simple.filters;
 
-import es.eucm.rage.realtime.simple.topologies.GLPTopologyBuilder;
 import es.eucm.rage.realtime.topologies.TopologyBuilder;
 import org.apache.storm.trident.operation.Filter;
 import org.apache.storm.trident.operation.TridentOperationContext;
 import org.apache.storm.trident.tuple.TridentTuple;
 
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class IsDirectChildTrace implements Filter {
-	private static final Logger LOGGER = Logger
-			.getLogger(IsDirectChildTrace.class.getName());
+public class HasGLPId implements Filter {
+	private static final Logger LOGGER = Logger.getLogger(HasGLPId.class
+			.getName());
 	public static final boolean LOG = true;
 
-	private String traceKey, analyticsKey;
+	private String traceKey;
 
 	/**
-	 * Filters trace to be coming directly from a children of current node
+	 * Filters a Trace TridentTuple to se if it has GLP_ID field.
+	 * 
+	 * 1) {@link TopologyBuilder#GLP_ID_KEY} must not be null.
 	 * 
 	 */
-	public IsDirectChildTrace(String traceKey, String analyticsKey) {
+	public HasGLPId(String traceKey) {
 		this.traceKey = traceKey;
-		this.analyticsKey = analyticsKey;
 	}
 
 	@Override
@@ -54,35 +53,18 @@ public class IsDirectChildTrace implements Filter {
 				return false;
 			}
 
-			Object analyticsObject = objects.getValueByField(analyticsKey);
-
-			if (!(analyticsObject instanceof Map)) {
-				if (LOG) {
-					LOGGER.info(analyticsKey + " field of tuple " + objects
-							+ " is not a map, found: " + analyticsObject);
-				}
-				return false;
-			}
-
 			Map traceMap = (Map) traceObject;
-			Map analyticsMap = (Map) analyticsObject;
 
-			String comesFrom = (String) traceMap
-					.get(GLPTopologyBuilder.ORIGINAL_ID);
-			List children = (List) analyticsMap
-					.get(GLPTopologyBuilder.CHILDREN);
+			Object glpId = traceMap.get(TopologyBuilder.GLP_ID_KEY);
 
-			if (!children.contains(comesFrom)) {
-				return false;
-			} else {
-				return !traceMap.get(GLPTopologyBuilder.CHILD_ACTIVITY_ID_KEY)
-						.equals(traceMap
-								.get(GLPTopologyBuilder.ACTIVITY_ID_KEY));
+			if (glpId != null) {
+				return true;
 			}
+
+			return false;
 		} catch (Exception ex) {
 			LOGGER.info("Error unexpected exception, discarding"
 					+ ex.toString());
-			ex.printStackTrace();
 			return false;
 		}
 	}

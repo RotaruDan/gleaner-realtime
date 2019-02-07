@@ -31,7 +31,7 @@ public class FieldValueFilter implements Filter {
 	private Object value;
 
 	/**
-	 * Filters a TridentTuple depending on the value of a given field
+	 * Filters a TridentTuple depending on the value of a given field.
 	 * 
 	 * @param field
 	 *            field key to extract from the {@link TridentTuple}

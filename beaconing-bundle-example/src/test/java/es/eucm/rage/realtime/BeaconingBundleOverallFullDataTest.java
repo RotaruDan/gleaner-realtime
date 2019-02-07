@@ -216,6 +216,7 @@ public class BeaconingBundleOverallFullDataTest {
 		conf.put(AbstractAnalysis.ZOOKEEPER_URL_FLUX_PARAM, ZOOKEEPER_URL);
 		conf.put(AbstractAnalysis.ELASTICSEARCH_URL_FLUX_PARAM, ES_HOST);
 		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
+		conf.put(AbstractAnalysis.KAFKA_URL_FLUX_PARAM, ZOOKEEPER_URL + ":9092");
 		// Test topology Builder configuration
 		conf.put(AbstractAnalysis.TOPIC_NAME_FLUX_PARAM, TOPIC);
 
@@ -275,7 +276,7 @@ public class BeaconingBundleOverallFullDataTest {
 		}
 
 		try {
-			Thread.sleep(60000);
+			Thread.sleep(35000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -374,39 +375,9 @@ public class BeaconingBundleOverallFullDataTest {
 
 		int totalParent = ((Double) hits.get("total")).intValue();
 
-		Response responseChild1 = client.performRequest("GET", "/" + firstIndex
-				+ "/_search?size=5000&q=*:*");
-
-		String responseStringChild1 = EntityUtils.toString(responseChild1
-				.getEntity());
-		Map<String, Object> responseDocsChild1 = (Map) gson.fromJson(
-				responseStringChild1, Map.class);
-
-		Map hitsChild1 = (Map) responseDocsChild1.get("hits");
-
-		int totalChild1 = ((Double) hitsChild1.get("total")).intValue();
-
-		Response responseChild2 = client.performRequest("GET", "/"
-				+ secondIndex + "/_search?size=5000&q=*:*");
-
-		String responseStringChild2 = EntityUtils.toString(responseChild2
-				.getEntity());
-		Map<String, Object> responseDocsChild2 = (Map) gson.fromJson(
-				responseStringChild2, Map.class);
-
-		Map hitsChild2 = (Map) responseDocsChild2.get("hits");
-
-		int totalChild2 = ((Double) hitsChild2.get("total")).intValue();
-
 		assertEquals(
 				"Total traces " + parentIndex + ", current " + totalParent,
-				totalChild1, 224);
-		assertEquals(
-				"Total traces " + parentIndex + ", current " + totalParent,
-				totalChild2, 343);
-		assertEquals(
-				"Total traces " + parentIndex + ", current " + totalParent,
-				totalParent, 605);
+				totalParent, 1777);
 	}
 
 }
